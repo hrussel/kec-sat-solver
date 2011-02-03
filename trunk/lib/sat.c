@@ -1,5 +1,20 @@
 #include "sat.h"
 
+/**
+ * The purpose of this function is to initialize a clause from an array
+ * of integers which represent the literals occurring in the aforementioned
+ * clause.
+ *
+ * Note: It may occur that lit is an array with a length larger than the
+ *       number of literals.
+ *
+ * @param cl A pointer to an unitialized clause.
+ * @param clause_length The number of literals that occur in the clause
+ *        pointed to by cl.
+ * @param lit An integer array with numbers which represent the literals
+ *        that occur in the single clause pointed to by cl.
+ *
+ */
 void set_clause(clause* cl, int clause_length, int lit[]){
     
     cl->size = clause_length;
@@ -27,15 +42,26 @@ void set_clause(clause* cl, int clause_length, int lit[]){
     }
 }
 
+/**
+ * This function allocates memory for the elements that constitute
+ * the global structure 'sat_st'.
+ *
+ */
+// Tal vez debiera llamarse allocate_SAT_status.
 void initialize_sat_status(){
+    // Allocate space for the boolean formula.
     sat_st.formula = (clause*) malloc ( sat_st.num_clauses*sizeof(clause) );
-    
-    sat_st.pos_occurrence_list = (list*) malloc( sat_st.num_vars*sizeof(list));
-    sat_st.neg_occurrence_list = (list*) malloc( sat_st.num_vars*sizeof(list));
+   
+    // Allocate space for the lists that keep track of the positive and
+    // negative occurrences of each variable in the formula.
+    sat_st.pos_occurrence_list = (list*) malloc( sat_st.num_vars*sizeof(list) );
+    sat_st.neg_occurrence_list = (list*) malloc( sat_st.num_vars*sizeof(list) );
     
     memset( sat_st.pos_occurrence_list, 0, sizeof sat_st.pos_occurrence_list);
     memset( sat_st.neg_occurrence_list, 0, sizeof sat_st.neg_occurrence_list);
-    
+
+    // Allocate space for the model: the current assignment of truth values
+    // to literals that is being studied.
     sat_st.model = (char*)malloc( sat_st.num_vars*sizeof(char) );
     memset(sat_st.model, UNKNOWN, sizeof(sat_st.model));
     
@@ -51,23 +77,30 @@ void initialize_sat_status(){
     }
 }
 
+/**
+ * This function parses a file that contains -- in DIMACS format--
+ * the boolean formula that we intend to solve. It then allocates
+ * space for the global structure sat_st and initializes its elements
+ * with the information just collected from the file.
+ *
+ * @param filename The name of the file that contains the boolean
+ *        formula (in DIMACS format) we intend to read.
+ * @see  DIMACS reference...
+ */
 void set_initial_sat_status(char filename[]){
     
     char *buffer;
     int clauses, nbytes, current_literal, clause_length;
     int *clause_buffer;
-    
     FILE * file;
     
     file = fopen (filename,"r");
-    
     if ( file == NULL ){
         printf("Error: Couldn't open file\n");
         exit(1);
     }
     
-    buffer = (char*) malloc( (BUFFERSIZE + 1)*sizeof(char) );
-    
+    buffer = (char*) malloc( (BUFFERSIZE + 1)*sizeof(char) );    
     if ( buffer == NULL ){
         printf("Error: Couldn't allocate memory\n");
         exit(1);
@@ -75,24 +108,23 @@ void set_initial_sat_status(char filename[]){
     
     nbytes = BUFFERSIZE;
     
-    // Skip comments
+    // Skip comments.
     while ( getline (&buffer, &nbytes, file) && buffer[0] == 'c');
     
-    // We read the number of variables and clauses
+    // We read the number of variables and clauses.
     sscanf( buffer, "p cnf %d%d", &sat_st.num_vars, &sat_st.num_clauses);
     
     clause_buffer = (int*) malloc( 2*sat_st.num_vars*sizeof(int) );
     
     // We allocate memory for each of sat_st's internal structures. 
-    initialize_sat_status( sat_st );
+    initialize_sat_status( sat_st ); // ¿Este parámetro no habría que quitarlo?
     
     clauses = 0;
     while ( clauses < sat_st.num_clauses ){
         
         char* l_aux;
         
-        getline (&buffer, &nbytes, file);
-        
+        getline (&buffer, &nbytes, file);        
         if (*buffer == 'c')
             continue;
         
@@ -131,7 +163,7 @@ void set_initial_sat_status(char filename[]){
             clause_length++;
         }
         // We copy the array of literals just read (clause_buffer) in the
-        // current line to a the sat_st's clause.
+        // current line to one of sat_st's clauses.
         set_clause(&sat_st.formula[clauses], clause_length, clause_buffer);
         
         clauses++;

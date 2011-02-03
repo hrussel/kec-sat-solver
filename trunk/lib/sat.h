@@ -36,8 +36,8 @@ typedef struct SAT_status{
     list *neg_occurrence_list;
     
     stack backtracking_status;
-    
-    char *model;
+    char *model;                     // The current assignment of boolean values
+                                     // to literals, that is under study.
     int status;
     
 } SAT_status;
