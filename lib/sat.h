@@ -69,13 +69,24 @@ void print_formula();
    Asignar nuevos watched literals en las clausulas en las que ella sea un
    watched literal.
  */
-int assign(variable literal);
+int assign(variable literal, char value, list* clauses_made_true);
+
+void set_newly_satisfied_clauses( list* clauses_made_true );
+
+variable* unit_propagation( list* clauses_not_made_true,
+                            variable literal );
 
 void unassign(variable literal);
 
 int decide_next_branch();
 
 int solver();
+
+int is_head_watcher( clause* clause, variable literal );
+int is_tail_watcher( clause* clause, variable literal );
+
+// Returns the value in the model for a literal.
+int current_literal_value( variable* literal );
 
 SAT_status sat_st;
 
