@@ -25,7 +25,7 @@ void set_clause(clause* cl, int clause_length, int lit[]){
     cl->head_watcher = cl->literals;
     
     /* OJO: en este punto habria que chequear que no aparezca una variable
-            varias veces, sino podriamos eliminar ocurrencias o hacer true
+            varias veces, si no podriamos eliminar ocurrencias o hacer true
             la clausula
      */
     
@@ -241,7 +241,104 @@ int solver(){
         }
     }
 }
+
 */
+
+
+/* Status:
+Si la formula es satisfecha retornar TRUE
+Si hay contradiccion retornar FALSE
+En caso contrario retornar UNKNOWN
+*/
+//int deduce(){
+//  // Take the decision_level_data at top of the stack backtracking-status
+//  // and thus obtain the newly assigned_literal.
+//  decision_level_data* dec_level_data
+//    = (decision_level_data*) top( &(sat_st.backtracking_status) );
+//  list* clauses_made_true;
+//  list* clauses_not_made_true;
+//
+//  variable newly_assigned_lit = dec_level_data->assigned_literal;
+//  // Assign this variable the value 'value'.
+//  // get value somehow....
+//  if ( value == TRUE ) {
+//    clauses_made_true     = &(sat_st.pos_occurrence_list[literal]);
+//    clauses_not_made_true = &(sat_st.neg_occurrence_list[literal]);
+//  }
+//  else {
+//    clauses_made_true     = &(sat_st.neg_occurrence_list[literal]);
+//    clauses_not_made_true = &(sat_st.pos_occurrence_list[literal]);
+//  }
+//  // El ultimo parametro al assign no tiene nada que ver con asignar, ideal
+//  // seria que no sea parametro.
+//  // assign( newly_assigned_lit, value, clauses_made_true );
+//  // unit_propagation( clauses_not_made_true, dec_level_data, literal);
+//  // ...falta el cómo retorna valores el unit_propagation..
+//}
+//
+//@ pre literal>=0
+int assign( variable literal, char value, list* clauses_made_true ) {
+  literal = abs( literal ); // Tal vez no necesario.
+  variable deduced_literal;
+
+  sat_st.model[literal] = value;
+ 
+  set_newly_satisfied_clauses( clauses_made_true );
+  
+  /// Traverse the list of clauses in which @e literal occurs negatively and
+  /// change the clauses' watchers if necessary.
+}
+
+/**
+ *    
+ * Add the newly satisfied clauses (their satisfaction is a consequence
+ * of the assignment of the @e literal) to the current
+ * decision_level_data.
+ * @param clauses_made_true 
+ *
+ */
+void set_newly_satisfied_clauses( list* clauses_made_true ) {
+  int i;
+  node* current_node = (node*) clauses_made_true->first;
+  decision_level_data* dec_level_data
+    = (decision_level_data*) top( &(sat_st.backtracking_status) );
+    
+  for ( i=0; i<clauses_made_true->size; i++ ) {
+    ((clause*)current_node->item)->satisfied = TRUE; 
+
+    queue( &(dec_level_data->satisfied_clauses), current_node->item );
+
+    current_node = current_node->next;
+  }
+}
+
+//variable* unit_propagation( list* clauses_not_made_true,
+//                            variable literal) {
+// 
+//  int i;
+//  node* current_node = (node*) clauses_not_made_true->first;
+//    
+//  for ( i=0; i<clauses_not_made_true->size; i++ ) {
+//    if ( is_head_watcher((clause*)current_node->item, literal) ) {
+//      update_watcher( (clause*) current_node->item );
+//    }
+//    else if ( is_tail_watcher((clause*)current_node->item, literal) ) {
+//
+//    }
+//
+//    current_node = current_node->next;
+//  }
+//  
+//}
+//
+
+/**
+ * Returns the value in the model for a literal.
+ *
+ */
+int current_literal_value( variable* literal ) {
+  return sat_st.model[abs(*literal)];
+}
 
 int main(int argc, char* argv[]){
     set_initial_sat_status(argv[1]);
