@@ -46,9 +46,8 @@ void set_clause(clause* cl, int clause_length, int lit[]){
  * This function allocates memory for the elements that constitute
  * the global structure 'sat_st'.
  *
- */
-// Tal vez debiera llamarse allocate_SAT_status.
-void initialize_sat_status(){
+    */
+void allocate_sat_status(){
     // Allocate space for the boolean formula.
     sat_st.formula = (clause*) malloc ( sat_st.num_clauses*sizeof(clause) );
    
@@ -117,7 +116,7 @@ void set_initial_sat_status(char filename[]){
     clause_buffer = (int*) malloc( 2*sat_st.num_vars*sizeof(int) );
     
     // We allocate memory for each of sat_st's internal structures. 
-    initialize_sat_status( sat_st ); // ¿Este parámetro no habría que quitarlo?
+    allocate_sat_status();
     
     clauses = 0;
     while ( clauses < sat_st.num_clauses ){
