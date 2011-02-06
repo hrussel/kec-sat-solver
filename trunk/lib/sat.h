@@ -11,7 +11,9 @@
 #define FALSE 0
 #define UNKNOWN -1
 
-#define CONFLICT 1
+#define DONT_CARE 0
+#define UNIT_CLAUSE 1
+#define CONFLICT 2
 
 #define BUFFERSIZE 10123
 
@@ -54,6 +56,8 @@ typedef struct decision_level_data{
 } decision_level_data;
 
 void set_initial_sat_status(char filename[]);
+
+void allocate_sat_status();
 
 void set_clause(clause* cl, int clause_length, int literals[]);
 
