@@ -276,16 +276,35 @@ En caso contrario retornar UNKNOWN
 //}
 //
 //@ pre literal>=0
-int assign( variable literal, char value, list* clauses_made_true ) {
-  literal = abs( literal ); // Tal vez no necesario.
-  variable deduced_literal;
-
-  sat_st.model[literal] = value;
- 
-  set_newly_satisfied_clauses( clauses_made_true );
-  
-  /// Traverse the list of clauses in which @e literal occurs negatively and
-  /// change the clauses' watchers if necessary.
+int assign( variable literal ) {
+    
+    variable abs_literal = abs( literal );
+    
+    list* clauses_made_true;
+    list* clauses_not_made_true;
+    
+    sat_st.model[abs_literal] = abs_literal/literal;
+    
+    if ( sat_st.model[abs_literal] == TRUE ) {
+        clauses_made_true     = &(sat_st.pos_occurrence_list[abs_literal]);
+        clauses_not_made_true = &(sat_st.neg_occurrence_list[abs_literal]);
+    }
+    else {
+        clauses_made_true     = &(sat_st.neg_occurrence_list[abs_literal]);
+        clauses_not_made_true = &(sat_st.pos_occurrence_list[abs_literal]);
+    }
+    
+    set_newly_satisfied_clauses( clauses_made_true );
+    
+    if ( clauses_not_made_true->size > 0 ) {
+        
+        return set_newly_unsatisfied_clauses( clauses_not_made_true, literal );
+    }
+    
+    return DONT_CARE;
+    
+    /// Traverse the list of clauses in which @e literal occurs negatively and
+    /// change the clauses' watchers if necessary.
 }
 
 /**
@@ -311,25 +330,65 @@ void set_newly_satisfied_clauses( list* clauses_made_true ) {
   }
 }
 
-//variable* unit_propagation( list* clauses_not_made_true,
-//                            variable literal) {
-// 
-//  int i;
-//  node* current_node = (node*) clauses_not_made_true->first;
-//    
-//  for ( i=0; i<clauses_not_made_true->size; i++ ) {
-//    if ( is_head_watcher((clause*)current_node->item, literal) ) {
-//      update_watcher( (clause*) current_node->item );
-//    }
-//    else if ( is_tail_watcher((clause*)current_node->item, literal) ) {
-//
-//    }
-//
-//    current_node = current_node->next;
-//  }
-//  
-//}
-//
+int set_newly_unsatisfied_clauses( list* clauses_not_made_true,
+                                    variable literal )
+{
+    int i;
+    node* current_node = (node*) clauses_not_made_true->first;
+    
+    decision_level_data* dec_level = 
+        (decision_level_data*) top (&sat_st.backtracking_status);
+    
+    stack unit_clauses;
+    
+    for ( i=0; i<clauses_not_made_true->size; i++ ) {
+        
+        clause* cl = (clause*)current_node->item;
+        
+        if ( cl->satisfied ){
+            continue;
+        }
+        
+        int status = DONT_CARE;
+        
+        if ( is_head_watcher(cl, literal) ) {
+            status = update_watcher( cl );
+        }
+        else if ( is_tail_watcher((clause*)current_node->item, literal) ) {
+            swap_watchers( cl );
+            status = update_watcher( cl );
+        }
+        
+        switch (status){
+            
+            case DONT_CARE:
+                break;
+            
+            case UNIT_CLAUSE:
+                
+                cl->satisfied = TRUE;
+                push(&unit_clauses, cl);
+                break;
+                
+            case CONFLICT:
+                return CONFLICT;
+                break;
+        }
+        
+        current_node = current_node->next;
+    }
+    
+    return unit_propagation( &unit_clauses);
+}
+
+int unit_propagation( stack* unit_clauses)
+{
+    
+    while ( !empty(unit_clauses ) ){
+        
+    }
+    
+}
 
 /**
  * Returns the value in the model for a literal.
