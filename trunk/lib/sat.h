@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+
 #include "list.h"
 
 #define TRUE 1
@@ -69,9 +71,8 @@ typedef struct SAT_status{
     list *neg_occurrence_list;
     
     stack backtracking_status;
-    char *model;                     // The current assignment of boolean values
-                                     // to literals, that is under study.
-    
+    int *model;                     // The current assignment of boolean values
+                                    // to literals, that is under study.
 } SAT_status;
 
 /**
@@ -117,7 +118,7 @@ void print_formula();
    Asignar nuevos watched literals en las clausulas en las que ella sea un
    watched literal.
  */
-int assign(variable literal);
+int deduce(variable literal);
 
 void set_newly_satisfied_clauses( list* clauses_made_true );
 
@@ -137,6 +138,9 @@ int is_tail_watcher( clause* clause, variable literal );
 
 // Returns the value in the model for a literal.
 int current_literal_value( variable* literal );
+
+int update_watcher( clause* head_clause );
+void swap_watchers(clause* cl );
 
 SAT_status sat_st;
 

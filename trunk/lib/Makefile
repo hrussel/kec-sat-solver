@@ -8,7 +8,7 @@ list.o: list.c list.h
 sat: sat.o list.o
 	$(CC) sat.o list.o -o sat
 sat.o: sat.c sat.h list.h
-	$(CC) -c sat.h sat.c
+	$(CC) -Wall -O3 -c sat.h sat.c
 
 clean:
 	rm -rf *.o sat
