@@ -15,7 +15,7 @@
  *        that occur in the single clause pointed to by cl.
  *
  */
-void set_clause(clause* cl, int clause_length, int lit[]){
+void set_clause( clause* cl, int clause_length, int lit[] ){
     
     cl->size = clause_length;
     
@@ -332,15 +332,43 @@ En caso contrario retornar UNKNOWN
 //}
 //
 
+/**
+ *
+ * This function receives a @e literal and performs Boolean Constrain
+ * Propagation (BCP) by calling the appropriate functions that perform Unit
+ * Clause Propagation and Pure Literal Elimination.
+ *
+ * @param literal The variable selected for assignment by the function
+ *        @e decide_next_branch.
+ * @return Returns a status that indicates how the assignment to variable
+ *        @e literal went on. It will return SATISFIED, if after assigning
+ *        @e literal a truth value and after Unit Clause propagation and
+ *        pure literal elimination has been performed, the formula was
+ *        found to be satisfied. It will return DONT_CARE(0), if after assigning
+ *        @e literal a truth value and after Unit Clause propagation and
+ *        pure literal elimination has been performed, the formula hasn't
+ *        still been satisfied and there is still no conflict, so there's the
+ *        chance that if we continue to assign some other variables we may find
+ *        the formula to be satisfied or conflicted. It will return CONFLICT(2),
+ *        if the assignment of @e literal with some value, along with the values
+ *        that were previously assigned to some variables is conflictive.
+ *        
+ */
 int deduce( variable literal ) {
-    
+    // A variable is a signed integer. If the sign is '-' the variable
+    // abs(literal) was assigned a false value. If the sign is '+', it was
+    // assigned a truth value.
     variable abs_literal = abs( literal );
     
     list* clauses_made_true;
     list* clauses_not_made_true;
     
     sat_st.model[abs_literal] = (abs_literal/literal == 1 ? TRUE : FALSE);
-    
+
+    // We discriminate between those clauses that are made true with the
+    // assignment of literal and those on which we need to investigate if 
+    // their watchers need an update (because they still aren't satisfied by the
+    // immediate assignment of the variable literal.
     if ( sat_st.model[abs_literal] == TRUE ) {
         clauses_made_true     = &(sat_st.pos_occurrence_list[abs_literal]);
         clauses_not_made_true = &(sat_st.neg_occurrence_list[abs_literal]);
@@ -350,25 +378,24 @@ int deduce( variable literal ) {
         clauses_not_made_true = &(sat_st.pos_occurrence_list[abs_literal]);
     }
     
+    // We add the clauses made true by literal's assignment to sat_st's
+    // backtracking status and set those clauses to 'SATISFIED'.
     set_newly_satisfied_clauses( clauses_made_true );
     
     if ( clauses_not_made_true->size > 0 ) {
-        
+        // Check if we need to update their watchers.
         return set_newly_unsatisfied_clauses( clauses_not_made_true, literal );
     }
     
     return DONT_CARE;
-    
-    /// Traverse the list of clauses in which @e literal occurs negatively and
-    /// change the clauses' watchers if necessary.
 }
 
 /**
  *    
  * Add the newly satisfied clauses (their satisfaction is a consequence
  * of the assignment of the @e literal) to the current
- * decision_level_data.
- * @param clauses_made_true 
+ * decision_level_data and set their status to SATISFIED.
+ * @param clauses_made_true The list of clauses that are satisfied.
  *
  */
 void set_newly_satisfied_clauses( list* clauses_made_true ) {
@@ -380,9 +407,11 @@ void set_newly_satisfied_clauses( list* clauses_made_true ) {
     
     for ( i=0; i<clauses_made_true->size; i++ ) {
         ((clause*)current_node->item)->satisfied = TRUE; 
-        
+
+        // Add the newly satisfied_clauses to the list of clauses that have been
+        // satisfied with the current decision level assignments. (We keep track
+        // of this, to ensure a correct performance of the backtrack steps.)       
         if (dec_level_data){
-            
             queue( &(dec_level_data->satisfied_clauses), current_node->item );
         }
         
@@ -390,8 +419,20 @@ void set_newly_satisfied_clauses( list* clauses_made_true ) {
     }
 }
 
+/**
+ * Traverse the list of clauses which are still not known to be satisfied or
+ * conflictive and update the clauses' watchers if necessary.
+ *    
+ * @param clauses_not_made_true A list of clauses that are yet not known to be
+ *        satisfied or conflictive.
+ * @param literal The recently assigned literal, whose assignment obligates to
+ *        check if the watchers of the clauses in which it appears need an
+ *        update. 
+ * @return Returns a a status: UNIT_CLAUSE
+ */
+
 int set_newly_unsatisfied_clauses( list* clauses_not_made_true,
-                                    variable literal )
+                                   variable literal )
 {
     int i;
     node* current_node = (node*) clauses_not_made_true->first;
@@ -400,11 +441,15 @@ int set_newly_unsatisfied_clauses( list* clauses_not_made_true,
     initialize_list(&unit_clauses);
     
     int status = DONT_CARE;
-    
+    // Iterate over all the clauses still not satisfied by literal's recent
+    // assignment asking whether literal is one of their watchers. In case
+    // literal is one of the two watchers of a clause, update it properly to
+    // ensure proper identification of unitary clauses.
     for ( i=0; i<clauses_not_made_true->size && status == DONT_CARE; i++ ) {
         
         clause* cl = (clause*)current_node->item;
-        
+        // If the clause is already satisfied we need not worry anymore for its
+        // two watchers.
         if ( cl->satisfied ){
             continue;
         }
@@ -416,29 +461,48 @@ int set_newly_unsatisfied_clauses( list* clauses_not_made_true,
             swap_watchers( cl );
             status = update_watcher( cl );
         }
-        
+
+        // We maintain a stack of unitary clauses which need further
+        // propagation. (Since they are unitary we need to properly assign their
+        // single variables). We save them for a little later.
         if (status == UNIT_CLAUSE){
+          // @Assert: cl->tail_watcher points to the single variable of the
+          // unitary clause.
             printf("clausula %d es unitaria\n", cl - sat_st.formula);
-            push(&unit_clauses, cl);
+            push( &unit_clauses, cl );
             status = DONT_CARE;
         }
         
         current_node = current_node->next;
     }
     
+    //@Assert: status== CONFLICT || status == DONT_CARE.
     if (status == DONT_CARE){
-        return unit_propagation( &unit_clauses);
+        return unit_propagation( &unit_clauses );
     } else {
+        //@Assert: status == CONFLICT.
         printf("cambio de estado a %d\n", status);
-        while(!empty(&unit_clauses)){
-            pop(&unit_clauses);
+        while( !empty(&unit_clauses) ){
+            pop( &unit_clauses );
         }
         
         return status;
     }
 }
 
-int unit_propagation( stack* unit_clauses)
+/**
+ * This function receives a stack of unitary clauses whose single variables need
+ * to be properly assigned and propagated.
+ *    
+ * @param unit_clauses A stack of unitary clauses whose single variables need to
+ *        be properly assigned and propagated.
+ * @return UNIT_CLAUSE(1) If the clause head_clause is unitary.
+ *         CONFLICT(2)    If the clause is conflictive with the current model.
+ *         DONT_CARE(0)   Neither of the previous two alternatives.
+ * @pre unit_clauses != NULL;
+ */
+
+int unit_propagation( stack* unit_clauses )
 {
     
     int status = DONT_CARE;
@@ -448,11 +512,14 @@ int unit_propagation( stack* unit_clauses)
     while( !empty(unit_clauses ) && status == DONT_CARE){
         
         clause* cl = (clause*)top(unit_clauses);
-        
+        // We need to keep track of the variables that were propagated, to
+        // ensure the correctness of the backtracking procedure.
         if ( dec_level_data ){
             queue( &(dec_level_data->propagated_var), cl->tail_watcher );
         }
         
+        // Propagate the single variable in each the unitary clause. The
+        // tail_watcher points to its single variable.
         status = deduce( *cl->tail_watcher );
         
         pop(unit_clauses);
@@ -466,26 +533,70 @@ int unit_propagation( stack* unit_clauses)
 }
 
 /**
- * Returns the value in the model for a literal.
- *
+ * Returns the value in the model for a literal. If this literal hasn't still
+ * been assigned it returns UNKNOWN(-1).
+ * @param literal A pointer to the variable about which we would like to know
+ *        its value.
+ * @return TRUE(1)     if the value has been assigned TRUE.
+ *         FALSE(0)    if the value has been assigned FALSE.
+ *         UNKNOWN(-1) if the value has not been assigned.
  */
 int current_literal_value( variable* literal ) {
   return sat_st.model[abs(*literal)];
 }
 
-int is_head_watcher(clause* cl, variable literal){
+/**
+ * 
+ * @param cl A pointer to a clause.
+ * @param literal A variable.
+ * @return TRUE(1)     if the variable @e literal is the head watcher of @e cl.
+ *         FALSE(0)    if the variable @e literal isnt' the head watcher of @e
+ *                     cl. 
+ */
+
+int is_head_watcher( clause* cl, variable literal ){
     return abs(*(cl->head_watcher)) == abs(literal);
 }
 
-int is_tail_watcher(clause* cl, variable literal){
+/**
+ * 
+ * @param cl A pointer to a clause.
+ * @param literal A variable.
+ * @return TRUE(1)     if the variable @e literal is the tail watcher of @e cl.
+ *         FALSE(0)    if the variable @e literal isnt' the tail watcher of @e 
+ *                     cl.
+ */
+
+int is_tail_watcher( clause* cl, variable literal ){
     return abs(*(cl->tail_watcher)) == abs(literal);
 }
 
-void swap_watchers(clause* cl ){
+/**
+ * This functions swaps the head_watcher and the tail_watcher of the clause cl.
+ *
+ * @param cl A clause parameter
+ * @pre cl != NULL;
+ *
+ */
+void swap_watchers( clause* cl ){
     variable* tmp = cl->head_watcher;
     cl->head_watcher = cl->tail_watcher;
     cl->tail_watcher = tmp;
 }
+
+/**
+ * Given a clause and a freshly recently assigned variable occurring in the
+ * aforementioned clause that is being pointed to by the head_watcher, searches
+ * for some other unassigned literal to be the new head_watcher. 
+ * This method determines if a clause a unitary clause or a conflictive clause.
+ *
+ * @param head_clause
+ * @return UNIT_CLAUSE(1) If the clause head_clause is unitary.
+ *         CONFLICT(2)    If the clause is conflictive with the current model.
+ *         DONT_CARE(0)   Neither of the previous two alternatives.
+ * @pre head_clause != NULL && head_clause->satisfied != TRUE;
+ *
+ */
 
 int update_watcher( clause* head_clause ) {
     
@@ -496,17 +607,22 @@ int update_watcher( clause* head_clause ) {
                                   *head_clause->tail_watcher);
     
     variable current_literal;
-    
-    int exists_free_literal = FALSE;
-    
+    // This variable will indicate if in the clause @head_clause there's an
+    // unassigned literal.
+    int exists_free_literal = FALSE;    
     {
         int i;
+        // Iterate over the clause head_clause searching for an unassigned
+        // literal not pointed to by the tail_watcher. If it finds one such
+        // unassigned literal, make the head_watcher point to it.
         for ( i=0; i < head_clause->size; i++ ){
             current_literal = abs( head_clause->literals[i] );
             
             if ( sat_st.model[current_literal] == UNKNOWN
                 && head_clause->tail_watcher != head_clause->literals + i )
             {
+                // @Assert: There's an unassigned literal not pointed to by the
+                // tail_watcher.
                 head_clause->head_watcher = (head_clause->literals) + i;
                 exists_free_literal = TRUE;
                 break;
@@ -518,20 +634,22 @@ int update_watcher( clause* head_clause ) {
                          *head_clause->tail_watcher);
     
     if ( !exists_free_literal ) {
-        
-        // The only literal not set to 0 in the clause is the other
-        // watcher.
-        // This clause is a unit clause.
+        // @Assert: Either all literals are assigned or the only unassigned
+        // literal is pointed to by the tail_watcher.
+
         // assign( *(head_clause->tail_watcher), TRUE );
         
         if ( current_literal_value(head_clause->tail_watcher) == UNKNOWN ) {
-            // This clause is not satisfiable.
+          // @Assert: This clause is a unit clause.
             return UNIT_CLAUSE;
         }
-        
+        // @Assert: This clause is not satisfiable. The literal pointed to by
+        // the tail_watcher is already assigned and evaluates to False. 
+        // We require here that head_clause->satisfied != TRUE.
         return CONFLICT;
     }
-    
+    // @ Assert: We found an unassigned literal distinct not pointed to by the
+    // tail_watcher. 
     return DONT_CARE;
 }
 
