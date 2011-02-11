@@ -331,8 +331,9 @@ int solve_sat(){
 
         //Make the assignment of the literal that appeared on top
         //of the stack
-        printf("deducing: %d...result: ",top_el->assigned_literal);
+        printf("solve_sat: deducing -> %d\n",top_el->assigned_literal);
         int assignment_result = deduce(top_el->assigned_literal);
+        printf("solve_sat: result of %d -> ",top_el->assigned_literal);
 
         //If the result is UNKNOWN, continue the recursion (iteratively)
         if( assignment_result == DONT_CARE ){
