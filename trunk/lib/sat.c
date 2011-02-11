@@ -276,7 +276,6 @@ int decide_next_branch(){
 
     //Initialize the lists
     dec_lev_dat->propagated_var = *(new_list()); 
-    dec_lev_dat->satisfied_clauses = *(new_list()); 
 
     //Choose the next unassigned variable. TODO do this more efficient!
 
@@ -480,7 +479,8 @@ int set_newly_watchers( list* clauses_affected, variable literal )
     
     while( !empty(clauses_affected) && status == DONT_CARE ) {
         
-        clause* cl = ((node*) clauses_affected->first)->item;
+        clause* cl = (clause*)top(clauses_affected);
+        pop(clauses_affected);
         
         if ( is_head_watcher(cl, literal) ) {
             status = update_watcher( cl );
@@ -496,13 +496,12 @@ int set_newly_watchers( list* clauses_affected, variable literal )
         if (status == UNIT_CLAUSE){
           // @Assert: cl->tail_watcher points to the single variable of the
           // unitary clause.
-            printf("clausula %d es unitaria\n", cl - sat_st.formula);
             push( &unit_clauses, cl );
             status = DONT_CARE;
         } else {
             add_to_watched_list(*cl->head_watcher, cl);
         }
-        pop(clauses_affected);
+        
     }
     
     //@Assert: status== CONFLICT || status == DONT_CARE.
@@ -647,12 +646,6 @@ int is_satisfied( variable v ){
 
 int update_watcher( clause* head_clause ) {
     
-    printf("%d\n", *head_clause->head_watcher);
-    printf("%d\n", *head_clause->tail_watcher);
-    printf("clause %d (%d,%d) ->", head_clause - sat_st.formula,
-                                  *head_clause->head_watcher,
-                                  *head_clause->tail_watcher);
-    
     if ( is_satisfied( *head_clause->head_watcher ) 
            || is_satisfied( *head_clause->tail_watcher ) )
     {
@@ -687,9 +680,6 @@ int update_watcher( clause* head_clause ) {
             }
         }
     }
-    
-    printf(" (%d,%d)\n", *head_clause->head_watcher,
-                         *head_clause->tail_watcher);
     
     if ( !exists_free_literal ) {
         // @Assert: Either all literals are assigned or the only unassigned
