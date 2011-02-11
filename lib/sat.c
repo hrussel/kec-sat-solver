@@ -312,13 +312,13 @@ int solve_sat(){
 
     //The algorithm is an iterative backtracking.
 
-    while ( TRUE ){
+    //Decide next branch, and push it as a
+    //decision_level_data structure in the
+    //backtracking_status variable of the global
+    //sat_st variable.
+    decide_next_branch();
 
-        //Decide next branch, and push it as a
-        //decision_level_data structure in the
-        //backtracking_status variable of the global
-        //sat_st variable.
-        decide_next_branch();
+    while ( TRUE ){
 
         //Check the top variable in the stack, if the
         //stack is empty, then all possible assignments were tryed
@@ -338,6 +338,7 @@ int solve_sat(){
         //If the result is UNKNOWN, continue the recursion (iteratively)
         if( assignment_result == DONT_CARE ){
             printf("dont care\n");
+            decide_next_branch();
             continue;
         }
     
@@ -379,6 +380,7 @@ int solve_sat(){
                     //Destroy the structure and continue
                     //the search for a variable that can be flipped
                     free_decision_level_data(top_el);
+                    pop(&sat_st.backtracking_status);
                 }
 
             } while( !empty(&sat_st.backtracking_status) );
