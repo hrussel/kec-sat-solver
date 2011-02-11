@@ -44,7 +44,6 @@ typedef struct clause{
     variable* head_watcher;
     variable* tail_watcher;
     variable* literals;
-    int satisfied;
 } clause;
 
 /**
@@ -102,7 +101,6 @@ typedef struct decision_level_data{
     int missing_branch;             
                                    
     list propagated_var;
-    list satisfied_clauses;
     
 } decision_level_data;
 
