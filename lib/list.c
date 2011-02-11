@@ -1,5 +1,11 @@
 #include "list.h"
 
+list* new_list(){
+    list *nl = (list*)malloc(sizeof(list));
+    initialize_list(nl);
+    return nl;
+}
+
 void initialize_list(list* l){
     l->first = l->last = NULL;
     l->size = 0;

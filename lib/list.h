@@ -19,6 +19,8 @@ typedef struct list_{
     int size;
 } list;
 
+list* new_list();
+
 void initialize_list(list* l);
 
 void push(list* l, void* item);
