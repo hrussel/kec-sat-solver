@@ -72,16 +72,6 @@ void set_clause( clause* cl, int clause_length, int lit[] ){
 void allocate_sat_status(){
     // Allocate space for the boolean formula.
     sat_st.formula = (clause*) malloc ( sat_st.num_clauses*sizeof(clause) );
-   
-    // Allocate space for the lists that keep track of the positive and
-    // negative occurrences of each variable in the formula.
-    sat_st.pos_occurrence_list =
-        (list*) malloc( (sat_st.num_vars+1)*sizeof(list) );
-    sat_st.neg_occurrence_list =
-        (list*) malloc( (sat_st.num_vars+1)*sizeof(list) );
-    
-    memset( sat_st.pos_occurrence_list, 0, (sat_st.num_vars + 1)*sizeof(list));
-    memset( sat_st.neg_occurrence_list, 0, (sat_st.num_vars + 1)*sizeof(list));
     
     sat_st.pos_watched_list =
         (list*) malloc( (sat_st.num_vars+1)*sizeof(list) );
@@ -97,8 +87,8 @@ void allocate_sat_status(){
     memset(sat_st.model, -1, (sat_st.num_vars+1)*sizeof(int));
     
     if (   sat_st.formula 
-        && sat_st.pos_occurrence_list
-        && sat_st.neg_occurrence_list
+        && sat_st.pos_watched_list
+        && sat_st.neg_watched_list
         && sat_st.model
             == FALSE
         )
@@ -231,60 +221,38 @@ void print_formula(){
     int clause = 0;
     int literal;
     
-    clause = 0;
-    while (clause < sat_st.num_clauses){
-        printf("%d ", sat_st.formula[clause].satisfied);
-        clause++;
-    }
-    printf("\n");
-    
-    literal = 1;
-    while(literal <= sat_st.num_vars){
-        printf("(%d:%d) ", literal, sat_st.model[literal]);
-        literal++;
-    }
-    printf("\n");
-    
     literal = 0;
     clause = 0;
     while (clause < sat_st.num_clauses){
         
-        if ( !sat_st.formula[clause].satisfied ){
+        int satisfied = FALSE;
+        
+        {
+            int k;
+            for (k=0; k<sat_st.formula[clause].size && !satisfied; k++){
+                satisfied = is_satisfied(sat_st.formula[clause].literals[k]);
+            }
+        }
+        
+        printf("    (%d)", clause);
+        
+        if ( !satisfied ){
             
             literal = 0;
-            int first = 1;
             
             while (literal < sat_st.formula[clause].size){
                 
                 int variable = sat_st.formula[clause].literals[literal];
                 int abs_variable = abs(variable);
                 
-                if ( sat_st.model[abs_variable] != UNKNOWN )
+                if ( sat_st.model[abs_variable] == UNKNOWN )
                 {
-                    if (( sat_st.model[abs_variable] == TRUE
-                            && variable < 0)
-                            || ( sat_st.model[abs_variable] == FALSE
-                                 && variable > 0)
-                        )
-                    {
-                        literal++;
-                        continue;
-                    }
+                    printf(" %d", sat_st.formula[clause].literals[literal]);
                 }
-                
-                if (!first){
-                    printf(" ");
-                }
-                first = 0;
-                
-                printf("%d", sat_st.formula[clause].literals[literal]);
-                        
                 literal++;
             }
-            
-            printf("\n");
-            
         }
+        printf("\n");
         
         clause++;
     }
@@ -456,38 +424,6 @@ void undo_assignments(decision_level_data *dec_lev_dat){
     }
 
 }
-
-/* Status:
-Si la formula es satisfecha retornar TRUE
-Si hay contradiccion retornar FALSE
-En caso contrario retornar UNKNOWN
-*/
-//int deduce(){
-//  // Take the decision_level_data at top of the stack backtracking-status
-//  // and thus obtain the newly assigned_literal.
-//  decision_level_data* dec_level_data
-//    = (decision_level_data*) top( &(sat_st.backtracking_status) );
-//  list* clauses_made_true;
-//  list* clauses_not_made_true;
-//
-//  variable newly_assigned_lit = dec_level_data->assigned_literal;
-//  // Assign this variable the value 'value'.
-//  // get value somehow....
-//  if ( value == TRUE ) {
-//    clauses_made_true     = &(sat_st.pos_occurrence_list[literal]);
-//    clauses_not_made_true = &(sat_st.neg_occurrence_list[literal]);
-//  }
-//  else {
-//    clauses_made_true     = &(sat_st.neg_occurrence_list[literal]);
-//    clauses_not_made_true = &(sat_st.pos_occurrence_list[literal]);
-//  }
-//  // El ultimo parametro al assign no tiene nada que ver con asignar, ideal
-//  // seria que no sea parametro.
-//  // assign( newly_assigned_lit, value, clauses_made_true );
-//  // unit_propagation( clauses_not_made_true, dec_level_data, literal);
-//  // ...falta el cómo retorna valores el unit_propagation..
-//}
-//
 
 /**
  *
@@ -776,38 +712,42 @@ int update_watcher( clause* head_clause ) {
     return DONT_CARE;
 }
 
+void print_status(){
+    printf("Assignment:\n");
+    
+    int i;
+    for (i=1; i<=sat_st.num_vars; i++){
+        printf("    (%d, %d)\n", i, sat_st.model[i]);
+    }
+    printf("\n");
+    
+    printf("Watchers:\n");
+    for (i=0; i<sat_st.num_clauses; i++){
+        printf("    (%d) (%d, %d)\n", i, *(sat_st.formula[i].head_watcher),
+                                      *(sat_st.formula[i].tail_watcher));
+    }
+    printf("\n");
+    
+    printf("Formula:\n");
+    print_formula();
+    
+    printf("---------------------------------------------------------------\n");
+}
 
 int main(int argc, char* argv[]){
     set_initial_sat_status(argv[1]);
     
-    /* BUEN EJEMPLO PARA cnf_small.cnf
+    print_status();
     
-    print_formula();
-    printf("\nasignar: -1\n");
-    assign(-1);
+    deduce(5);
+    print_status();
     
-    print_formula();
-    printf("\n");
+    deduce(-1);
+    print_status();
     
-    */
+    deduce(2);
+    print_status();
     
-    print_formula();
-    
-    //int status = deduce(725);
-    int status = solve_sat();
-    
-    print_formula();
-    printf("\n");
-    printf("%d\n", status);
-    
-    /*
-    printf("\nasignar: 1\n");
-    assign(1);
-    print_formula();
-    printf("\nasignar: -4\n");
-    assign(-4);
-    print_formula();
-    */
     return 0;
 }
 

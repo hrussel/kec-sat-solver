@@ -72,9 +72,6 @@ typedef struct SAT_status{
     int num_clauses;
     clause *formula;
     
-    list *pos_occurrence_list; //Not necessary
-    list *neg_occurrence_list; //Not necessary
-    
     list *pos_watched_list;
     list *neg_watched_list;
     
@@ -166,6 +163,10 @@ int update_watcher( clause* head_clause );
 void swap_watchers(clause* cl );
 
 void add_to_watched_list(variable v, clause* cl);
+
+int is_satisfied( variable v );
+
+void print_status();
 
 SAT_status sat_st;
 
