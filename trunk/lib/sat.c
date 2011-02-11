@@ -1,5 +1,11 @@
 #include "sat.h"
 
+void free_decision_level_data(decision_level_data* dld){
+    //free_list(dld->propagated_var);
+    //free_list(dld->satisfied_clauses);
+    free(dld);
+}
+
 /**
  * The purpose of this function is to initialize a clause from an array
  * of integers which represent the literals occurring in the aforementioned
@@ -249,56 +255,167 @@ void print_formula(){
     }
 }
 
-/*
+
+/**
+  Choose a next variable, push the info in the backtracking_status
+  stack. MAke sure that if the stack is empty is because it's
+  the first assignment (else you'll get an infinite loop in the solver).
+
+  This next branch things takes care of flippings! And also
+  backtracking-stuff due to this flippings!
+
+  Return TRUE or FALSE if there where more variables to assign
+ */
 int decide_next_branch(){
-    if ( empty(backtracking_status) ){
-        // La asignacion es 1
-    } else {
-        if ( top(backtracking_status).missing_branch == 1){
-            La asignacion es voltear la variable
-        } else {
-            La asignacion es la siguiente variable no asignada
-        }
+    //Create the structure that will be pushed
+    decision_level_data *dec_lev_dat =
+        (decision_level_data*)malloc(sizeof(decision_level_data));
+
+    //Initialize the lists
+    dec_lev_dat->propagated_var = *(new_list()); 
+    dec_lev_dat->satisfied_clauses = *(new_list()); 
+
+    //Choose the next unassigned variable. TODO do this more efficient!
+
+    variable free_variable=1;
+    while(  free_variable <= sat_st.num_vars &&
+            sat_st.model[free_variable] != UNKNOWN
+        ){
+            free_variable++;
     }
+
+    //If there are no more variables to assign, report an error
+    if( free_variable > sat_st.num_vars ){
+        push((&sat_st.backtracking_status), (void*)NULL);
+        fprintf(stderr,"ERROR! Trying to assign a new variable, but no");
+        fprintf(stderr," free variables are available!\n",sat_st.num_vars);
+        exit(1);
+    }
+    dec_lev_dat->assigned_literal = free_variable;
+    dec_lev_dat->missing_branch = TRUE;
+
+    //Push the structure in the stack
+    push((&sat_st.backtracking_status), dec_lev_dat);
 }
 
-int solver(){
+
+/**
+ * This function tryes to solve the sat_instance that is stored
+ * in the global variable sat_st.
+ *
+ * @return   SATISFIABLE if an assignment to the SAT variables is
+ *           found that satisfies the formula. Otherwise, UNSATISFIABLE.
+ */
+int solve_sat(){
     
-    sat_st.status = preprocess();
-    
-    if ( sat_st.status != UNKNOWN){
-        return sat_st.status;
-    }
-    
+    //TODO make a preprocess
+
+    //The algorithm is an iterative backtracking.
+
     while ( TRUE ){
-        sat_st.status = decide_next_branch();
-        
-        <-- OJO --> al hacer la asignacion se hace automaticamente la deduccion
-                    NO ES NECESARIO EL CICLO, SOLO VERIFICAR EL RESULTADO DE LA
-                    ASIGNACION
-        
-        while ( TRUE ){
-            sat_st.status = deduce();
-            if ( sat_st.status == CONFLICT ){
-                int blevel = analyze_conflict();
-                if (blevel == 0){
-                    return UNSATISFIABLE;
-                } else {
-                    while ( backtracking_status.size() != blevel ){
-                        // Hacer pop y deshacer cambios
-                    }
-                }
-            } else if (sat_st.status == SATISFIABLE){
-                return SATISFIABLE;
-            } else {
-                break;
-            }
+
+        //Decide next branch, and push it as a
+        //decision_level_data structure in the
+        //backtracking_status variable of the global
+        //sat_st variable.
+        decide_next_branch();
+
+        //Check the top variable in the stack, if the
+        //stack is empty, then all possible assignments were tryed
+        //and the formula is UNSATISFIABLE
+        if( empty(&sat_st.backtracking_status) )
+            return UNSATISFIABLE;
+
+        decision_level_data *top_el =
+            (decision_level_data*) top(&sat_st.backtracking_status);
+
+        //Make the assignment of the literal that appeared on top
+        //of the stack
+        printf("deducing: %d...result: ",top_el->assigned_literal);
+        int assignment_result = deduce(top_el->assigned_literal);
+
+        //If the result is UNKNOWN, continue the recursion (iteratively)
+        if( assignment_result == DONT_CARE ){
+            printf("dont care\n");
+            continue;
         }
+    
+        //If the assignment satisfied the formula, return a positive
+        //answer and finish the funtion
+        else if( assignment_result == UNIT_CLAUSE ){  //TODO this should be SATISFIED
+            printf("SATISFIED!\n");
+            return SATISFIABLE;
+        }
+        //If the assignment made the formula FALSE, then backtrack until
+        //a variable that can be flipped is found.
+        else if( assignment_result == CONFLICT ){ 
+            printf("CONFLICT!\n");
+
+            decision_level_data *top_el = NULL;
+
+            do {
+
+                top_el = (decision_level_data*) 
+                    top(&sat_st.backtracking_status);
+
+                //Undo the assignments made in the
+                //decision level
+                undo_assignments(top_el);
+
+                if( top_el->missing_branch == TRUE ){
+                    //If the opposite branch has not been tryed,
+                    //then flip the assignment and continue the
+                    //recursion (iteratively)
+
+                    //Flip the value
+                    top_el->assigned_literal =
+                        - top_el->assigned_literal; 
+
+                    top_el->missing_branch = FALSE;
+                    break;
+
+                } else {
+                    //Destroy the structure and continue
+                    //the search for a variable that can be flipped
+                    free_decision_level_data(top_el);
+                }
+
+            } while( !empty(&sat_st.backtracking_status) );
+            
+            //If the stack got empty, then no backtracking was
+            //possible, hence, the formula is UNSATISFIABLE
+            if( empty(&sat_st.backtracking_status) )
+                return UNSATISFIABLE;
+        }
+
     }
+
 }
 
-*/
+void undo_assignments(decision_level_data *dec_lev_dat){
+    //First, unset the assigned variable in the
+    //given decision level
+    variable assigned_var = abs(dec_lev_dat->assigned_literal);
 
+    sat_st.model[ assigned_var ] = UNKNOWN;
+    printf("Undoing variable: %d\n",assigned_var);
+
+    //Similarly, unset the assignments for the propageted
+    //literals
+    while( !empty(&dec_lev_dat->propagated_var) ){
+
+        variable *watcher =
+            (variable*)top(&dec_lev_dat->propagated_var);
+
+        assigned_var = abs(*watcher);
+        sat_st.model[ assigned_var ] = UNKNOWN;
+        printf("Undoing variable: %d\n",assigned_var);
+
+        pop(&dec_lev_dat->propagated_var);
+
+    }
+
+}
 
 /* Status:
 Si la formula es satisfecha retornar TRUE
@@ -430,7 +547,6 @@ void set_newly_satisfied_clauses( list* clauses_made_true ) {
  *        update. 
  * @return Returns a a status: UNIT_CLAUSE
  */
-
 int set_newly_unsatisfied_clauses( list* clauses_not_made_true,
                                    variable literal )
 {
@@ -672,7 +788,8 @@ int main(int argc, char* argv[]){
     
     print_formula();
     
-    int status = deduce(725);
+    //int status = deduce(725);
+    int status = solve_sat();
     
     print_formula();
     printf("\n");
