@@ -75,6 +75,9 @@ typedef struct SAT_status{
     list *pos_occurrence_list; //Not necessary
     list *neg_occurrence_list; //Not necessary
     
+    list *pos_watched_list;
+    list *neg_watched_list;
+    
     stack backtracking_status;
     int *model;                     // The current assignment of boolean values
                                     // to literals, that is under study.
@@ -133,11 +136,8 @@ void print_formula();
  */
 int deduce(variable literal);
 
-void set_newly_satisfied_clauses( list* clauses_made_true );
+int set_newly_watchers( list* clauses_affected, variable literal );
 
-int set_newly_unsatisfied_clauses( list* clauses_not_made_true,
-                                    variable literal );
-                                    
 int unit_propagation( stack* clauses_not_made_true);
 
 void unassign(variable literal);
@@ -164,6 +164,8 @@ int current_literal_value( variable* literal );
 
 int update_watcher( clause* head_clause );
 void swap_watchers(clause* cl );
+
+void add_to_watched_list(variable v, clause* cl);
 
 SAT_status sat_st;
 
