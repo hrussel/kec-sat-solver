@@ -463,7 +463,6 @@ int deduce( variable literal ) {
         clauses_affected = &(sat_st.pos_watched_list[abs_literal]);
     }
     
-    
     if ( clauses_affected->size > 0 ) {
         return set_newly_watchers( clauses_affected, literal );        
     }
@@ -501,9 +500,9 @@ int set_newly_watchers( list* clauses_affected, variable literal )
             push( &unit_clauses, cl );
             status = DONT_CARE;
         } else {
-            pop(clauses_affected);
             add_to_watched_list(*cl->head_watcher, cl);
         }
+        pop(clauses_affected);
     }
     
     //@Assert: status== CONFLICT || status == DONT_CARE.
@@ -739,13 +738,7 @@ int main(int argc, char* argv[]){
     
     print_status();
     
-    deduce(5);
-    print_status();
-    
-    deduce(-1);
-    print_status();
-    
-    deduce(2);
+    deduce(-2);
     print_status();
     
     return 0;
