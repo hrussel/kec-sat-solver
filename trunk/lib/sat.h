@@ -171,6 +171,10 @@ void print_status();
 
 int preprocess();
 
+int solve_sat();
+
+void print_sol(int status, char filename[]);
+
 SAT_status sat_st;
 
 #endif
