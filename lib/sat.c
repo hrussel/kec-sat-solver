@@ -353,7 +353,7 @@ int solve_sat(){
         printf("solve_sat: deducing -> %d\n",top_el->assigned_literal);
         int assignment_result = deduce(top_el->assigned_literal);
         printf("solve_sat: result of %d -> ",top_el->assigned_literal);
-
+        
         //If the result is UNKNOWN, continue the recursion (iteratively)
         if( assignment_result == DONT_CARE ){
             printf("dont care\n");
@@ -541,9 +541,11 @@ int set_newly_watchers( list* clauses_affected, variable literal )
     }
     
     //@Assert: status== CONFLICT || status == DONT_CARE.
+    
     if (status == DONT_CARE){
         return unit_propagation( &unit_clauses );
     } else {
+        
         //@Assert: status == CONFLICT.
         
         while( !empty(&unit_clauses) ){
@@ -702,7 +704,8 @@ int update_watcher( clause* clause ) {
     
     // This variable will indicate if in the clause @head_clause there's an
     // unassigned literal.
-    int exists_free_literal = FALSE;    
+    int exists_free_literal = FALSE;  
+    
     {
         int i;
         // Iterate over the clause head_clause searching for an unassigned
@@ -712,8 +715,7 @@ int update_watcher( clause* clause ) {
             current_literal = abs( clause->literals[i] );
             
             if ( (sat_st.model[current_literal] == UNKNOWN
-                    ||
-                    is_satisfied(clause->literals[i]))
+                    || is_satisfied(clause->literals[i]))
                 && clause->tail_watcher != clause->literals + i )
             {
                 // @Assert: There's an unassigned literal not pointed to by the
