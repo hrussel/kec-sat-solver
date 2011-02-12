@@ -1,6 +1,8 @@
 \documentclass[12pt,lettersize]{article}
 \usepackage[spanish]{babel}
 \usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{listings}
 \lstset{
   language=C,
@@ -56,14 +58,16 @@ general de las instancias al problema y de la pregunta:
 \vspace{-2.5mm}
 \begin{enumerate}
 \item la forma general de las instancias: Dados un conjunto finito de variables
-booleanas $x_1,x_2,\ldots,x_n$ y una fórmula booleana
-$F(x_1,x_2,\ldots,x_n)$ en forma normal
-conjuntiva (CNF).
-\item la pregunta cuya respuesta se quiere determinar: ¿existe una asignación de valores de verdad a las
-variables $x_1,\ldots, x_n$ tal que la fórmula sea verdad?
+  booleanas $x_1,x_2,\ldots,x_n$ y una fórmula booleana $F(x_1,x_2,\ldots,x_n)$
+  en forma normal conjuntiva (CNF).
+\item la pregunta cuya respuesta se quiere determinar: ¿existe una asignación de
+  valores de verdad a las variables $x_1,\ldots, x_n$ tal que la fórmula sea
+  verdad?
 \end{enumerate}
 
 \section{Diseño}
+
+\subsection{Fase de selección de variables a asignar}
 
 \subsection{Fase de Deducción}
 
@@ -71,9 +75,36 @@ variables $x_1,\ldots, x_n$ tal que la fórmula sea verdad?
 
 \subsubsection{Eliminación de literales puros}
 
+
 \section{Detalles de implementación}
 
+El proceso
 
+La implementación de la propagación de cláusulas unitarias con 2 testigos por
+cláusula (\cite{} los llama \emph{2-watched literals}) empleada por
+\emph{zChaff} asocia a cada literal $x_i, i\in{1,\ldots,n}$ un par de listas, la
+primera de ellas tiene como elementos a todas las cláusulas en las que la el
+literal $x_i$ ocurre no negado (polaridad positiva) como testigo o \emph{watched
+  literal}. La segunda lista asociada a $x_i$ tiene como elementos a todas las
+cláusulas en las que el literal $\overline{x_i}$ ocurre como testigo o
+\emph{watched literal}. 
+
+En la implementación que aquí se describe, se optó por por los campos {\tt
+  pos\_watched\_list} y {\tt neg\_watched\_list} en el tipo {\tt
+  SAT\_status}. Cada uno de éstos es un arreglo de cabezas de listas, de forma
+que {\tt pos\_watched\_list[i]} sea la cabeza de la lista cuyos elementos son
+las cláusulas en las que el literal $x_i$ ocurre como
+\emph{watcher}. Análogamente ocurre con {\tt neg\_watched\_list[i]}.
+
+El campo {\tt model} del tipo {\tt SAT\_status} es un arreglo de enteros tal que
+{\tt model[i]} es el valor de asignación que se prueba para la variable
+$x_i$. El {\tt model} indica cuál nodo de la arborescencia del
+\emph{backtracking} se está considerando en un determinado instante de la
+ejecución\footnote{Véase la sección \ref{backtracking} que describe la
+  arborescencia implícita que se recorre en el \emph{backtracking}.}.
+
+Se incluye el campo {\tt num\_clauses} en el tipo {\tt SAT\_status}, para poder
+recorrer el arreglo {\tt formula} de todas las cláusulas que componen la fórmula.
 \begin{lstlisting}
 typedef struct SAT_status{    
     int num_vars;
@@ -89,7 +120,7 @@ typedef struct SAT_status{
 \subsection{Descripción de la implementación de cláusulas}
 En virtud de que en la fase de propagación de restricciones booleanas se optó
 por implementar la propagación de cláusulas unitarias con los literales testigos
-(\cite{} los llama \emph{2-watched literals}), cada cláusula exige
+, cada cláusula exige
 dos apuntadores a variables en la misma cláusula. Las variables apuntadas por
 los apuntadores {\tt head\_watcher} y {\tt tail\_wacher} son los testigos.
 
@@ -110,6 +141,23 @@ typedef struct clause{
 \end{lstlisting}
 
 \subsection{Descripción de la implementación del \emph{Backtracking}}
+\subsubsection{\'Arbol implícito del \emph{Backtracking}}\label{backtracking}
+Toda implementación de \emph{Backtracking} es un recorrido \emph{Depth-First
+  Search} sobre una arborescencia implícita. Esta descripción implícita de la
+arborescencia a recorrer exige que se defina cuáles son sus nodos y para cada
+nodo, cuáles son sus nodos sucesores. En el caso que nos concierne, los nodos
+son de la forma:
+\[[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} = \mathbb{B} ], \]
+donde $0\leq k \leq n$, con $n$ el número de variables de la instancia del
+problema de satisfacción a resolver y $x_{i_k}=\mathbb{B}$ indica que la
+variable booleana $x_{i_k}$ tiene un valor booleano (sea $1$ o $0$) asignado. Evidentemente, las
+$x_{i_k}$ denotan variables booleanas distintas $\forall k \in \{1,\ldots,n\}$.
+
+Ahora, dado un nodo $[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} =
+\mathbb{B} ]$ sus sucesores son todos los nodos de la forma:
+$[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} = \mathbb{B},
+x_{i_{k+1}}=\mathbb{B} ]$.
+
 
 \begin{lstlisting}
 typedef struct decision_level_data{
