@@ -160,7 +160,7 @@ int is_tail_watcher( clause* clause, variable literal );
 // Returns the value in the model for a literal.
 int current_literal_value( variable* literal );
 
-int update_watcher( clause* head_clause );
+int update_watcher( clause* clause );
 void swap_watchers(clause* cl );
 
 void add_to_watched_list(variable v, clause* cl);
