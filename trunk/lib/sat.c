@@ -60,7 +60,7 @@ void set_clause( clause* cl, int clause_length, int lit[] ){
         add_to_watched_list(*(cl->literals + 1), cl);
         
     } else {
-        cl->tail_watcher = cl->literals;
+        cl->tail_watcher = cl->head_watcher;
     }
 }
 
@@ -169,24 +169,6 @@ void set_initial_sat_status(char filename[]){
             
             clause_buffer[clause_length] = current_literal;
             
-            /*
-            if ( current_literal > 0 ){
-                // If the current_literal is >0, then in the current clause 
-                // there is a positive occurrence of var current_literal.
-                // We add the current clause to the current_literal's 
-                // pos_occurrence_list.
-                push( &sat_st.pos_occurrence_list[current_literal],
-                      &sat_st.formula[clauses] );
-            } else {
-                // If the current_literal is <0, then in the current clause 
-                // there is a positive occurrence of var abs(current_literal)
-                // We add the current clause to the current_literal's 
-                // neg_occurrence_list.
-                push( &sat_st.neg_occurrence_list[-current_literal],
-                      &sat_st.formula[clauses] );
-            }
-            */
-            
             // We search for the next literal in the buffer.
             // A literal corresponds to a number in the buffer.
             while ( isdigit(*l_aux) || *l_aux == '-')
@@ -251,6 +233,8 @@ void print_formula(){
                 }
                 literal++;
             }
+        } else {
+            printf(" SATISFIED");
         }
         printf("\n");
         
@@ -289,9 +273,8 @@ int decide_next_branch(){
     //If there are no more variables to assign, report an error
     if( free_variable > sat_st.num_vars ){
         push((&sat_st.backtracking_status), (void*)NULL);
-        fprintf(stderr,"ERROR! Trying to assign a new variable, but no");
-        fprintf(stderr," free variables are available!\n");
-        exit(1);
+        
+        return SATISFIED;
     }
     dec_lev_dat->assigned_literal = free_variable;
     dec_lev_dat->missing_branch = TRUE;
@@ -299,9 +282,35 @@ int decide_next_branch(){
     //Push the structure in the stack
     push((&sat_st.backtracking_status), dec_lev_dat);
     
-    return 1;
+    return UNSATISFIED;
 }
 
+int preprocess(){
+    
+    int clause;
+    
+    stack unit_clauses;
+    initialize_list(&unit_clauses);
+    
+    for (clause = 0;
+         clause < sat_st.num_clauses;
+         clause++)
+    {
+        if ( sat_st.formula[clause].head_watcher 
+                == sat_st.formula[clause].tail_watcher)
+        {
+            printf("%d\n", *sat_st.formula[clause].head_watcher);
+            push(&unit_clauses, &sat_st.formula[clause]);
+        }
+        
+    }
+    
+    if ( unit_clauses.size > 0 ){
+        return unit_propagation( &unit_clauses );
+    } else {
+        return DONT_CARE;
+    }
+}
 
 /**
  * This function tryes to solve the sat_instance that is stored
@@ -312,16 +321,22 @@ int decide_next_branch(){
  */
 int solve_sat(){
     
-    //TODO make a preprocess
+    int status = preprocess();
 
+    if ( status != DONT_CARE ){
+        return status;
+    }
+    
     //The algorithm is an iterative backtracking.
 
     //Decide next branch, and push it as a
     //decision_level_data structure in the
     //backtracking_status variable of the global
     //sat_st variable.
-    decide_next_branch();
-
+    if ( decide_next_branch() == SATISFIED ){
+        return SATISFIED;
+    }
+    
     while ( TRUE ){
 
         //Check the top variable in the stack, if the
@@ -342,10 +357,13 @@ int solve_sat(){
         //If the result is UNKNOWN, continue the recursion (iteratively)
         if( assignment_result == DONT_CARE ){
             printf("dont care\n");
-            decide_next_branch();
+            
+            if (decide_next_branch() == SATISFIED){
+                return SATISFIED;
+            }
             continue;
         }
-    
+        
         //If the assignment satisfied the formula, return a positive
         //answer and finish the funtion
         else if( assignment_result == UNIT_CLAUSE ){  //TODO this should be SATISFIED
@@ -447,10 +465,19 @@ void undo_assignments(decision_level_data *dec_lev_dat){
  *        
  */
 int deduce( variable literal ) {
+    
     // A variable is a signed integer. If the sign is '-' the variable
     // abs(literal) was assigned a false value. If the sign is '+', it was
     // assigned a truth value.
     variable abs_literal = abs( literal );
+    
+    if ( sat_st.model[abs_literal] != UNKNOWN ){
+        if ((sat_st.model[abs_literal] == TRUE) == ( literal > 0)){
+            return DONT_CARE;
+        } else {
+            return CONFLICT;
+        }
+    }
     
     list* clauses_affected;
     
@@ -499,7 +526,7 @@ int set_newly_watchers( list* clauses_affected, variable literal )
             push( &unit_clauses, cl );
             status = DONT_CARE;
         } else {
-            add_to_watched_list(*cl->head_watcher, cl);
+            add_to_watched_list(*cl->tail_watcher, cl);
         }
         
     }
@@ -509,7 +536,7 @@ int set_newly_watchers( list* clauses_affected, variable literal )
         return unit_propagation( &unit_clauses );
     } else {
         //@Assert: status == CONFLICT.
-        printf("cambio de estado a %d\n", status);
+        
         while( !empty(&unit_clauses) ){
             pop( &unit_clauses );
         }
@@ -612,6 +639,16 @@ void swap_watchers( clause* cl ){
     cl->tail_watcher = tmp;
 }
 
+/**
+ * Return true iff the literal v is true with the current assignment.
+ *
+ * @param v
+ * @return UNIT_CLAUSE(1) If the clause head_clause is unitary.
+ *         CONFLICT(2)    If the clause is conflictive with the current model.
+ *         DONT_CARE(0)   Neither of the previous two alternatives.
+ * @pre 1 <= abs(v) <= sat_st.num_vars
+ *
+ */
 int is_satisfied( variable v ){
     
     int abs_v = abs(v);
@@ -633,14 +670,14 @@ int is_satisfied( variable v ){
 /**
  * Given a clause and a freshly recently assigned variable occurring in the
  * aforementioned clause that is being pointed to by the head_watcher, searches
- * for some other unassigned literal to be the new head_watcher. 
+ * for some other valid literal to be the new head_watcher. 
  * This method determines if a clause a unitary clause or a conflictive clause.
  *
  * @param head_clause
  * @return UNIT_CLAUSE(1) If the clause head_clause is unitary.
  *         CONFLICT(2)    If the clause is conflictive with the current model.
  *         DONT_CARE(0)   Neither of the previous two alternatives.
- * @pre head_clause != NULL && head_clause->satisfied != TRUE;
+ * @pre head_clause != NULL
  *
  */
 
@@ -682,6 +719,7 @@ int update_watcher( clause* head_clause ) {
     }
     
     if ( !exists_free_literal ) {
+        
         // @Assert: Either all literals are assigned or the only unassigned
         // literal is pointed to by the tail_watcher.
         
@@ -723,13 +761,43 @@ void print_status(){
     printf("---------------------------------------------------------------\n");
 }
 
+void print_sol(int status, char filename[]){
+    
+    FILE * file;
+    char* buffer;
+    
+    file = fopen (filename,"w");
+    if ( file == NULL ){
+        printf("Error: Couldn't open file\n");
+        exit(1);
+    }
+    
+    buffer = (char*) malloc( (BUFFERSIZE + 1)*sizeof(char) );    
+    if ( buffer == NULL ){
+        printf("Error: Couldn't allocate memory\n");
+        exit(1);
+    }
+    
+    if ( status != SATISFIED ){
+        fprintf(file, "UNSAT\n");
+    } else {
+        
+        fprintf(file, "1 0\n");
+        int i;
+        for (i=1; i<=sat_st.num_vars; i++){
+            fprintf(file, "%d\n",sat_st.model[i]);
+        }
+    }
+    
+    fclose(file);
+}
+
 int main(int argc, char* argv[]){
     set_initial_sat_status(argv[1]);
     
-    print_status();
+    int status = solve_sat();
     
-    deduce(-2);
-    print_status();
+    print_sol(status, argv[2]);
     
     return 0;
 }
