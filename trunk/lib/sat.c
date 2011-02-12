@@ -324,7 +324,7 @@ int solve_sat(){
     int status = preprocess();
 
     if ( status != DONT_CARE ){
-        return status;
+        return UNSATISFIABLE;
     }
     
     //The algorithm is an iterative backtracking.
@@ -334,7 +334,7 @@ int solve_sat(){
     //backtracking_status variable of the global
     //sat_st variable.
     if ( decide_next_branch() == SATISFIED ){
-        return SATISFIED;
+        return SATISFIABLE;
     }
     
     while ( TRUE ){
@@ -359,7 +359,7 @@ int solve_sat(){
             printf("dont care\n");
             
             if (decide_next_branch() == SATISFIED){
-                return SATISFIED;
+                return SATISFIABLE;
             }
             continue;
         }
@@ -373,6 +373,7 @@ int solve_sat(){
         //If the assignment made the formula FALSE, then backtrack until
         //a variable that can be flipped is found.
         else if( assignment_result == CONFLICT ){ 
+            
             printf("CONFLICT!\n");
 
             decision_level_data *top_el = NULL;
@@ -415,6 +416,7 @@ int solve_sat(){
 
     }
 
+    return UNSATISFIABLE;
 }
 
 void undo_assignments(decision_level_data *dec_lev_dat){
@@ -435,7 +437,7 @@ void undo_assignments(decision_level_data *dec_lev_dat){
         assigned_var = abs(*watcher);
         sat_st.model[ assigned_var ] = UNKNOWN;
         printf("Undoing variable: %d\n",assigned_var);
-
+        
         pop(&dec_lev_dat->propagated_var);
 
     }
@@ -499,15 +501,23 @@ int deduce( variable literal ) {
 int set_newly_watchers( list* clauses_affected, variable literal )
 {
     
-    stack unit_clauses;
+    stack unit_clauses, clauses_affected_tmp;
     initialize_list(&unit_clauses);
+    initialize_list(&clauses_affected_tmp);
     
     int status = DONT_CARE;
     
-    while( !empty(clauses_affected) && status == DONT_CARE ) {
-        
+    while( !empty(clauses_affected) ){
         clause* cl = (clause*)top(clauses_affected);
         pop(clauses_affected);
+        
+        push(&clauses_affected_tmp, cl);
+    }
+    
+    while( !empty(&clauses_affected_tmp) && status == DONT_CARE ) {
+        
+        clause* cl = (clause*)top(&clauses_affected_tmp);
+        pop(&clauses_affected_tmp);
         
         if ( is_head_watcher(cl, literal) ) {
             status = update_watcher( cl );
@@ -525,10 +535,9 @@ int set_newly_watchers( list* clauses_affected, variable literal )
           // unitary clause.
             push( &unit_clauses, cl );
             status = DONT_CARE;
-        } else {
-            add_to_watched_list(*cl->tail_watcher, cl);
         }
         
+        add_to_watched_list(*cl->head_watcher, cl);
     }
     
     //@Assert: status== CONFLICT || status == DONT_CARE.
@@ -539,6 +548,12 @@ int set_newly_watchers( list* clauses_affected, variable literal )
         
         while( !empty(&unit_clauses) ){
             pop( &unit_clauses );
+        }
+        
+        while( !empty(&clauses_affected_tmp) ){
+            clause *cl = (clause*)top(&clauses_affected_tmp);
+            pop( &clauses_affected_tmp);
+            add_to_watched_list(*cl->head_watcher, cl);
         }
         
         return status;
@@ -681,13 +696,7 @@ int is_satisfied( variable v ){
  *
  */
 
-int update_watcher( clause* head_clause ) {
-    
-    if ( is_satisfied( *head_clause->head_watcher ) 
-           || is_satisfied( *head_clause->tail_watcher ) )
-    {
-        return DONT_CARE;
-    }
+int update_watcher( clause* clause ) {
     
     variable current_literal;
     
@@ -699,19 +708,17 @@ int update_watcher( clause* head_clause ) {
         // Iterate over the clause head_clause searching for an unassigned
         // literal not pointed to by the tail_watcher. If it finds one such
         // unassigned literal, make the head_watcher point to it.
-        for ( i=0; i < head_clause->size; i++ ){
-            current_literal = abs( head_clause->literals[i] );
+        for ( i=0; i < clause->size; i++ ){
+            current_literal = abs( clause->literals[i] );
             
-            if ( is_satisfied( head_clause->literals[i]) ){
-                exists_free_literal = TRUE;
-            }
-            
-            if ( sat_st.model[current_literal] == UNKNOWN
-                && head_clause->tail_watcher != head_clause->literals + i )
+            if ( (sat_st.model[current_literal] == UNKNOWN
+                    ||
+                    is_satisfied(clause->literals[i]))
+                && clause->tail_watcher != clause->literals + i )
             {
                 // @Assert: There's an unassigned literal not pointed to by the
                 // tail_watcher.
-                head_clause->head_watcher = (head_clause->literals) + i;
+                clause->head_watcher = (clause->literals) + i;
                 exists_free_literal = TRUE;
                 break;
             }
@@ -725,10 +732,13 @@ int update_watcher( clause* head_clause ) {
         
         // assign( *(head_clause->tail_watcher), TRUE );
         
-        if ( current_literal_value(head_clause->tail_watcher) == UNKNOWN ) {
+        if ( current_literal_value(clause->tail_watcher) == UNKNOWN ) {
           // @Assert: This clause is a unit clause.
             return UNIT_CLAUSE;
+        } else if ( is_satisfied(*(clause->tail_watcher)) ){
+            return DONT_CARE;
         }
+        
         // @Assert: This clause is not satisfiable. The literal pointed to by
         // the tail_watcher is already assigned and evaluates to False. 
         // We require here that head_clause->satisfied != TRUE.
@@ -795,10 +805,13 @@ void print_sol(int status, char filename[]){
 int main(int argc, char* argv[]){
     set_initial_sat_status(argv[1]);
     
+    print_status();
     int status = solve_sat();
     
-    print_sol(status, argv[2]);
+    print_status();
+    printf("status %d\n", status);
     
+    print_sol(status, argv[2]);
     return 0;
 }
 
