@@ -3,13 +3,48 @@
 \usepackage[utf8]{inputenc}
 \usepackage{listings}
 \lstset{
-  language=C
+  language=C,
+  basicstyle=\small
 }
 \begin{document}
-
+\setlength{\parskip}{2.5mm}
 \section{Introducción}
 
 \subsection{Motivación del proyecto}
+En 1971, Stephen~Cook propuso en su trabajo una nueva categoría de complejidad
+de problemas de decisión computacionales, a la que llamó problemas
+\emph{NP-completos}. La caracterización de esta categoría se hace sobre estas
+dos propiedades:
+\begin{itemize}
+  \setlength{\itemsep}{0ex }
+  \item Todos los problemas \emph{NP-completos} pueden ser verificados en tiempo
+    $O(p(n))$, donde $p(n)$ es un polinomio en función de $n$ el tamaño de la
+    instancia del problema. 
+  \item Todos los problemas en \emph{NP} pueden ser reducidos en tiempo
+    $O(p(n))$ a algún problema \emph{NP-completo}, donde $p(n)$ es un polinomio
+    en función de $n$ el tamaño de la instancia del problema que es reducido.
+\end{itemize}
+
+Ahora bien, fueron Cook y Leonid~Levin quienes encontraron, de forma
+independiente, el primer problema en esta categoría \emph{NP-completos}: el
+problema de la \emph{satisfacción booleana~(SAT)}. Un año después, Richard~Karp
+identificó otros 21 problemas en esta categoría, los cuales tenían la notoria
+característica de que para ellos no se conoce un algoritmo polinomial (en
+función del tamaño de la instancia) que les de solución, una cualidad que
+comparten todos los problemas en esta clase, junto al hecho de que todos estos
+problemas ocurren con una marcada frecuencia en el área de la computación. Sin
+embargo, la característica más especial de todos estos problemas es el segundo
+ítem de arriba: encontrar un algoritmo polinomial para tan sólo uno de estos
+problemas es encontrar un algoritmo polinomial para todos.
+
+De modo pues que la motivación para este proyecto estriba en el hecho de que
+\emph{SAT} fue el primer problema que se encontró en \emph{NP-Completos} y que
+todos los problemas en esta clase son reducibles en tiempo polinomial a
+él. Siendo así y bajo el supuesto de que estas reducciones a \emph{SAT} se
+caractericen por polinomios de bajo grado y coeficientes pequeños, cualquier
+mejora en tiempo que se pueda realizar a los algoritmos exponenciales hoy
+conocidos para resolver el problema \emph{SAT} es una mejora para los algoritmos
+exponenciales conocidos para los demás problemas en \emph{NP-completos}.
 
 \subsection{Breve descripción del problema} 
 Si $S=\{x_1,x_2,\ldots,x_n\}$ es un conjunto finito de variables booleanas,
@@ -17,9 +52,7 @@ llamemos $\bar{S}=\{\bar{x_1},\bar{x_2},\ldots,\bar{x_n}\}$ al conjunto formado
 por la negación de las variables en $S$. 
 
 
-Una \emph{cláusula} booleana
-
-El \emph{problema de la satisfacción booleana (SAT)} consiste en lo siguiente:
+El \emph{problema de la satisfacción booleana~(SAT)} consiste en lo siguiente:
 dados un conjunto finito de variables booleanas $x_1,x_2,\ldots,x_n$ y una
 fórmula booleana $E(x_1,x_2,\ldots,x_n,\bar{x_1},\bar{x_2},\ldots,\bar{x_n})$ en
 forma normal conjuntiva (CNF), determinar si existe una asignación de valores de
@@ -28,6 +61,28 @@ verdad a las variables tal que la fórmula sea verdad.
 \section{Diseño}
 
 \section{Detalles de implementación}
+
+\begin{lstlisting}
+typedef struct SAT_status{    
+    int num_vars;
+    int num_clauses;
+    clause *formula;
+    list *pos_watched_list;
+    list *neg_watched_list;
+    stack backtracking_status;
+    int *model;                     
+} SAT_status;
+\end{lstlisting}
+
+
+\begin{lstlisting}
+typedef struct clause{
+    int size;
+    variable* head_watcher;
+    variable* tail_watcher;
+    variable* literals;
+} clause;
+\end{lstlisting}
 
 
 \subsection{Problemas encontrados y la manera como fueron resueltos}
@@ -39,7 +94,7 @@ d
 
 \section{Instrucciones de operación}
 Para emplear la aplicación, escribir en la consola el comando
-\\ \texttt{kecss -f filename}
+\\ \texttt{sat -f inputfilename -o outputfilename}
 \section{Estado Actual}
 
 \section{Conclusiones y recomendaciones}
