@@ -51,16 +51,28 @@ Si $S=\{x_1,x_2,\ldots,x_n\}$ es un conjunto finito de variables booleanas,
 llamemos $\bar{S}=\{\bar{x_1},\bar{x_2},\ldots,\bar{x_n}\}$ al conjunto formado
 por la negación de las variables en $S$. 
 
-
-El \emph{problema de la satisfacción booleana~(SAT)} consiste en lo siguiente:
-dados un conjunto finito de variables booleanas $x_1,x_2,\ldots,x_n$ y una
-fórmula booleana $E(x_1,x_2,\ldots,x_n,\bar{x_1},\bar{x_2},\ldots,\bar{x_n})$ en
-forma normal conjuntiva (CNF), determinar si existe una asignación de valores de
-verdad a las variables tal que la fórmula sea verdad.
+El \emph{problema de la satisfacción booleana~(SAT)} consiste de la forma
+general de las instancias al problema y de la pregunta:
+\vspace{-2.5mm}
+\begin{enumerate}
+\item la forma general de las instancias: Dados un conjunto finito de variables
+booleanas $x_1,x_2,\ldots,x_n$ y una fórmula booleana
+$F(x_1,x_2,\ldots,x_n)$ en forma normal
+conjuntiva (CNF).
+\item la pregunta cuya respuesta se quiere determinar: ¿existe una asignación de valores de verdad a las
+variables $x_1,\ldots, x_n$ tal que la fórmula sea verdad?
+\end{enumerate}
 
 \section{Diseño}
 
+\subsection{Fase de Deducción}
+
+\subsubsection{Propagación de cláusulas unitarias}
+
+\subsubsection{Eliminación de literales puros}
+
 \section{Detalles de implementación}
+
 
 \begin{lstlisting}
 typedef struct SAT_status{    
@@ -74,6 +86,19 @@ typedef struct SAT_status{
 } SAT_status;
 \end{lstlisting}
 
+\subsection{Descripción de la implementación de cláusulas}
+En virtud de que en la fase de propagación de restricciones booleanas se optó
+por implementar la propagación de cláusulas unitarias con los literales testigos
+(\cite{} los llama \emph{2-watched literals}), cada cláusula exige
+dos apuntadores a variables en la misma cláusula. Las variables apuntadas por
+los apuntadores {\tt head\_watcher} y {\tt tail\_wacher} son los testigos.
+
+Como cada cláusula es una disjunción de literales, optamos por representarla
+como un arreglo de variable llamado {\tt literals} que tiene un tamaño
+determinado por el campo {\tt size} de la cláusula. La representación por
+arreglo permite recorrer con rapidez una cláusula, operación que habrá que
+realizar cada vez que se quiera identificar un literal puro y cada vez que se
+necesite actualizar los testigos que permiten reconocer cláusulas unitarias.
 
 \begin{lstlisting}
 typedef struct clause{
@@ -82,6 +107,16 @@ typedef struct clause{
     variable* tail_watcher;
     variable* literals;
 } clause;
+\end{lstlisting}
+
+\subsection{Descripción de la implementación del \emph{Backtracking}}
+
+\begin{lstlisting}
+typedef struct decision_level_data{
+    variable assigned_literal;
+    int missing_branch;                                                
+    list propagated_var;
+} decision_level_data;
 \end{lstlisting}
 
 
