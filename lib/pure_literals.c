@@ -75,5 +75,6 @@ int  eliminate_pure_literals( variable* pure_literals,
     for( i=0; i< pure_literals_size; i++ ) {
         status = deduce( pure_literals[i] );
     }
+    free( pure_literals );
     return status;
 }
