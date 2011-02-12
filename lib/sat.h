@@ -16,6 +16,9 @@
 #define SATISFIABLE 1
 #define UNSATISFIABLE 0
 
+#define SATISFIED 1
+#define UNSATISFIED 0
+
 #define DONT_CARE 0
 #define UNIT_CLAUSE 1
 #define CONFLICT 2
@@ -165,6 +168,8 @@ void add_to_watched_list(variable v, clause* cl);
 int is_satisfied( variable v );
 
 void print_status();
+
+int preprocess();
 
 SAT_status sat_st;
 
