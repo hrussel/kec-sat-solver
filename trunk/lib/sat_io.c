@@ -96,7 +96,9 @@ void set_initial_sat_status(char filename[]){
     
     file = fopen (filename,"r");
     if ( file == NULL ){
-        printf("Error: Couldn't open file\n");
+        char error_msg[1000];
+        sprintf(error_msg,"kec-sat-solver error: Impossible to open file %s",filename);
+        perror(error_msg);
         exit(1);
     }
     
