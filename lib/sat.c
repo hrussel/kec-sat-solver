@@ -292,6 +292,11 @@ int preprocess(){
     stack unit_clauses;
     initialize_list(&unit_clauses);
     
+    int num_pure_literals;
+    int status;
+    // variable* pure_literals = find_pure_literals( &num_pure_literals );
+    // status = eliminate_pure_literals( pure_literals, num_pure_literals );
+
     for (clause = 0;
          clause < sat_st.num_clauses;
          clause++)
@@ -313,7 +318,7 @@ int preprocess(){
 }
 
 /**
- * This function tryes to solve the sat_instance that is stored
+ * This function tries to solve the sat_instance that is stored
  * in the global variable sat_st.
  *
  * @return   SATISFIABLE if an assignment to the SAT variables is
@@ -340,7 +345,7 @@ int solve_sat(){
     while ( TRUE ){
 
         //Check the top variable in the stack, if the
-        //stack is empty, then all possible assignments were tryed
+        //stack is empty, then all possible assignments were tried
         //and the formula is UNSATISFIABLE
         if( empty(&sat_st.backtracking_status) )
             return UNSATISFIABLE;
@@ -388,7 +393,7 @@ int solve_sat(){
                 undo_assignments(top_el);
 
                 if( top_el->missing_branch == TRUE ){
-                    //If the opposite branch has not been tryed,
+                    //If the opposite branch has not been tried,
                     //then flip the assignment and continue the
                     //recursion (iteratively)
 
