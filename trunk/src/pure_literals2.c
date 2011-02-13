@@ -94,16 +94,23 @@ int  eliminate_pure_literals( variable* pure_literals,
     int status = DONT_CARE;
     int abs_literal;
     variable literal;
-    int curr_literal_polarity;
     clause* current_clause;
-
-    // For each pure literal, update the model.
+    stack clauses_outdated_watchers;
+    // For each pure literal, update the model to make them true.
+    // For each pure literal, set its pos_watched_list and its
+    // neg_watched_list to be empty lists.
     for( i=0; i<num_pure_literals; i++ ) {
         literal = pure_literals[i];
         abs_literal = abs( literal );
-        curr_literal_polarity = abs_literal/literal;
 
-        sat_st.model[abs_literal] = curr_literal_polarity;
+        sat_st.model[abs_literal] = (abs_literal/literal == 1 ? TRUE : FALSE);
+        // Empty its pos_watched_list and its neg_watched_list.
+        while( ! empty(&sat_st.pos_watched_list[abs_literal]) ) {
+            pop( &sat_st.pos_watched_list[abs_literal] );
+        }
+        while( ! empty(&sat_st.neg_watched_list[abs_literal]) ) {
+            pop( &sat_st.neg_watched_list[abs_literal] );
+        }
     }
 
     for ( i=0; i< sat_st.num_clauses; i++ ) {
@@ -119,28 +126,48 @@ int  eliminate_pure_literals( variable* pure_literals,
                 if ( current_clause->size == 1 ) {
 
                     if ( sat_st.num_clauses <= 1 ) {
-                        return SATISFIED;
+                        return SATISFIABLE;
                     }
                     // If there's another clause of the formula still
-                    // unexamined.
-                    if ( j-i > 1 ) {
-                        swap_clauses( sat_st.formula, j, sat_st.num_clauses-1 );
+                    // unexamined, it may be swapped with it.
+                    if ( sat_st.num_clauses -i > 1 ) {
+                        swap_clauses( sat_st.formula, i, sat_st.num_clauses-1 );
                     }
                     
                     sat_st.num_clauses--;
                     free( current_clause->literals );
+                    // There's no need to update current_clauses' watchers,
+                    // since it's now a nonexisting clause.
                 }        
                 else if ( current_clause->size > 1 ) {
                     // If there's another literal of the clause still
-                    // unexamined.
+                    // unexamined, it may be swapped with it.
                     if ( current_clause->size -j> 1 ) {
-                        swap_literals( current_clause, j, current_clause->size);
+                        swap_literals(current_clause, j,current_clause->size-1);
                     }
                     (current_clause->size)--;
+
+                    // Update current_clause's watchers.
+                    if ( is_head_watcher(current_clause, literal) ) {
+                        status = update_watcher( current_clause );
+                        if ( status == UNIT_CLAUSE ) {
+                            current_clause->head_watcher =
+                                current_clause->tail_watcher;
+                        }
+                    }
+                    else if ( is_tail_watcher(current_clause, literal) ) {
+                      swap_watchers( current_clause);
+                      status = update_watcher( current_clause );
+                        if ( status == UNIT_CLAUSE ) {
+                            current_clause->head_watcher =
+                                current_clause->tail_watcher;
+                        }
+                    }
                 }
             }
         }
     }
+
 }
 
 void swap_literals( clause* cl, int old_index, int new_index ) {
@@ -151,7 +178,10 @@ void swap_literals( clause* cl, int old_index, int new_index ) {
 }
 
 void swap_clauses( clause* formula, int old_index, int new_index ) {
-
+    clause temp_clause;
+    temp_clause = formula[old_index];
+    formula[old_index] = formula[new_index];
+    formula[new_index] = temp_clause;
 }
 
 int is_pure_literal( variable literal, variable* pure_literals,
