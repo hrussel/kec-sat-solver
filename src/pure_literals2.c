@@ -76,6 +76,9 @@ variable* find_pure_literals( int* pure_literals_size ) {
 //      // This should be a rewriting of the formula instead of
 //      // a deduce.
 //        status = deduce( pure_literals[i] );
+//        if ( status != DONT_CARE ) {
+//             return status;
+//        }
 //    }
 //    free( pure_literals );
 //    return status;
