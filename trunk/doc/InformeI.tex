@@ -8,17 +8,24 @@
   language=C,
   basicstyle=\small
 }
+\usepackage{color}
+\definecolor{gray75}{gray}{.75}
+\lstdefinestyle{consola}
+{basicstyle=\small\bf\ttfamily,
+backgroundcolor=\color{gray75},
+}
+
 \begin{document}
 \setlength{\parskip}{2.5mm}
+\setlength{\itemsep}{0ex }
 \section{Introducción}
 
 \subsection{Motivación del proyecto}
-En 1971, Stephen~Cook propuso en su trabajo una nueva categoría de complejidad
+En 1971, Stephen~Cook propuso en su trabajo\cite{Cook} una nueva categoría de complejidad
 de problemas de decisión computacionales, a la que llamó problemas
 \emph{NP-completos}. La caracterización de esta categoría se hace sobre estas
 dos propiedades:
 \begin{itemize}
-  \setlength{\itemsep}{0ex }
   \item Todos los problemas \emph{NP-completos} pueden ser verificados en tiempo
     $O(p(n))$, donde $p(n)$ es un polinomio en función de $n$ el tamaño de la
     instancia del problema. 
@@ -30,9 +37,9 @@ dos propiedades:
 Ahora bien, fueron Cook y Leonid~Levin quienes encontraron, de forma
 independiente, el primer problema en esta categoría \emph{NP-completos}: el
 problema de la \emph{satisfacción booleana~(SAT)}. Un año después, Richard~Karp
-identificó otros 21 problemas en esta categoría, los cuales tenían la notoria
-característica de que para ellos no se conoce un algoritmo polinomial (en
-función del tamaño de la instancia) que les de solución, una cualidad que
+identificó otros 21 problemas en esta categoría \cite{Karp}, los cuales tenían
+la notoria característica de que para ellos no se conoce un algoritmo polinomial
+(en función del tamaño de la instancia) que les de solución, una cualidad que
 comparten todos los problemas en esta clase, junto al hecho de que todos estos
 problemas ocurren con una marcada frecuencia en el área de la computación. Sin
 embargo, la característica más especial de todos estos problemas es el segundo
@@ -57,10 +64,10 @@ El \emph{problema de la satisfacción booleana~(SAT)} consiste de la forma
 general de las instancias al problema y de la pregunta:
 \vspace{-2.5mm}
 \begin{enumerate}
-\item la forma general de las instancias: Dados un conjunto finito de variables
+\item La forma general de las instancias: Dados un conjunto finito de variables
   booleanas $x_1,x_2,\ldots,x_n$ y una fórmula booleana $F(x_1,x_2,\ldots,x_n)$
   en forma normal conjuntiva (CNF).
-\item la pregunta cuya respuesta se quiere determinar: ¿existe una asignación de
+\item La pregunta cuya respuesta se quiere determinar: ¿existe una asignación de
   valores de verdad a las variables $x_1,\ldots, x_n$ tal que la fórmula sea
   verdad?
 \end{enumerate}
@@ -78,7 +85,6 @@ general de las instancias al problema y de la pregunta:
 
 \section{Detalles de implementación}
 
-El proceso
 
 La implementación de la propagación de cláusulas unitarias con 2 testigos por
 cláusula (\cite{} los llama \emph{2-watched literals}) empleada por
@@ -89,22 +95,25 @@ literal $x_i$ ocurre no negado (polaridad positiva) como testigo o \emph{watched
 cláusulas en las que el literal $\overline{x_i}$ ocurre como testigo o
 \emph{watched literal}. 
 
-En la implementación que aquí se describe, se optó por por los campos {\tt
-  pos\_watched\_list} y {\tt neg\_watched\_list} en el tipo {\tt
-  SAT\_status}. Cada uno de éstos es un arreglo de cabezas de listas, de forma
-que {\tt pos\_watched\_list[i]} sea la cabeza de la lista cuyos elementos son
-las cláusulas en las que el literal $x_i$ ocurre como
-\emph{watcher}. Análogamente ocurre con {\tt neg\_watched\_list[i]}.
+\begin{itemize}
+\item En la implementación que aquí se describe, se optó por por los campos {\tt
+    pos\_watched\_list} y {\tt neg\_watched\_list} en el tipo {\tt
+    SAT\_status}. Cada uno de éstos es un arreglo de cabezas de listas, de forma
+  que {\tt pos\_watched\_list[i]} sea la cabeza de la lista cuyos elementos son
+  las cláusulas en las que el literal $x_i$ ocurre como
+  \emph{watcher}. Análogamente ocurre con {\tt neg\_watched\_list[i]}.
 
-El campo {\tt model} del tipo {\tt SAT\_status} es un arreglo de enteros tal que
-{\tt model[i]} es el valor de asignación que se prueba para la variable
-$x_i$. El {\tt model} indica cuál nodo de la arborescencia del
-\emph{backtracking} se está considerando en un determinado instante de la
-ejecución\footnote{Véase la sección \ref{backtracking} que describe la
-  arborescencia implícita que se recorre en el \emph{backtracking}.}.
+\item El campo {\tt model} del tipo {\tt SAT\_status} es un arreglo de enteros
+  tal que {\tt model[i]} es el valor de asignación que se prueba para la
+  variable $x_i$. El {\tt model} indica cuál nodo de la arborescencia del
+  \emph{backtracking} se está considerando en un determinado instante de la
+  ejecución\footnote{Véase la sección \ref{backtracking} que describe la
+    arborescencia implícita que se recorre en el \emph{backtracking}.}.
 
-Se incluye el campo {\tt num\_clauses} en el tipo {\tt SAT\_status}, para poder
-recorrer el arreglo {\tt formula} de todas las cláusulas que componen la fórmula.
+\item Se incluye el campo {\tt num\_clauses} en el tipo {\tt SAT\_status}, para
+  poder recorrer el arreglo {\tt formula} de todas las cláusulas que componen la
+  fórmula.
+\end{itemize}
 \begin{lstlisting}
 typedef struct SAT_status{    
     int num_vars;
@@ -117,20 +126,10 @@ typedef struct SAT_status{
 } SAT_status;
 \end{lstlisting}
 
-\subsection{Descripción de la implementación de cláusulas}
-En virtud de que en la fase de propagación de restricciones booleanas se optó
-por implementar la propagación de cláusulas unitarias con los literales testigos
-, cada cláusula exige
-dos apuntadores a variables en la misma cláusula. Las variables apuntadas por
-los apuntadores {\tt head\_watcher} y {\tt tail\_wacher} son los testigos.
+\subsection{Descripción de la implementación de las cláusulas}
 
-Como cada cláusula es una disjunción de literales, optamos por representarla
-como un arreglo de variable llamado {\tt literals} que tiene un tamaño
-determinado por el campo {\tt size} de la cláusula. La representación por
-arreglo permite recorrer con rapidez una cláusula, operación que habrá que
-realizar cada vez que se quiera identificar un literal puro y cada vez que se
-necesite actualizar los testigos que permiten reconocer cláusulas unitarias.
-
+Para la implementación de cada cláusula se definió el siguiente tipo de dato
+{\tt clause}:
 \begin{lstlisting}
 typedef struct clause{
     int size;
@@ -139,6 +138,36 @@ typedef struct clause{
     variable* literals;
 } clause;
 \end{lstlisting}
+, que a continuación describiremos campo por campo.
+
+\begin{enumerate}
+\item Los apuntadores {\tt head\_watcher} y {\tt tail\_watcher} señalan cuáles
+  son los literales testigos ---\emph{watched literals}--- de una cláusula. En
+  virtud de que en la fase de propagación de restricciones booleanas se optó por
+  implementar la propagación de cláusulas unitarias con los \emph{2-watched
+    literals} según se describe en \cite{Zhang},
+  cada cláusula exige dos apuntadores a variables en la misma cláusula.
+
+\item Como cada cláusula es una disjunción de literales, optamos por
+  representarla como un arreglo de variables llamado {\tt literals}. Para poder
+  recorrerlo es necesario almacenar su tamaño, que estará almacenado en el campo
+  {\tt size} de la cláusula.
+\end{enumerate}
+
+\subsubsection{Ventajas de la implementación escogida para las cláusulas}
+La implementación de los literales que componen una cláusula en un arreglo de
+variables apuntado por {\tt literals} implica: \vspace{-2.5mm}
+\begin{itemize}
+\item Una rapidez de acceso en tiempo constante a cada literal de la
+  cláusula. Hecho que resulta de particular utilidad en los recorridos a través
+  de los literales de cada cláusula que son efectuados durante la detección de
+  literales puros y durante la actualización de los \emph{watchers} o testigos
+  que permiten identificar cláusulas unitarias.
+
+\item Un ahorro de espacio para los apuntadores, que se necesitaría si la
+  conjunción de literales en las cláusulas se implementara con una lista
+  enlazada.
+\end{itemize}
 
 \subsection{Descripción de la implementación del \emph{Backtracking}}
 \subsubsection{\'Arbol implícito del \emph{Backtracking}}\label{backtracking}
@@ -150,14 +179,39 @@ son de la forma:
 \[[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} = \mathbb{B} ], \]
 donde $0\leq k \leq n$, con $n$ el número de variables de la instancia del
 problema de satisfacción a resolver y $x_{i_k}=\mathbb{B}$ indica que la
-variable booleana $x_{i_k}$ tiene un valor booleano (sea $1$ o $0$) asignado. Evidentemente, las
-$x_{i_k}$ denotan variables booleanas distintas $\forall k \in \{1,\ldots,n\}$.
+variable booleana $x_{i_k}$ tiene un valor booleano (sea $1$ ó $0$)
+asignado. Imponemos adicionalmente una condición a los nodos de esta
+arborescencia y es que la asignación hecha a las variables del nodo:
+$x_{i_1},\ldots,x_{i_k}$ \emph{no haga que la fómula no se pueda
+  satisfacer}. Las $x_{i_k}$ denotan variables booleanas distintas $\forall k
+\in \{1,\ldots,n\}$.
 
 Ahora, dado un nodo $[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} =
 \mathbb{B} ]$ sus sucesores son todos los nodos de la forma:
 $[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} = \mathbb{B},
 x_{i_{k+1}}=\mathbb{B} ]$.
 
+El \emph{backtracking} implementado busca encontrar en la arborescencia ---en
+caso de que exista--- un nodo de la forma
+\[[x_{1}=\mathbb{B},x_{2}=\mathbb{B},\ldots, x_{n} = \mathbb{B} ], \] y que se
+corresponde con una asignación de valores de verdad a todas las variables que
+hace que la fórmula dada sea satisfecha ---si $n$ es el número total de
+variables booleanas.
+\vspace{-2.5mm}
+
+\subsubsection{Estructuras de datos que apoyan la implementación del \emph{bactracking}}
+El \emph{backtracking} se implementó iterativo en lugar de recursivo, por los
+motivos que se señalan en la sección \ref{VentajasBacktracking}. Para ello fue
+necesario trabajar explícitamente con una pila de elementos de un nuevo tipo de
+dato llamado {\tt decision\_level\_data}. Este tipo almacena los datos que
+caracterizan a cada nodo del árbol implícito que se recorre en el
+\emph{backtracking}\footnote{En \cite{Zhang} les llaman niveles de decisión.} y
+que deben ser conservados en caso de que el algoritmo se encuentre con un nodo
+parcial que no tiene sucesores; esto es, con un nodo
+$[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} = \mathbb{B} ]$, $k< n$
+tal que la asignación de cualquier otra variable no logra satisfacer la fórmula.
+
+Presentamos entonces el tipo {\tt decision\_level\_data}:
 
 \begin{lstlisting}
 typedef struct decision_level_data{
@@ -166,21 +220,81 @@ typedef struct decision_level_data{
     list propagated_var;
 } decision_level_data;
 \end{lstlisting}
+que a continuación describimos:
+\vspace{-2.5mm}
+\begin{enumerate}
+\item El campo {\tt assigned\_literal} contiene el valor y el nombre del literal
+  asignado en un determinado nivel de decisión. Expresado de otra forma,  si
+  $[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} = \mathbb{B} ]$, $k< n$, $v_k
+  \in \mathbb{B}$ es un nodo de la arborescencia recorrida con el
+  \emph{backtracking}, en el momento en que se consideran una nueva variable
+  $x_{i_{k+1}}$ con un valor booleano se ha creado un nuevo nivel de decisión
+  caracterizado por un elemento del tipo {\tt decision\_level\_data} en el
+  programa. Este elemento tendrá en su campo {\tt assigned\_literal} a la
+  variable $x_{i_{k+1}}$ con su valor.
+\item El campo {\tt missing\_branch} es un valor booleano que es cierto si y
+  sólo si se ha explorado con la asignación de {\tt assigned\_literal} con un
+  sólo valor de verdad. Es decir, si
+  $[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} = v_k ]$, $k< n$, $v_k
+  \in \mathbb{B}$ es un nodo de la arborescencia recorrida con el
+  \emph{backtracking}, en la que la variable $x_{i_k}$ fue la última variable
+  asignada con un valor booleano determinado, {\tt missing\_branch} será cierto
+  si y sólo si el conjunto de asignaciones
+  $[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} = \overline{v_k} ]$,
+  $k<n$ \emph{todavía no ha sido estudiado} si es nodo o no.
+
+\item El campo {\tt propagated\_var} es la cabeza de una lista cuyos elementos
+  son todas las variables booleanas 
+\end{enumerate}
+
+\subsubsection{Ventajas de la implementación escogida para el
+  \emph{backtracking}}\label{VentajasBacktracking}
+Entre las ventajas de la implementación iterativa para el \emph{backtracking} está:
+\vspace{-2.5mm}
+\begin{itemize}
+  \item Resultará más sencillo modificar el programa para implementar un
+    \emph{bactracking} no cronológico, que si se hubiera implementado el
+    \emph{backtracking} de manera recursiva.
+\end{itemize}
+
+\subsubsection{Desventajas de la implementación escogida para el \emph{backtracking}}
+Quizás la única desventaja de la implementación iterativa respecto a la
+recursiva para el \emph{backtracking} sea la mayor dificultad que supone el
+manejo explícito de la pila, que en el caso recursivo se maneja implícitamente
+con la pila de llamadas a subrutinas.
 
 
-\subsection{Problemas encontrados y la manera como fueron resueltos}
+%\subsection{Problemas encontrados y la manera como fueron resueltos}
 
-
-\begin{texttt}
-d
-\end{texttt}
+\section{Dificultades encontradas}
 
 \section{Instrucciones de operación}
 Para emplear la aplicación, escribir en la consola el comando
-\\ \texttt{sat -f inputfilename -o outputfilename}
+\begin{lstlisting}[style=consola]
+# sat -f inputfilename -o outputfilename 
+\end{lstlisting}
+\noindent donde:
+\vspace{-2.5mm}
+\begin{itemize}
+\item {\tt inputfilename} es el nombre del archivo que contiene la instancia del
+  problema SAT a resolver. Esta instancia debe estar en el formato DIMACS.
+\item {\tt outputfilename} es el nombre del archivo que contendrá los resultados
+  generados tras correr el algoritmo.
+\end{itemize}
 \section{Estado Actual}
 
 \section{Conclusiones y recomendaciones}
 
+\begin{thebibliography}{99}
+\bibitem{Cook}Cook, Stephen: ``The complexity of theorem-proving
+  procedures''. \emph{ACM}, 1971.
+\bibitem{Karp}Karp, Richard: ``Reducibility Among Combinatorial
+  Problems''. \emph{Complexity of Computer Computations}. 1972.
+  . \emph{ACM}, 1971.
+\bibitem{Marques}Lynce, I. y Marques-Silva, J.: ``Efficient Data Structures for
+  Fast SAT Solvers''. Reporte Técnico. \emph{Cadence European Laboratories,
+    Instituto de Engenharia de Sistemas e Computadores}. 2001.
+\bibitem{Zhang}Zhang, Lintao y Malik, Sharad: ``The Quest for Efficient Boolean Satisfiability Solvers''.
+\end{thebibliography}
 
 \end{document}
