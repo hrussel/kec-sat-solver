@@ -7,10 +7,15 @@ typedef struct {
 } pure_literal_status;
 
 
-
-//@pre (%forall i:0<=i<sat.st.num_vars: pure_literals[i].pure_literal =UNKNOWN);
-
-
+/**
+ * This function finds all pure literals in a boolean formula.
+ *
+ *@pre (%forall i:0<=i<sat.st.num_vars: pure_literals[i].pure_literal =UNKNOWN);
+* @param pure_literals_size A pointer that will end up having the number
+*        of pure_literals in the formula
+* @return A pointer to an array of those variables (with their polarities) that
+*         are pure literals.
+*/
 variable* find_pure_literals( int* pure_literals_size ) {
     int i=0,j=0;
     variable literal;
