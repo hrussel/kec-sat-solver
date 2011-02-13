@@ -151,8 +151,8 @@ int  eliminate_pure_literals( variable* pure_literals,
                     if ( is_head_watcher(current_clause, literal) ) {
                         status = update_watcher( current_clause );
                         if ( status == UNIT_CLAUSE ) {
-                            current_clause->tail_watcher =
-                                current_clause->head_watcher;
+                            current_clause->head_watcher =
+                                current_clause->tail_watcher;
                         }
                     }
                     else if ( is_tail_watcher(current_clause, literal) ) {
