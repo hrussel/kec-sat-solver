@@ -70,7 +70,6 @@ int decide_next_branch(){
             free_v++;
     }
     
-    
     //If there are no more variables to assign, report an error
     if( free_variable > sat_st.num_vars ){
         push((&sat_st.backtracking_status), (void*)NULL);
@@ -100,8 +99,8 @@ int preprocess(){
     stack unit_clauses;
     initialize_list(&unit_clauses);
     
-    int num_pure_literals;
-    int status;
+    //int num_pure_literals;
+    //int status;
     // variable* pure_literals = find_pure_literals( &num_pure_literals );
     // status = eliminate_pure_literals( pure_literals, num_pure_literals );
 
@@ -134,9 +133,11 @@ int preprocess(){
 int solve_sat(){
     
     int status = preprocess();
-
-    if ( status != DONT_CARE ){
+    
+    if ( status == CONFLICT ){
         return UNSATISFIABLE;
+    } else if ( status == SATISFIED ){
+        return SATISFIABLE;
     }
     
     //The algorithm is an iterative backtracking.
@@ -169,7 +170,6 @@ int solve_sat(){
         
         //If the result is UNKNOWN, continue the recursion (iteratively)
         if( assignment_result == DONT_CARE ){
-            //printf("dont care\n");
             
             if (decide_next_branch() == SATISFIED){
                 return SATISFIABLE;
@@ -180,15 +180,12 @@ int solve_sat(){
         //If the assignment satisfied the formula, return a positive
         //answer and finish the funtion
         else if( assignment_result == UNIT_CLAUSE ){  //TODO this should be SATISFIED
-            //printf("SATISFIED!\n");
             return SATISFIABLE;
         }
         //If the assignment made the formula FALSE, then backtrack until
         //a variable that can be flipped is found.
         else if( assignment_result == CONFLICT ){ 
             
-            //printf("CONFLICT!\n");
-
             decision_level_data *top_el = NULL;
 
             do {
@@ -206,8 +203,7 @@ int solve_sat(){
                     //recursion (iteratively)
 
                     //Flip the value
-                    top_el->assigned_literal =
-                        - top_el->assigned_literal; 
+                    top_el->assigned_literal = - top_el->assigned_literal; 
 
                     top_el->missing_branch = FALSE;
                     break;
@@ -238,8 +234,7 @@ void undo_assignments(decision_level_data *dec_lev_dat){
     variable assigned_var = abs(dec_lev_dat->assigned_literal);
 
     sat_st.model[ assigned_var ] = UNKNOWN;
-    //printf("Undoing variable: %d\n",assigned_var);
-
+    
     //Similarly, unset the assignments for the propageted
     //literals
     while( !empty(&dec_lev_dat->propagated_var) ){
@@ -249,7 +244,6 @@ void undo_assignments(decision_level_data *dec_lev_dat){
 
         assigned_var = abs(*watcher);
         sat_st.model[ assigned_var ] = UNKNOWN;
-        //printf("Undoing variable: %d\n",assigned_var);
         
         pop(&dec_lev_dat->propagated_var);
 
