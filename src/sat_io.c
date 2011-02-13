@@ -1,4 +1,4 @@
-#include "sat.h"
+#include "sat_io.h"
 
 /**
  * The purpose of this function is to initialize a clause from an array
