@@ -34,4 +34,4 @@ bin/pure_literals.o: $(DEP_pure_literals:%=src/%.c) $(DEP_pure_literals:%=lib/%.
 bin/list.o: $(DEP_list:%=src/%.c) $(DEP_list:%=lib/%.h)
 
 clean:
-	rm bin/*.o main
+	rm -f bin/*.o main
