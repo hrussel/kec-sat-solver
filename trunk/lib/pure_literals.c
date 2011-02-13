@@ -26,8 +26,8 @@ variable* find_pure_literals( int* pure_literals_size ) {
 
     for ( i=0; i< sat_st.num_clauses; i++ ) {
         current_clause = sat_st.formula[i];
-
-        if ( current_clause.satisfied != TRUE ) {
+        //@pre current_clause is satisfied.
+        //if ( current_clause.satisfied != TRUE ) {
             for ( j=0; j< current_clause.size; j++ ) {
                 literal = current_clause.literals[j];
                 abs_literal = abs( literal );
@@ -53,7 +53,7 @@ variable* find_pure_literals( int* pure_literals_size ) {
                     }
                 }
             }
-        }
+            //}
     }
 
     for ( i=1; i<= sat_st.num_vars; i++ ) {
@@ -67,14 +67,101 @@ variable* find_pure_literals( int* pure_literals_size ) {
     return pure_literals;
 }
 
+//int  eliminate_pure_literals( variable* pure_literals, 
+//                              int pure_literals_size ) {
+//    int i;
+//    int status = DONT_CARE;
+//
+//    for( i=0; i< pure_literals_size; i++ ) {
+//      // This should be a rewriting of the formula instead of
+//      // a deduce.
+//        status = deduce( pure_literals[i] );
+//    }
+//    free( pure_literals );
+//    return status;
+//}
+/**
+ *
+ *
+ * Note: One minor inconvenience with this function is that it
+ *       alters the order of the literals in a clause and the order
+ *       of appearance of the clauses in a formula.
+ *
+ */
 int  eliminate_pure_literals( variable* pure_literals, 
-                              int pure_literals_size ) {
-    int i;
+                              int num_pure_literals ) {
+    int i,j;
     int status = DONT_CARE;
+    int abs_literal;
+    variable literal;
+    int curr_literal_polarity;
+    clause* current_clause;
 
-    for( i=0; i< pure_literals_size; i++ ) {
-        status = deduce( pure_literals[i] );
+    // For each pure literal, update the model.
+    for( i=0; i<num_pure_literals; i++ ) {
+        literal = pure_literals[i];
+        abs_literal = abs( literal );
+        curr_literal_polarity = abs_literal/literal;
+
+        sat_st.model[abs_literal] = curr_literal_polarity;
     }
-    free( pure_literals );
-    return status;
+
+    for ( i=0; i< sat_st.num_clauses; i++ ) {
+        current_clause = sat_st.formula + i;
+
+        for ( j=0; j< current_clause->size; j++ ) {
+            literal = current_clause->literals[j];
+            abs_literal = abs( literal );
+
+            if ( is_pure_literal(literal, pure_literals, num_pure_literals) ) {
+                // If the clause is a unitary clause and it's single literal
+                // is a pure one. Eliminate the clause.
+                if ( current_clause->size == 1 ) {
+
+                    if ( sat_st.num_clauses <= 1 ) {
+                        return SATISFIED;
+                    }
+                    // If there's another clause of the formula still
+                    // unexamined.
+                    if ( j-i > 1 ) {
+                        swap_clauses( sat_st.formula, j, sat_st.num_clauses-1 );
+                    }
+                    
+                    sat_st.num_clauses--;
+                    free( current_clause->literals );
+                }        
+                else if ( current_clause->size > 1 ) {
+                    // If there's another literal of the clause still
+                    // unexamined.
+                    if ( current_clause->size -j> 1 ) {
+                        swap_literals( current_clause, j, current_clause->size);
+                    }
+                    (current_clause->size)--;
+                }
+            }
+        }
+    }
+}
+
+void swap_literals( clause* cl, int old_index, int new_index ) {
+    variable temp_literal;
+    temp_literal = (cl->literals)[old_index];
+    (cl->literals)[old_index] = (cl->literals)[new_index];
+    (cl->literals)[new_index] = temp_literal;
+}
+
+void swap_clauses( clause* formula, int old_index, int new_index ) {
+
+}
+
+int is_pure_literal( variable literal, variable* pure_literals,
+                     int num_pure_literals ) {
+    int i;
+    for( i=0; i< num_pure_literals; i++ ) {
+
+        if ( literal == pure_literals[i] ) {
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
