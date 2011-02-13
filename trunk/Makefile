@@ -33,5 +33,9 @@ bin/sat_io.o: $(DEP_sat_io:%=src/%.c) $(DEP_sat_io:%=lib/%.h)
 bin/pure_literals.o: $(DEP_pure_literals:%=src/%.c) $(DEP_pure_literals:%=lib/%.h)
 bin/list.o: $(DEP_list:%=src/%.c) $(DEP_list:%=lib/%.h)
 
+.PHONY: doc
+
+doc:
+	doxygen doc/Doxyfile
 clean:
 	rm -f bin/*.o kec_o_sat_s
