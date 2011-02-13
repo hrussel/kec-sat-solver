@@ -16,14 +16,6 @@ void free_decision_level_data(decision_level_data* dld){
     free(dld);
 }
 
-/**
- * The purpose of this procedure is to add the clause cl to the list of
- * clauses where v is watched positively or negatively.
- *
- * @param v The variable that is watched.
- * @param cl A pointer to the clause where v is watched
- *
- */
 inline void add_to_watched_list(variable v, clause* cl){
     
     if ( v > 0 ){
@@ -33,16 +25,6 @@ inline void add_to_watched_list(variable v, clause* cl){
     }
 }
 
-/**
-  Choose a next variable, push the info in the backtracking_status
-  stack. MAke sure that if the stack is empty is because it's
-  the first assignment (else you'll get an infinite loop in the solver).
-
-  This next branch things takes care of flippings! And also
-  backtracking-stuff due to this flippings!
-
-  Return TRUE or FALSE if there where more variables to assign
- */
 int decide_next_branch(){
     //Create the structure that will be pushed
     decision_level_data *dec_lev_dat =
@@ -133,13 +115,6 @@ int preprocess(){
     }
 }
 
-/**
- * This function tries to solve the sat_instance that is stored
- * in the global variable sat_st.
- *
- * @return   SATISFIABLE if an assignment to the SAT variables is
- *           found that satisfies the formula. Otherwise, UNSATISFIABLE.
- */
 int solve_sat(){
     
     int status = preprocess();
@@ -261,28 +236,6 @@ void undo_assignments(decision_level_data *dec_lev_dat){
 
 }
 
-/**
- *
- * This function receives a @e literal and performs Boolean Constrain
- * Propagation (BCP) by calling the appropriate functions that perform Unit
- * Clause Propagation and Pure Literal Elimination.
- *
- * @param literal The variable selected for assignment by the function
- *        @e decide_next_branch.
- * @return Returns a status that indicates how the assignment to variable
- *        @e literal went on. It will return SATISFIED, if after assigning
- *        @e literal a truth value and after Unit Clause propagation and
- *        pure literal elimination has been performed, the formula was
- *        found to be satisfied. It will return DONT_CARE(0), if after assigning
- *        @e literal a truth value and after Unit Clause propagation and
- *        pure literal elimination has been performed, the formula hasn't
- *        still been satisfied and there is still no conflict, so there's the
- *        chance that if we continue to assign some other variables we may find
- *        the formula to be satisfied or conflicted. It will return CONFLICT(2),
- *        if the assignment of @e literal with some value, along with the values
- *        that were previously assigned to some variables is conflictive.
- *        
- */
 int deduce( variable literal ) {
     
     // A variable is a signed integer. If the sign is '-' the variable
@@ -379,18 +332,6 @@ int set_newly_watchers( list* clauses_affected, variable literal )
     }
 }
 
-/**
- * This function receives a stack of unitary clauses whose single variables need
- * to be properly assigned and propagated.
- *    
- * @param unit_clauses A stack of unitary clauses whose single variables need to
- *        be properly assigned and propagated.
- * @return UNIT_CLAUSE(1) If the clause head_clause is unitary.
- *         CONFLICT(2)    If the clause is conflictive with the current model.
- *         DONT_CARE(0)   Neither of the previous two alternatives.
- * @pre unit_clauses != NULL;
- */
-
 int unit_propagation( stack* unit_clauses )
 {
     
@@ -421,68 +362,24 @@ int unit_propagation( stack* unit_clauses )
     return status;
 }
 
-/**
- * Returns the value in the model for a literal. If this literal hasn't still
- * been assigned it returns UNKNOWN(-1).
- * @param literal A pointer to the variable about which we would like to know
- *        its value.
- * @return TRUE(1)     if the value has been assigned TRUE.
- *         FALSE(0)    if the value has been assigned FALSE.
- *         UNKNOWN(-1) if the value has not been assigned.
- */
 int current_literal_value( variable* literal ) {
   return sat_st.model[abs(*literal)];
 }
-
-/**
- * 
- * @param cl A pointer to a clause.
- * @param literal A variable.
- * @return TRUE(1)     if the variable @e literal is the head watcher of @e cl.
- *         FALSE(0)    if the variable @e literal isnt' the head watcher of @e
- *                     cl. 
- */
 
 int is_head_watcher( clause* cl, variable literal ){
     return abs(*(cl->head_watcher)) == abs(literal);
 }
 
-/**
- * 
- * @param cl A pointer to a clause.
- * @param literal A variable.
- * @return TRUE(1)     if the variable @e literal is the tail watcher of @e cl.
- *         FALSE(0)    if the variable @e literal isnt' the tail watcher of @e 
- *                     cl.
- */
-
 int is_tail_watcher( clause* cl, variable literal ){
     return abs(*(cl->tail_watcher)) == abs(literal);
 }
 
-/**
- * This functions swaps the head_watcher and the tail_watcher of the clause cl.
- *
- * @param cl A clause parameter
- * @pre cl != NULL;
- *
- */
 void swap_watchers( clause* cl ){
     variable* tmp = cl->head_watcher;
     cl->head_watcher = cl->tail_watcher;
     cl->tail_watcher = tmp;
 }
 
-/**
- * Return true iff the literal v is true with the current assignment.
- *
- * @param v
- * @return UNIT_CLAUSE(1) If the clause head_clause is unitary.
- *         CONFLICT(2)    If the clause is conflictive with the current model.
- *         DONT_CARE(0)   Neither of the previous two alternatives.
- * @pre 1 <= abs(v) <= sat_st.num_vars
- *
- */
 int is_satisfied( variable v ){
     
     int abs_v = abs(v);
@@ -500,20 +397,6 @@ int is_satisfied( variable v ){
     
     return FALSE;
 }
-
-/**
- * Given a clause and a freshly recently assigned variable occurring in the
- * aforementioned clause that is being pointed to by the head_watcher, searches
- * for some other valid literal to be the new head_watcher. 
- * This method determines if a clause a unitary clause or a conflictive clause.
- *
- * @param head_clause
- * @return UNIT_CLAUSE(1) If the clause head_clause is unitary.
- *         CONFLICT(2)    If the clause is conflictive with the current model.
- *         DONT_CARE(0)   Neither of the previous two alternatives.
- * @pre head_clause != NULL
- *
- */
 
 int update_watcher( clause* clause ) {
     

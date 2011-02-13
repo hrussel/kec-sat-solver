@@ -136,29 +136,3 @@ void print(list* l){
         next = next->next;
     }
 }
-
-/*
-int main(){
-    list l;
-    new_list(&l);
-    
-    int num = 1;
-    int num2 = 2;
-    int num3 = 3;
-    push(&l, &num);
-    push(&l, &num2);
-    push(&l, &num3);
-    print(&l);
-    pop(&l);
-    print(&l);
-    push(&l, &num3);
-    print(&l);
-    multi_pop(&l,3);
-    push(&l, &num);
-    push(&l, &num2);
-    push(&l, &num3);
-    print(&l);
-    multi_pop(&l,7);
-    return 0;
-}
-*/
