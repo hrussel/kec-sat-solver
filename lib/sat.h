@@ -1,6 +1,24 @@
-#ifndef SAT_
+/*******************************************************************************
+ * KECOSATS (Kelwin-Eleazar-Carlos Optimized SAT Solver)
+ *
+ * Definition of the structure used for the SAT solver and signatures of the
+ * procedures.
+ *
+ * The structure used is an array of pointers to clauses, where a clause is
+ * an array of literals, and each literal is an integer. Clause watchers are
+ * also included, and a stack for performing the non-chronological bactracking.
+ *
+ * The procedures defined in this file are used to operate and change the SAT
+ * structure
+ *
+ * @author Colmenares, Carlos (06-39380@usb.ve)
+ * @author Fernandez, Kelwin (07-40888@usb.ve)
+ * @author Leal, Eleazar (06-39780@usb.ve)
+ *
+ ******************************************************************************/
+#ifndef _KECOSATS_SAT_
 
-    #define SAT_
+#define _KECOSATS_SAT_
 
 #include <string.h>
 #include <stdio.h>
