@@ -28,24 +28,30 @@ int main(int argc, char* argv[]){
     //Parse the arguments, the next ones are the default
     //options
     char *cnf_file = NULL;
-
+    char *output_file = NULL;
+    
     {
         int i=1;
         while( i<argc ){
             
             if( strcmp(argv[i],"-f") == 0 && i+1<argc ){
-
+                
                 cnf_file = argv[++i];
-
-            } else {
-
+                
+            } else if ( strcmp(argv[i], "-o") == 0 && i+1<argc){
+                
+                output_file = argv[++i];
+                
+            }else {
+                
                 printf("usage: %s -f <cnf_file> [OPTIONS]\n",argv[0]);
                 printf("    OPTIONS:\n");
-                printf("    -h      Print this message\n");
+                printf("    -h                Print this message\n");
+                printf("    -o <output_file>  Write results in <output_file>\n");
                 exit(1);
-
+                
             }
-
+            
             i++;
         }
 
@@ -53,15 +59,20 @@ int main(int argc, char* argv[]){
 
     //Initialize the instance, print the initial status,
     //and solve
-
+    
     set_initial_sat_status(cnf_file);
     
-    print_status();
     int status = solve_sat();
     
-    print_status();
-    printf("status %d\n", status);
+    if ( status == SATISFIABLE ){
+        printf("kec_o_sat_s: SATISFIABLE\n\n");
+    } else {
+        printf("kec_o_sat_s: UNSATISFIABLE\n\n");
+    }
     
-    print_sol(status, argv[2]);
+    if ( output_file != NULL){
+        print_sol(status, output_file);
+    }
+    
     return 0;
 }
