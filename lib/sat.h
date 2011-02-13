@@ -140,25 +140,61 @@ void set_clause(clause* cl, int clause_length, int literals[]);
 
 void print_formula();
 
-/* Asigna la variable con su polaridad correspondiente en la formula.
-
-   Status:
-   Si la formula es satisfecha retornar TRUE
-   Si hay contradiccion retornar FALSE
-   En caso contrario retornar UNKNOWN
-   
-   Asignar nuevos watched literals en las clausulas en las que ella sea un
-   watched literal.
+/**
+ *
+ * This function receives a @e literal and performs Boolean Constrain
+ * Propagation (BCP) by calling the appropriate functions that perform Unit
+ * Clause Propagation and Pure Literal Elimination.
+ *
+ * @param literal The variable selected for assignment by the function
+ *        @e decide_next_branch.
+ * @return Returns a status that indicates how the assignment to variable
+ *        @e literal went on. It will return SATISFIED, if after assigning
+ *        @e literal a truth value and after Unit Clause propagation and
+ *        pure literal elimination has been performed, the formula was
+ *        found to be satisfied. It will return DONT_CARE(0), if after assigning
+ *        @e literal a truth value and after Unit Clause propagation and
+ *        pure literal elimination has been performed, the formula hasn't
+ *        still been satisfied and there is still no conflict, so there's the
+ *        chance that if we continue to assign some other variables we may find
+ *        the formula to be satisfied or conflicted. It will return CONFLICT(2),
+ *        if the assignment of @e literal with some value, along with the values
+ *        that were previously assigned to some variables is conflictive.
+ *        
  */
 int deduce(variable literal);
 
 int set_newly_watchers( list* clauses_affected, variable literal );
 
+/**
+ * This function receives a stack of unitary clauses whose single variables need
+ * to be properly assigned and propagated.
+ *    
+ * @param unit_clauses A stack of unitary clauses whose single variables need to
+ *        be properly assigned and propagated.
+ * @return UNIT_CLAUSE(1) If the clause head_clause is unitary.
+ *         CONFLICT(2)    If the clause is conflictive with the current model.
+ *         DONT_CARE(0)   Neither of the previous two alternatives.
+ * @pre unit_clauses != NULL;
+ */
+
 int unit_propagation( stack* clauses_not_made_true);
 
 void unassign(variable literal);
 
+/**
+ * Decide the next variable for the backtracking to continue,
+ * once chosen, push it to the @e backtracking_status stack of the
+ * sat_st global variable as a @e decision_level_data structure.
+ *
+ * The policy for chosing an unset variable is to select the one that has
+ * the biggest number of watchers. So as to maximize the number
+ * of satisfied clauses in the assingment and detect faster conflicts
+ * or satisfability of the formula. Thereby, the time complexity of this
+ * procedure is O(num_vars).
+ */
 int decide_next_branch();
+
 
 int sove_sat();
 
@@ -172,23 +208,95 @@ int sove_sat();
  */
 void undo_assignments(decision_level_data *dec_lev_dat);
 
+/**
+ * 
+ * @param cl A pointer to a clause.
+ * @param literal A variable.
+ * @return TRUE(1)     if the variable @e literal is the head watcher of @e cl.
+ *         FALSE(0)    if the variable @e literal isnt' the head watcher of @e
+ *                     cl. 
+ */
 int is_head_watcher( clause* clause, variable literal );
+
+
+/**
+ * 
+ * @param cl A pointer to a clause.
+ * @param literal A variable.
+ * @return TRUE(1)     if the variable @e literal is the tail watcher of @e cl.
+ *         FALSE(0)    if the variable @e literal isnt' the tail watcher of @e 
+ *                     cl.
+ */
 int is_tail_watcher( clause* clause, variable literal );
 
-// Returns the value in the model for a literal.
+/**
+ * Returns the value in the model for a literal. If this literal hasn't still
+ * been assigned it returns UNKNOWN(-1).
+ * @param literal A pointer to the variable about which we would like to know
+ *        its value.
+ * @return TRUE(1)     if the value has been assigned TRUE.
+ *         FALSE(0)    if the value has been assigned FALSE.
+ *         UNKNOWN(-1) if the value has not been assigned.
+ */
 int current_literal_value( variable* literal );
 
+/**
+ * Given a clause and a freshly recently assigned variable occurring in the
+ * aforementioned clause that is being pointed to by the head_watcher, searches
+ * for some other valid literal to be the new head_watcher. 
+ * This method determines if a clause a unitary clause or a conflictive clause.
+ *
+ * @param head_clause
+ * @return UNIT_CLAUSE(1) If the clause head_clause is unitary.
+ *         CONFLICT(2)    If the clause is conflictive with the current model.
+ *         DONT_CARE(0)   Neither of the previous two alternatives.
+ * @pre head_clause != NULL
+ *
+ */
 int update_watcher( clause* clause );
+
+/**
+ * This functions swaps the head_watcher and the tail_watcher of the clause cl.
+ *
+ * @param cl A clause parameter
+ * @pre cl != NULL;
+ *
+ */
 void swap_watchers(clause* cl );
 
+/**
+ * The purpose of this procedure is to add the clause cl to the list of
+ * clauses where v is watched positively or negatively.
+ *
+ * @param v The variable that is watched.
+ * @param cl A pointer to the clause where v is watched
+ *
+ */
 void add_to_watched_list(variable v, clause* cl);
 
+/**
+ * Return true iff the literal v is true with the current assignment.
+ *
+ * @param v
+ * @return UNIT_CLAUSE(1) If the clause head_clause is unitary.
+ *         CONFLICT(2)    If the clause is conflictive with the current model.
+ *         DONT_CARE(0)   Neither of the previous two alternatives.
+ * @pre 1 <= abs(v) <= sat_st.num_vars
+ *
+ */
 int is_satisfied( variable v );
 
 void print_status();
 
 int preprocess();
 
+/**
+ * This function tries to solve the sat_instance that is stored
+ * in the global variable sat_st.
+ *
+ * @return   SATISFIABLE if an assignment to the SAT variables is
+ *           found that satisfies the formula. Otherwise, UNSATISFIABLE.
+ */
 int solve_sat();
 
 void print_sol(int status, char filename[]);
