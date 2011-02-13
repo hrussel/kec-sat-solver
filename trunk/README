@@ -1,1 +1,123 @@
-hola mundo
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+
+                KECOSATS (Kelwin-Eleazar-Carlos Optimized SAT Solver)
+
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+
+Authors:
+ Carlos Colmenares
+ Eleazar Leal
+ Kelwin Fernandez
+
+Universidad Simón Bolívar. 
+Caracas, Venezuela.
+
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+
+% This file is part of KECOSATS
+% This README file was last updated Feb 2011.
+
+README FILE
+-----------
+SUMMARY:
+
+(I)     Tech Specs
+(II)    Compiling
+(III)   Using the SAT solver's executable file 'kec_o_sat_s'
+(III.1) The DIMACS CNF format
+(III.2) Interpreting the 'kec_o_sat_s' output
+(IV)    Further Information
+
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+
+--------------------------------------------------------------------------------
+(I) Tech Specs
+--------------------------------------------------------------------------------
+
+KECOSATS was writen and tested in several computers using either MAC OS X,
+Debian GNU/Linux 6.0 (squeeze) or UBUNTU GNU/Linux 10.04 (Lucid Linx).
+
+The program should run without any trouble in any Intel Pentium III (or
+later, or similar) processor. The RAM memory requirements are directly
+bounded to the size of the SAT instances given to the program.
+
+For compiling the code, the next tools are necessary:
+    (a) GNU Make 3.81 (or later, or equal)
+    (b) gcc 4.4.5 (or later, or equal)
+    (c) Doxygen version 1.7.1 (or later, or equal). NOTE: This tool is only
+        necessary for generating the documentation of the code.
+
+This program has not been tested in any non-UNIX-like OS. Thereby, its
+behaviour in such Operating Systems is unknown for the developers of
+KECOSATS.
+        
+--------------------------------------------------------------------------------
+(II) Compiling KECOSATS
+--------------------------------------------------------------------------------
+
+0.- Unzip all the files in any directory "alpha" (Quotes for clarity,
+    the directory may have any arbitrary name).
+    It is necessary for the active user to have read, write and
+    execute permissions on "alpha".
+
+1.- Go inside KECOSATS's directory and execute the make file:
+    E.G.:
+
+    > cd /opt/kecosats
+    > make
+
+    ( where "alpha" = "/opt/kecosats" )
+
+    Then the KECOSATS will be automatically compiled.
+
+--------------------------------------------------------------------------------
+(III)   Using the SAT solver's executable file 'kec_o_sat_s'
+--------------------------------------------------------------------------------
+
+0.- After compiling, an executable file 'kec_o_sat_s' will be created in the
+    root directory of KECOSATS. Fore using KECOSATS its necessary to execute
+    such file.
+
+1.- For succesfully ussing the KECOSATS, some arguments need to be provided
+    to the executable file, for detailed information about this options, just
+    provide the '-h' flag to the executable. E.G.:
+
+    > ./kec_o_sat_s -h
+
+--------------------------------------------------------------------------------
+(III.1) The DIMACS CNF format
+--------------------------------------------------------------------------------
+
+For providing SAT insances to the KECOSATS, the instance has to be writen in
+a file with the DIMACS CNF format. For further information about this format
+go to:
+
+    http://logic.pdmi.ras.ru/~basolver/dimacs.html
+
+Several SAT instances with DIMACS CNF format can be found in the 'test'
+directory.
+
+--------------------------------------------------------------------------------
+(III.2) Interpreting the 'kec_o_sat_s' output
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+(IV) Further Information
+--------------------------------------------------------------------------------
+
+    The documentation of the KECSATS can be found in the 'doc' directory. Also
+for generating the Doxygen documentation of the code (which will be stored in
+the 'doc' directory), just execute the command 'make doc' in the root directory
+of KECOSATS. E.G.:
+
+    > cd /opt/kecosats
+    > make doc
+
+    If you are interested in KECOSATS or simply want to know any
+information about its designers, feel free to send an email to any
+of the following email addresses:
+
+> carlos.a.colmenares.r@gmail.com
+> leall9000@gmail.com
+> kelwinfc@gmail.com
