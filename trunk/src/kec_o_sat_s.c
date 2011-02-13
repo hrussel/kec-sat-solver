@@ -1,4 +1,4 @@
-#include "main.h"
+#include "kec_o_sat_s.h"
 
 int main(int argc, char* argv[]){
 
