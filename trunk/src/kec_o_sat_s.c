@@ -1,4 +1,22 @@
-#include "kec_o_sat_s.h"
+/*******************************************************************************
+ * KECOSATS (Kelwin-Eleazar-Carlos Optimized SAT Solver)
+ *
+ * Experimental SAT solver that uses non-chronological backtracking, watched
+ * literals, unit progation, and other techniques to solve the given SAT
+ * instance.
+ *
+ * The input to the solver has to be in the
+ * @see <a href="http://logic.pdmi.ras.ru/~basolver/dimacs.html">DIMACS</a>
+ * format.
+ *
+ * @author Colmenares, Carlos (06-39380@usb.ve)
+ * @author Fernandez, Kelwin (07-40888@usb.ve)
+ * @author Leal, Eleazar (06-39780@usb.ve)
+ *
+ ******************************************************************************/
+
+#include<stdio.h>
+#include"sat.h"
 
 int main(int argc, char* argv[]){
 

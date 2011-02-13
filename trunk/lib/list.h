@@ -1,6 +1,17 @@
-#ifndef LIST_
+/*******************************************************************************
+ * KECOSATS (Kelwin-Eleazar-Carlos Optimized SAT Solver)
+ *
+ * Singly-linked list and all its common operations.
+ *
+ * @author Colmenares, Carlos (06-39380@usb.ve)
+ * @author Fernandez, Kelwin (07-40888@usb.ve)
+ * @author Leal, Eleazar (06-39780@usb.ve)
+ *
+ ******************************************************************************/
 
-    #define LIST_
+#ifndef _KECOSATS_LIST_
+
+#define _KECOSATS_LIST_
 
 #include <stdlib.h>
 #include <stdio.h>

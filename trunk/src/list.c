@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * KECOSATS (Kelwin-Eleazar-Carlos Optimized SAT Solver)
+ *
+ * Definition of the functions of the linked list. 
+ *
+ * @author Colmenares, Carlos (06-39380@usb.ve)
+ * @author Fernandez, Kelwin (07-40888@usb.ve)
+ * @author Leal, Eleazar (06-39780@usb.ve)
+ *
+ ******************************************************************************/
 #include "list.h"
 
 list* new_list(){

@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * KECOSATS (Kelwin-Eleazar-Carlos Optimized SAT Solver)
+ *
+ * Source code for the KECOSATS main operations and procedures.
+ *
+ * @author Colmenares, Carlos (06-39380@usb.ve)
+ * @author Fernandez, Kelwin (07-40888@usb.ve)
+ * @author Leal, Eleazar (06-39780@usb.ve)
+ *
+ ******************************************************************************/
 #include "sat.h"
 
 void free_decision_level_data(decision_level_data* dld){
