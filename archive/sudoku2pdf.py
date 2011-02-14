@@ -58,19 +58,22 @@ if __name__ == "__main__":
     left_x = width*0.25 - size*0.5
     right_x = width*0.75 - size*0.5
 
-    #Read the number of test cases
-    cases = int(input_file.readline())
+    #Counter for the number of test cases
+    case_num = 0
 
-    for case_num in range(1,cases+1):
-        if case_num != 1:
+    while True:
+        #Read the cardinality of the sudoku
+        sudoku_card = int(input_file.readline())
+        if sudoku_card == 0:
+            break
+
+        if case_num != 0:
             pdf.showPage()
+        case_num += 1
 
         #Print case num
         pdf.setFont('Times-Bold',15)
         pdf.drawString(width*0.03,height*0.97,"Case #"+str(case_num))
-
-        #Cardinality of the sudoku
-        sudoku_card = int(input_file.readline())
 
         #Sudoku to solve (semi-empty instance)
         sudoku = (input_file.readline()).split()
