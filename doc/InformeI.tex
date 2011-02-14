@@ -18,6 +18,7 @@ backgroundcolor=\color{gray75},
 \begin{document}
 \setlength{\parskip}{2.5mm}
 \setlength{\itemsep}{0ex }
+\tableofcontents
 \section{Introducción}
 
 \subsection{Motivación del proyecto}
@@ -57,13 +58,18 @@ algoritmos exponenciales conocidos para los demás problemas en
 \emph{NP-completos}.
 
 \subsection{Breve descripción del problema} 
-Si $S=\{x_1,x_2,\ldots,x_n\}$ es un conjunto finito de variables booleanas,
-llamemos $\bar{S}=\{\bar{x_1},\bar{x_2},\ldots,\bar{x_n}\}$ al conjunto formado
-por la negación de las variables en $S$. 
+Llamaremos \emph{cláusula} a la disjunción de un conjunto finito de variables
+booleanas, cada una de las cuales puede ocurrir con polaridad positiva (no
+negada: $x_i$) o con polaridad negativa (negada $\overline{x_i}$).  
+Ejemplos de cláusulas son: $(x_1 \wedge x_2)$, $(\overline{x_3})$,
+$(\overline{x_1} \wedge x_3)$.
 
-El \emph{problema de la satisfacción booleana~(SAT)} consiste de la forma
-general de las instancias al problema y de la pregunta:
-\vspace{-2.5mm}
+Una \emph{fórmula} es en cambio la conjunción de un conjunto finito de
+cláusulas. Por ejemplo: $F_1:\ (x_1 \vee x_2 \vee \overline{x_3}) \wedge (x_1
+\vee \overline{x_2}) \wedge (\overline{x_3})$ es una cláusula.
+
+El \emph{problema de la satisfacción booleana~(SAT)} consiste de la
+forma general de las instancias al problema y de la pregunta: \vspace{-2.5mm}
 \begin{enumerate}
 \item La forma general de las instancias: Dados un conjunto finito de variables
   booleanas $x_1,x_2,\ldots,x_n$ y una fórmula booleana $F(x_1,x_2,\ldots,x_n)$
@@ -81,8 +87,10 @@ general de las instancias al problema y de la pregunta:
 \subsection{Fase de Deducción}
 
 Una vez que se ha seleccionado una variable para asignar junto al valor que se
-le asignará, se procede a la propagación de cláusulas unitarias.
-
+le asignará, se inicia la fase de deducción del algoritmo DPLL. Es en esta fase
+que se procede a la identificación y propagación de cláusulas unitarias. En esta
+sección describiremos los algoritmos de propagación de restricciones booleanas y
+de identificación y eliminación de literales puros.
 
 
 \subsubsection{Identificación y propagación de cláusulas
@@ -106,8 +114,8 @@ satisfactible si y sólo si $F_1$ lo es.
 
 Para la implementación de este mecanismo de deducción, se escogió la
 implementación de los \emph{2-watched literals} descrita en las fuentes
-\cite{Marques}, \cite{Zhang} y \cite{ZhangThesis} y que fue propuesta con el programa
-\emph{zChaff}. 
+\cite{Marques}, \cite{Zhang} y \cite{ZhangThesis} y que fue propuesta con el
+programa \emph{zChaff}.
 
 % Seguidamente describiremos someramente la implementación \emph{2-watched
 %   literals} para la detección de cláusulas unitarias. Sin embargo, referimos al
@@ -179,13 +187,43 @@ que la el literal $x_i$ ocurre no negado (polaridad positiva) como testigo o
 todas las cláusulas en las que el literal $\overline{x_i}$ ocurre como testigo o
 \emph{watched literal}.
 
+El programa que proponemos está orientado por los cambios que se efectúan,
+durante la ejecución, sobre una variable global de nombre {\tt sat\_st} que es la
+única con el tipo {\tt SAT\_status} en todo el programa. 
+Este tipo de dato registra: \vspace{-4.5mm}
+\begin{enumerate}
+\item La información que es necesario preservar de la instancia del problema de
+  satisfacción que se ha leído y que se pretende resolver.
+\item El estatus de resolución de un problema de satisfacción en cualquier
+  momento dado.
+\end{enumerate}
+Por esta razón podríamos afirmar que este es el tipo de dato más importante de
+todo el programa.
+Presentamos ahora la definición del tipo {\tt SAT\_status}
+\begin{lstlisting}
+typedef struct SAT_status{    
+    int num_vars;
+    int num_clauses;
+    clause *formula;
+    list *pos_watched_list;
+    list *neg_watched_list;
+    stack backtracking_status;
+    int *model;                     
+} SAT_status;
+\end{lstlisting}
+, para comentar sus campos con detalle:\vspace{-2.5mm}
 \begin{itemize}
+\item El atributo {\tt formula}, representa la fórmula en forma normal
+  conjuntiva. Se trata de un arreglo de cláusulas, cada una de tipo {\tt
+    clause}.
 \item En la implementación que aquí se describe, se optó por por los campos {\tt
     pos\_watched\_list} y {\tt neg\_watched\_list} en el tipo {\tt
     SAT\_status}. Cada uno de éstos es un arreglo de cabezas de listas, de forma
   que {\tt pos\_watched\_list[i]} sea la cabeza de la lista cuyos elementos son
   las cláusulas en las que el literal $x_i$ ocurre como
-  \emph{watcher}. Análogamente ocurre con {\tt neg\_watched\_list[i]}.
+  \emph{watcher}. Análogamente ocurre con {\tt neg\_watched\_list[i]}: es la
+  cabeza de la lista cuyos elementos son las cláusulas en las que el literal
+  $\overline{x_i}$ ocurre como \emph{watcher}.
 
 \item El campo {\tt model} del tipo {\tt SAT\_status} es un arreglo de enteros
   tal que {\tt model[i]} es el valor de asignación que se prueba para la
@@ -198,17 +236,22 @@ todas las cláusulas en las que el literal $\overline{x_i}$ ocurre como testigo 
   poder recorrer el arreglo {\tt formula} de todas las cláusulas que componen la
   fórmula.
 \end{itemize}
-\begin{lstlisting}
-typedef struct SAT_status{    
-    int num_vars;
-    int num_clauses;
-    clause *formula;
-    list *pos_watched_list;
-    list *neg_watched_list;
-    stack backtracking_status;
-    int *model;                     
-} SAT_status;
-\end{lstlisting}
+
+A continuación comentaremos algunos detalles sobre la variable global {\tt
+  sat\_st}. La razón por la que se escogió a {\tt sat\_st} de tipo {\tt
+  SAT\_status} como variable global, en lugar de pasarla como parámetro entre
+las sucesivas llamadas a funciones durante la ejecución del algoritmo son:
+\begin{enumerate}
+\item El pasaje del parámetro {\tt sat\_st} a cada una de las funciones supone
+  un costo acumulado muy grande a lo largo de la ejecución de todo el
+  programa. Cuando bien pudiera ahorrarse la operación de empilar esa parámetro
+  en cada llamada.
+\item Si se pasara una referencia a {\tt sat\_st} como parámetro a cada función,
+  se incurriría en un costo adicional, en comparación con la alternativa de
+  tener a {\tt sat\_st} como variable global, por la indirección que es
+  necesario ejecutar en cada subrutina por cada vez que se quiera acceder a los
+  campos de esta variable.
+\end{enumerate}
 
 \subsection{Descripción de la implementación de las cláusulas}
 
@@ -222,8 +265,7 @@ typedef struct clause{
     variable* literals;
 } clause;
 \end{lstlisting}
-, que a continuación describiremos campo por campo.
-
+, que a continuación describiremos campo por campo.\vspace{-2.5mm}
 \begin{enumerate}
 \item Los apuntadores {\tt head\_watcher} y {\tt tail\_watcher} señalan cuáles
   son los literales testigos ---\emph{watched literals}--- de una cláusula. En
@@ -376,6 +418,7 @@ este formato.)
 Para más detalles acerca de la operación, leer el archivo {\tt README} que se
 incluye con la distribución del programa.
 \section{Estado Actual}
+El programa se encuentra totalmente operativo.
 
 \section{Conclusiones y recomendaciones}
 
