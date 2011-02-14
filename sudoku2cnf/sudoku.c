@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/time.h>
 
 #define BUFFERSIZE 1000000
 #define VARIABLE(i,j,k) n2*(n2*i + j) + k
@@ -14,6 +15,8 @@ char* output_pdf_filename;
 int remove_files;
 char command1[10000];
 char command2[10000];
+
+struct timeval t_p; 
 
 /* This function prints a frame line of a sudoku
  */
@@ -64,8 +67,8 @@ void print_sudoku_pdf(int** t, int n, FILE* fd){
     int i, j;
     int n2 = n*n;
     
-    for (i=0; i<n*n; i++){
-        for (j=0; j<n*n; j++){
+    for (i=0; i<n2; i++){
+        for (j=0; j<n2; j++){
             fprintf(fd, "%d ", t[i][j]);
         }
     }
@@ -81,7 +84,7 @@ void print_sudoku_pdf(int** t, int n, FILE* fd){
  */
 void sudoku2cnf(int** t, int n, char* filename){
     
-    int i, j, k, i1, i2, j1, j2, k1, k2, variables, clauses, n2;
+    int i, j, k, k1, k2, variables, clauses, n2;
     int square, cell1, cell2, asig;
     FILE *f;
     
@@ -273,10 +276,10 @@ void parse_args(int argc, char* argv[]){
             output_pdf_filename = argv[++i];
             
             sprintf(command1,
-                    "../kec_o_sat_s -f %s -o sudoku.out ",
+                    "./kec_o_sat_s -f %s -o sudoku.out ",
                     output_filename);
             sprintf(command2,
-                    "./zchaff sudoku.cnf ",
+                    "./sudoku2cnf/zchaff/zchaff sudoku.cnf ",
                     output_filename);
         } else if ( strcmp(argv[i], "-t") == 0){
             
@@ -311,14 +314,31 @@ void parse_args(int argc, char* argv[]){
 
 void solve_and_read(char* command, int** t, int n, char* solver, FILE* in_pdf){
     
+    
+    double t_inicial, t_final;
+    
+    if (!gettimeofday(&t_p,NULL))
+       t_inicial = (double) t_p.tv_sec + ((double) t_p.tv_usec)/1000000.0;
+    else {
+        printf("Error: Bad time request.\n");
+        exit(2);
+    }
+   
     if ( system(command) == 0 ){
-                
+        
+        if (!gettimeofday(&t_p,NULL))
+            t_final = (double) t_p.tv_sec + ((double) t_p.tv_usec)/1000000.0;
+        else {
+            printf("Error: Bad time request.\n");
+            exit(2);
+        }
+        
         double time = 0;
         if (cnf_output2sudoku(t, n, "sudoku.out", &time)){
             
             print_sudoku(t, n);
             
-            fprintf(in_pdf, "%s\n%lf\n", solver, time);
+            fprintf(in_pdf, "%s\n%1.4lf\n", solver, t_final - t_inicial);
             
             print_sudoku_pdf(t, n, in_pdf);
         }
@@ -405,7 +425,7 @@ int main(int argc, char* argv[]){
             char command3[10000];
             memset(command3, 0, sizeof(command3));
             sprintf(command3,
-                    "%s; ./parse_zchaff_output %d sudoku.out2 sudoku.out",
+                    "%s; ./sudoku2cnf/parse_zchaff_output %d sudoku.out2 sudoku.out",
                     command2, n*n);
             printf("Solving instance with zchaff:\n\n");
             solve_and_read(command2, t, n, "zchaff", in_pdf);
@@ -427,10 +447,10 @@ int main(int argc, char* argv[]){
         
         char command[1000];
         memset(command, 0, sizeof command);
-        sprintf(command, "python ../archive/sudoku2pdf.py auxiliar_pdf sudokus.pdf",
+        sprintf(command, "python archive/sudoku2pdf.py auxiliar_pdf sudokus.pdf",
                          output_pdf_filename);
         system(command);
-        //system("rm -rf auxiliar_pdf");
+        system("rm -rf auxiliar_pdf sudoku.out");
     }
     
     fclose (f);

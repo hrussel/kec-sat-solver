@@ -35,10 +35,13 @@ bin/list.o: $(DEP_list:%=src/%.c) $(DEP_list:%=lib/%.h)
 
 .PHONY: doc
 
+sudoku:
+	make; $(GCC) sudoku2cnf/sudoku.c -o sudoku
+
 doc:
 	doxygen doc/Doxyfile
 clean:
-	rm -f bin/*.o kec_o_sat_s
+	rm -f bin/*.o kec_o_sat_s sudoku
 
 cleandoc:
 	rm -rf doc/html
