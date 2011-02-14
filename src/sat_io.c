@@ -273,6 +273,9 @@ void report_io_error(int kecosats_errno){
             strcat(err_mssg,sat_gs.input_file);
             strcat(err_mssg,", bad format.");
             break;
+        case 5:
+            strcat(err_mssg,"execution timed out");
+            break;
         default:
             strcat(err_mssg,"unknown internal error");
     }
