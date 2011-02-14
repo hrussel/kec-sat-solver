@@ -91,10 +91,10 @@ int preprocess(){
     stack unit_clauses;
     initialize_list(&unit_clauses);
     
-    //int num_pure_literals;
+    int num_pure_literals;
     //int status;
-    // variable* pure_literals = find_pure_literals( &num_pure_literals );
-    // status = eliminate_pure_literals( pure_literals, num_pure_literals );
+    variable* pure_literals = find_pure_literals( &num_pure_literals );
+    //status = eliminate_pure_literals( pure_literals, num_pure_literals );
 
     for (clause = 0;
          clause < sat_st.num_clauses;
