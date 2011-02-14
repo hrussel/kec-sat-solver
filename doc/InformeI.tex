@@ -1,8 +1,9 @@
-\documentclass[12pt,lettersize]{article}
+\documentclass[12pt,lettersize,oneside]{article}
 \usepackage[spanish]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{fancyhdr}
 \usepackage{listings}
 \lstset{
   language=C,
@@ -14,11 +15,16 @@
 {basicstyle=\small\bf\ttfamily,
 backgroundcolor=\color{gray75},
 }
+\pagestyle{fancy}
 
+
+\title{Primer informe de KECOSATS}
+\author{Carlos Colmenares \and Kelwin Fernández \and Eleazar Leal}
 \begin{document}
+\maketitle
 \setlength{\parskip}{2.5mm}
 \setlength{\itemsep}{0ex }
-\tableofcontents
+%\tableofcontents
 \section{Introducción}
 
 \subsection{Motivación del proyecto}
@@ -123,9 +129,27 @@ Entre las razones por las que se escogió el algorimo DPLL están:
 \begin{enumerate}
 \item Este algoritmo es la base para las implementaciones en los
   \emph{SAT-solvers} más eficientes conocidos.
-\item El esquema general del algoritmo es bastante sencillo de implementar.
+\item El esquema general del algoritmo es bastante sencillo de implementar como
+  de comprender.
 \end{enumerate}
 \subsection{Fase de selección de variables a asignar}
+
+En esta primera versión de KECOSATS se propone una heurística para la selección
+de la próxima variable no asignada, a la que se le dará un valor booleano. La
+heurística consiste en seleccionar entre todas las variables no asignadas hasta
+el momento, a aquella variable ---sin importar la polaridad--- que aparezca como
+\emph{watcher} o testigo en el mayor número de cláusulas posible.
+
+La ventajas de haber escogido esta heurística son las siguientes:
+\begin{enumerate}
+\item En la mayoría de las instancias de pequeño tamaño en las que se probó esta
+  heurística, se redujeron los tiempos de ejecución del programa.
+\item Se trata de una heurística muy sencilla de comprender e implementar.
+\end{enumerate}
+
+Como desventaja de esta heurística está que obviamente en el peor caso, habrá
+que recorrer la lista completa de variables para encontrar aquel literal que
+ocurre en el mayor número de cláusulas como \emph{watcher}.
 
 \subsection{Fase de deducción}
 
@@ -218,7 +242,7 @@ fórmula se encuentra con un literal que ocurre con una polaridad distinta a la
 ya observada anteriormente para ese literal, se descarta que esa variable sea un
 literal puro. Para más detalles consultar más adelante.
 
-\section{Detalles de implementación}
+\section{Implementación}
 
 
 La implementación de la propagación de cláusulas unitarias con 2 testigos por
@@ -296,7 +320,7 @@ las sucesivas llamadas a funciones durante la ejecución del algoritmo son:
   campos de esta variable.
 \end{enumerate}
 
-\subsection{Descripción de la implementación de las cláusulas}
+\subsection{Implementación de las cláusulas}
 
 Para la implementación de cada cláusula se definió el siguiente tipo de dato
 {\tt clause}:
@@ -343,7 +367,7 @@ variables apuntado por {\tt literals} implica: \vspace{-2.5mm}
   enlazada.
 \end{itemize}
 
-\subsection{Descripción de la implementación del \emph{Backtracking}}
+\subsection{Implementación del \emph{Backtracking}}
 \subsubsection{\'Arbol implícito del \emph{Backtracking}}\label{backtracking}
 Toda implementación de \emph{Backtracking} es un recorrido \emph{Depth-First
   Search} sobre una arborescencia implícita. Esta descripción implícita de la
@@ -416,9 +440,10 @@ que a continuación describimos:
   si y sólo si el conjunto de asignaciones
   $[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} = \overline{v_k} ]$,
   $k<n$ \emph{todavía no ha sido estudiado} si es nodo o no.
-
 \item El campo {\tt propagated\_var} es la cabeza de una lista cuyos elementos
-  son todas las variables booleanas 
+  son todas las variables booleanas cuya asignación actual se dedujo a partir de
+  la propagación de cláusulas unitarias que aparecen en la fórmula como
+  consecuencia de la asignación del {\tt assigned\_literal}.
 \end{enumerate}
 
 \subsubsection{Ventajas de la implementación escogida para el
@@ -464,6 +489,7 @@ incluye con la distribución del programa.
 El programa se encuentra totalmente operativo.
 
 \section{Conclusiones y recomendaciones}
+
 
 \begin{thebibliography}{99}
 \bibitem{Cook}Cook, Stephen: ``The complexity of theorem-proving
