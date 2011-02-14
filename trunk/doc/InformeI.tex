@@ -82,9 +82,52 @@ forma general de las instancias al problema y de la pregunta: \vspace{-2.5mm}
 \section{Diseño}
 
 \subsection{Descripción general del algoritmo empleado}
+El programa propuesto sigue el esquema general del algoritmo DPLL que presentaron
+Martin Davis, Hilary Putnam, George Logemann y Donald Loveland para decidir el
+problema de satisfacción booleana.
+
+Seguidamente presentamos el esquema general del algoritmo DPLL, que hemos
+adaptado de \cite{Zhang}:
+
+\begin{lstlisting}
+  status = preprocess(); 
+if (status != UNKNOWN) return status; 
+while(true) { 
+  // Fase de seleccion de variable a asignar.
+  decide_next_branch(); 
+  while (true) { 
+    // Fase de deduccion.
+    status = deduce(); 
+    if (status == CONFLICT) { 
+      conflict_result = analyze_conflict(); 
+      if (conflict_result == 0) 
+        return UNSATISFIABLE; 
+      else backtrack; 
+    } 
+    else if (status == SATISFIABLE) 
+      return SATISFIABLE; 
+    else break; 
+  } 
+ } 
+\end{lstlisting}
+\vspace{-2.5mm}
+
+Uno de los puntos en que esta presentación del algoritmo diverge del que
+presenta \cite{Zhang} es en el análisis de conflicto y en la posibilidad de
+efectuar un \emph{backtracking} no cronológico. En el programa que aquí
+describimos, no se realiza sino una versión muy simplificada de análisis de
+conflicto, en donde no hay aprendizaje de cláusulas y el \emph{backtracking} se
+hace sólo de un nivel de decisión en un nivel de decisión (cronológico).
+
+Entre las razones por las que se escogió el algorimo DPLL están:
+\begin{enumerate}
+\item Este algoritmo es la base para las implementaciones en los
+  \emph{SAT-solvers} más eficientes conocidos.
+\item El esquema general del algoritmo es bastante sencillo de implementar.
+\end{enumerate}
 \subsection{Fase de selección de variables a asignar}
 
-\subsection{Fase de Deducción}
+\subsection{Fase de deducción}
 
 Una vez que se ha seleccionado una variable para asignar junto al valor que se
 le asignará, se inicia la fase de deducción del algoritmo DPLL. Es en esta fase
