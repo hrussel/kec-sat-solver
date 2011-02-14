@@ -254,7 +254,7 @@ void print_sol(int status){
 void report_io_error(int kecosats_errno){
     
     char err_mssg[BUFFERSIZE];
-    sprintf(err_mssg, "%s ERROR ", sat_gs.program_name);
+    sprintf(err_mssg, "%s: ERROR! ", sat_gs.program_name);
 
     switch(kecosats_errno){
         case 1:
