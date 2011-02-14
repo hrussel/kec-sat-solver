@@ -5,9 +5,11 @@
 
 #define BUFFERSIZE 1000000
 #define VARIABLE(i,j,k) n2*(n2*i + j) + k
-#define FILA(c,i) (n * ( c / n ) + (i / n))
-#define COLUMNA(c,i) (n * (c % n) + (i % n))
+#define ROW(c,i) (n * ( c / n ) + (i / n))
+#define COLUMN(c,i) (n * (c % n) + (i % n))
 
+/* This function prints a frame line of a sudoku
+ */
 void print_line(int n){
     
     int i, n2;
@@ -25,7 +27,7 @@ void print_line(int n){
     printf("+\n");
 }
 
-/* Print a sudoku of size n */
+/* This function prints a sudoku of size n */
 void print_sudoku(int** t, int n){
     
     int i, j;
@@ -51,10 +53,17 @@ void print_sudoku(int** t, int n){
     printf("\n");
 }
 
+/* It generates a CNF formula corresponding
+ * to the sudoku board of size n contained
+ * in t.
+ * 
+ * The instance will be written in the file
+ * "filename"
+ */
 void sudoku2cnf(int** t, int n, char* filename){
     
-    int i, j, k, i1, i2, j1, j2, k1, k2, variables, clausulas, n2;
-    int cuadro, celda1, celda2, asig;
+    int i, j, k, i1, i2, j1, j2, k1, k2, variables, clauses, n2;
+    int square, cell1, cell2, asig;
     FILE *f;
     
     n2 = n*n;
@@ -69,11 +78,11 @@ void sudoku2cnf(int** t, int n, char* filename){
     }
     
     variables = n2*n2*n2;
-    clausulas  = n2*n2*(1 + 4*((n2*(n2-1))/2)) + asig;
+    clauses  = n2*n2*(1 + 4*((n2*(n2-1))/2)) + asig;
     
     f = fopen(filename, "w+");
     
-    fprintf(f, "p cnf %d %d\n", variables, clausulas);
+    fprintf(f, "p cnf %d %d\n", variables, clauses);
     
     // A value can occur at most once in a cell
     
@@ -124,16 +133,16 @@ void sudoku2cnf(int** t, int n, char* filename){
     }
     
     // Two cells in a same square, can't be assigned the same value
-    for (cuadro = 0; cuadro < n2; cuadro++){
-        for (celda1 = 0; celda1 < n2; celda1++){
-            for (celda2 = 0; celda2 < celda1; celda2++){
+    for (square = 0; square < n2; square++){
+        for (cell1 = 0; cell1 < n2; cell1++){
+            for (cell2 = 0; cell2 < cell1; cell2++){
                 for (k = 1; k <= n2; k++){
                     fprintf(f, "-%d -%d 0\n",
-                               VARIABLE(FILA(cuadro, celda1),
-                                        COLUMNA(cuadro, celda1),
+                               VARIABLE(ROW(square, cell1),
+                                        COLUMN(square, cell1),
                                         k),
-                               VARIABLE(FILA(cuadro, celda2),
-                                        COLUMNA(cuadro, celda2),
+                               VARIABLE(ROW(square, cell2),
+                                        COLUMN(square, cell2),
                                         k)
                             );
                 }
@@ -153,10 +162,10 @@ void sudoku2cnf(int** t, int n, char* filename){
     fclose(f);
 }
 
-/* Lee la salida del tablero de sudoku t de orden n proveniente
-   del solver minisat en el archivo <filename>
+/* This function reads the output of the SAT solver and
+ * it writes it in t.
  */
-int leer_salida(int** t, int n, char* filename){
+int cnf_output2sudoku(int** t, int n, char* filename){
     
     FILE *f;
     
@@ -190,6 +199,16 @@ int leer_salida(int** t, int n, char* filename){
     return 0;
 }
 
+void solve_and_read(char* command, int** t, int n){
+    
+    system(command);
+    
+    if ( cnf_output2sudoku(t, n, "sudoku.out") ){
+        print_sudoku(t, n);
+    }
+}
+
+
 int main(int argc, char* argv[]){
     
     FILE *f;
@@ -200,10 +219,9 @@ int main(int argc, char* argv[]){
     
     f = fopen(filename, "r");
     
-    /* Lectura de cada tablero */
-    
     const clock_t begin_time = clock();
     
+    // It reads each instance of sudoku problem
     while(fscanf(f, "%d", &n) != EOF){
         
         system("rm -rf sudoku.cnf result");
@@ -213,6 +231,8 @@ int main(int argc, char* argv[]){
         memset(s, 0, sizeof s);
         fscanf(f, "%s", s);
         
+        // Allocate memmory for the board
+        
         t = (int**)malloc(n2*sizeof(int*));
         for (i=0; i<n2; i++){
             t[i] = (int*)malloc(n2*sizeof(int));
@@ -221,7 +241,7 @@ int main(int argc, char* argv[]){
         index = 0;
         s_size = strlen(s);
         
-        /* Lectura de las casillas del tablero */
+        // It reads the initial state of each cell in the board
         for (i=0; i<n2; i++){
             for (j=0; j<n2; j++){
                 
@@ -235,17 +255,23 @@ int main(int argc, char* argv[]){
             }
         }
         
+        // It transforms the problem of sudoku to a SAT instance.
+        
         sudoku2cnf(t, n, "sudoku.cnf");
         
-        system("../keck_o_sat_s sudoku.cnf sudoku.out");
-        
-        system("./minisat sudoku.cnf sudoku.out");
-        //system("../kec-sat-solver/lib/sat sudoku.cnf sudoku.out");
-        
         print_sudoku(t, n);
-        if ( leer_salida(t, n, "sudoku.out") ){
-            print_sudoku(t, n);
+        
+        printf("Solving instance:\n\n");
+        
+        solve_and_read("./minisat sudoku.cnf sudoku.out > salida_aux; rm salida_aux", t, n);
+        
+        solve_and_read("../kec_o_sat_s -f sudoku.cnf -o sudoku.out", t, n);
+        
+        t = (int**)malloc(n2*sizeof(int*));
+        for (i=0; i<n2; i++){
+            free(t[i]);
         }
+        free(t);
     }
     
     printf("%f\n", (float)( clock () - begin_time ) /  CLOCKS_PER_SEC);
