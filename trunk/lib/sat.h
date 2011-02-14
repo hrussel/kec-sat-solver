@@ -136,6 +136,9 @@ typedef struct decision_level_data{
  *          is printed through stdout
  *  @param  verbose_mode If set to TRUE, the program will run in verbose
  *          mode and report aditional information when executing
+ *  @param  time_out Defines a time limit for the execution of the program;
+ *          after time_out seconds have elapsed, the program will abort. If
+ *          set to zero, then no time limit is defined
  *  @param  detect_pure_literals If set to true, then run the pure
  *          literals detection algorithm on each iteration of the
  *          backtracking. This option is set to FALSE by default.
@@ -146,6 +149,7 @@ typedef struct SAT_global_settings {
     char *input_file;
     char *output_file;
     int verbose_mode;
+    int time_out;
     int detect_pure_literals;
 
 } SAT_global_settings;

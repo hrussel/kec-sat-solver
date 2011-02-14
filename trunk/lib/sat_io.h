@@ -72,6 +72,7 @@ void print_sol(int status);
  *          2 = Error opening output_file
  *          3 = Error allocating memory
  *          4 = Format error in the input file
+ *          5 = Execution timed out
 */
 void report_io_error(int kecosats_errno);
 

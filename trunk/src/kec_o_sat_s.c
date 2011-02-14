@@ -16,10 +16,13 @@
  ******************************************************************************/
 
 #include<stdio.h>
+#include<signal.h>
+#include<unistd.h>
 #include"sat.h"
 #include"sat_io.h"
 
 void print_usage();
+void catch_alarm();
 
 int main(int argc, char* argv[]){
 
@@ -35,8 +38,9 @@ int main(int argc, char* argv[]){
     sat_gs.input_file = NULL;
     sat_gs.output_file = NULL;
     sat_gs.verbose_mode = FALSE;
+    sat_gs.time_out = 0;
     sat_gs.detect_pure_literals = FALSE;
-    
+
     {
         int i=1;
         while( i<argc ){
@@ -57,6 +61,10 @@ int main(int argc, char* argv[]){
                 
                 sat_gs.detect_pure_literals = TRUE;
 
+            } else if( strcmp(argv[i],"-t") == 0 && i+1<argc ){
+                
+                sat_gs.time_out = atoi(argv[++i]);
+
             }else {
                 print_usage();                
                 exit(1);
@@ -67,13 +75,19 @@ int main(int argc, char* argv[]){
 
     }
 
+    //Set the catcher for alarm signals
+    signal(SIGALRM, catch_alarm);
+
     //Initialize the instance, print the initial status,
     //and solve
-    
     set_initial_sat_status();
     
+    //Set the alarm before trying to solve the SAT instance,
+    //and unset it after solving
+    alarm(sat_gs.time_out);
     int status = solve_sat();
-    
+    alarm(0);
+
     if ( status == SATISFIABLE ){
         printf("%s: SATISFIABLE\n\n",sat_gs.program_name);
     } else {
@@ -105,7 +119,12 @@ void print_usage(){
     printf("\n");
     printf("    -pl               Activates pure literal deduction algorithm\n");
     printf("                      for detecting pure literals in each iteration\n");
-
+    printf("\n");
+    printf("    -t <time_out>     Abort the execution of the program after 'time_out'\n");
+    printf("                      seconds have elapsed\n");
+    printf("\n");
 }
 
-
+void catch_alarm(int sig_num){
+    report_io_error(5);
+}
