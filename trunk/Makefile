@@ -39,3 +39,6 @@ doc:
 	doxygen doc/Doxyfile
 clean:
 	rm -f bin/*.o kec_o_sat_s
+
+cleandoc:
+	rm -rf doc/html

@@ -126,19 +126,36 @@ typedef struct decision_level_data{
 } decision_level_data;
 
 /**
+ * This structure defines the different settings that define the behaviour
+ * or characteristics of the SAT solver. This settings are setted with
+ * the arguments passed to the program when excuted
+ *
+ *  @param  program_name The name of the program
+ *  @param  input_file The path to the input file
+ *  @param  output_file The path to the output file. If NULL, the output
+ *          is printed through stdout
+ *  @param  verbose_mode If set to TRUE, the program will run in verbose
+ *          mode and report aditional information when executing
+ */
+typedef struct SAT_global_settings {
+
+    char *program_name;
+    char *input_file;
+    char *output_file;
+    int verbose_mode;
+
+} SAT_global_settings;
+
+/**
  * This function destroys an element of type decision_level_data:
  * It destroys its internal lists and also frees its own block of
  * data
  */
 void free_decision_level_data(decision_level_data* dld);
 
-void set_initial_sat_status(char filename[]);
-
 void allocate_sat_status();
 
 void set_clause(clause* cl, int clause_length, int literals[]);
-
-void print_formula();
 
 /**
  *
@@ -299,8 +316,8 @@ int preprocess();
  */
 int solve_sat();
 
-void print_sol(int status, char filename[]);
-
 SAT_status sat_st;
+
+SAT_global_settings sat_gs;
 
 #endif

@@ -69,7 +69,7 @@ void allocate_sat_status(){
     }
 }
 
-void set_initial_sat_status(char filename[]){
+void set_initial_sat_status(){
     
     char *buffer;
     int clauses, current_literal, clause_length;
@@ -78,10 +78,10 @@ void set_initial_sat_status(char filename[]){
     FILE * file;
     size_t nbytes;
     
-    file = fopen (filename,"r");
+    file = fopen (sat_gs.input_file,"r");
     if ( file == NULL ){
         char error_msg[1000];
-        sprintf(error_msg,"kec-sat-solver error: Impossible to open file %s",filename);
+        sprintf(error_msg,"kec-sat-solver error: Impossible to open file %s",sat_gs.input_file);
         perror(error_msg);
         exit(1);
     }
@@ -227,12 +227,12 @@ void print_status(){
     printf("---------------------------------------------------------------\n");
 }
 
-void print_sol(int status, char filename[]){
+void print_sol(int status){
     
     FILE * file;
     char* buffer;
     
-    file = fopen (filename,"w");
+    file = fopen (sat_gs.output_file,"w");
     if ( file == NULL ){
         printf("Error: Couldn't open file\n");
         exit(1);

@@ -51,16 +51,14 @@ void allocate_sat_status();
  * space for the global structure sat_st and initializes its elements
  * with the information just collected from the file.
  *
- * @param filename The name of the file that contains the boolean
- *        formula (in DIMACS format) we intend to read.
  * @see  DIMACS reference...
  */
-void set_initial_sat_status(char filename[]);
+void set_initial_sat_status();
 
 void print_formula();
 
 void print_status();
 
-void print_sol(int status, char filename[]);
+void print_sol(int status);
 
 #endif
