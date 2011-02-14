@@ -61,4 +61,18 @@ void print_status();
 
 void print_sol(int status);
 
+/**
+ * If an error is made when performing IO, this function should be called
+ * with the proper error number, so the error will be reported through
+ * stderr and the program execution will be abortet.
+ *
+ * @param   kecosats_errno The error number of the error that occurred in
+ *          the execution, the codes are the following:
+ *          1 = Error opening input_file
+ *          2 = Error opening output_file
+ *          3 = Error allocating memory
+ *          4 = Format error in the input file
+*/
+void report_io_error(int kecosats_errno);
+
 #endif

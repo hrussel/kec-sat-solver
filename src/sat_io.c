@@ -43,30 +43,30 @@ void set_clause( clause* cl, int clause_length, int lit[] ){
 void allocate_sat_status(){
     // Allocate space for the boolean formula.
     sat_st.formula = (clause*) malloc ( sat_st.num_clauses*sizeof(clause) );
+    if( sat_st.formula == NULL )
+        report_io_error(3);
     
     sat_st.pos_watched_list =
         (list*) malloc( (sat_st.num_vars+1)*sizeof(list) );
+    if( sat_st.pos_watched_list == NULL )
+        report_io_error(3);
+
     sat_st.neg_watched_list =
         (list*) malloc( (sat_st.num_vars+1)*sizeof(list) );
-    
+    if( sat_st.neg_watched_list == NULL )
+        report_io_error(3);
+
     memset( sat_st.pos_watched_list, 0, (sat_st.num_vars + 1)*sizeof(list));
     memset( sat_st.neg_watched_list, 0, (sat_st.num_vars + 1)*sizeof(list));
     
     // Allocate space for the model: the current assignment of truth values
     // to literals that is being studied.
     sat_st.model = (int*)malloc( (sat_st.num_vars+1)*sizeof(int) );
+    if( sat_st.model == NULL )
+        report_io_error(3);
+
     memset(sat_st.model, -1, (sat_st.num_vars+1)*sizeof(int));
     
-    if (   sat_st.formula 
-        && sat_st.pos_watched_list
-        && sat_st.neg_watched_list
-        && sat_st.model
-            == FALSE
-        )
-    {
-        printf("Error: Couldn't allocate memory\n");
-        exit(1);
-    }
 }
 
 void set_initial_sat_status(){
@@ -80,16 +80,12 @@ void set_initial_sat_status(){
     
     file = fopen (sat_gs.input_file,"r");
     if ( file == NULL ){
-        char error_msg[1000];
-        sprintf(error_msg,"kec-sat-solver error: Impossible to open file %s",sat_gs.input_file);
-        perror(error_msg);
-        exit(1);
+        report_io_error(1);
     }
     
     buffer = (char*) malloc( (BUFFERSIZE + 1)*sizeof(char) );    
     if ( buffer == NULL ){
-        printf("Error: Couldn't allocate memory\n");
-        exit(1);
+        report_io_error(3);
     }
     
     nbytes = BUFFERSIZE;
@@ -115,9 +111,8 @@ void set_initial_sat_status(){
         
         r_getline = getline (&buffer, &nbytes, file);
         
-        if ( r_getline == 0){
-            printf("Error\n");
-            exit(1);
+        if ( r_getline <= 0){
+            report_io_error(4);
         }
         
         if (*buffer == 'c')
@@ -234,14 +229,12 @@ void print_sol(int status){
     
     file = fopen (sat_gs.output_file,"w");
     if ( file == NULL ){
-        printf("Error: Couldn't open file\n");
-        exit(1);
+        report_io_error(2);
     }
     
     buffer = (char*) malloc( (BUFFERSIZE + 1)*sizeof(char) );    
     if ( buffer == NULL ){
-        printf("Error: Couldn't allocate memory\n");
-        exit(1);
+        report_io_error(3);
     }
     
     if ( status != SATISFIED ){
@@ -256,4 +249,33 @@ void print_sol(int status){
     }
     
     fclose(file);
+}
+
+void report_io_error(int kecosats_errno){
+    
+    char err_mssg[BUFFERSIZE];
+    sprintf(err_mssg, "%s ERROR ", sat_gs.program_name);
+
+    switch(kecosats_errno){
+        case 1:
+            strcat(err_mssg,"while opening file ");
+            strcat(err_mssg,sat_gs.input_file);
+            break;
+        case 2:
+            strcat(err_mssg,"while opening file ");
+            strcat(err_mssg,sat_gs.output_file);
+            break;
+        case 3:
+            strcat(err_mssg,"allocating memory ");
+            break;
+        case 4:
+            strcat(err_mssg,"parsing input file ");
+            strcat(err_mssg,sat_gs.input_file);
+            strcat(err_mssg,", bad format.");
+            break;
+        default:
+            strcat(err_mssg,"unknown internal error");
+    }
+    perror(err_mssg);
+    exit(kecosats_errno);
 }
