@@ -31,14 +31,11 @@ int main(int argc, char* argv[]){
     //Parse the arguments, and stor them in the SAT_global_settings
     //global variable sat_gs. The next ones are the default
     //options:
-
-    //char *cnf_file = NULL;
-    //char *output_file = NULL;
-
     sat_gs.program_name = argv[0];
     sat_gs.input_file = NULL;
     sat_gs.output_file = NULL;
     sat_gs.verbose_mode = FALSE;
+    sat_gs.detect_pure_literals = FALSE;
     
     {
         int i=1;
@@ -55,6 +52,10 @@ int main(int argc, char* argv[]){
             } else if ( strcmp(argv[i], "-v") == 0 ){
                 
                 sat_gs.verbose_mode = TRUE;
+
+            } else if ( strcmp(argv[i], "-pl") == 0 ){
+                
+                sat_gs.detect_pure_literals = TRUE;
 
             }else {
                 print_usage();                
@@ -101,6 +102,9 @@ void print_usage(){
     printf("    -v                Activates verbose mode; Prints detailed\n");
     printf("                      information about the status of the algorithm\n");
     printf("                      when executing\n");
+    printf("\n");
+    printf("    -pl               Activates pure literal deduction algorithm\n");
+    printf("                      for detecting pure literals in each iteration\n");
 
 }
 
