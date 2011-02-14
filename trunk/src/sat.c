@@ -94,9 +94,9 @@ int preprocess(){
 
     if( sat_gs.detect_pure_literals ){
         int num_pure_literals;
-        //int status;
+        int status;
         variable* pure_literals = find_pure_literals( &num_pure_literals );
-        //status = eliminate_pure_literals( pure_literals, num_pure_literals );
+        status = eliminate_pure_literals( pure_literals, num_pure_literals );
     }
 
     for (clause = 0;
