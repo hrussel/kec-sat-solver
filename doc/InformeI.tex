@@ -42,18 +42,19 @@ la notoria característica de que para ellos no se conoce un algoritmo polinomia
 (en función del tamaño de la instancia) que les de solución, una cualidad que
 comparten todos los problemas en esta clase, junto al hecho de que todos estos
 problemas ocurren con una marcada frecuencia en el área de la computación. Sin
-embargo, la característica más especial de todos estos problemas es el segundo
-ítem de arriba: encontrar un algoritmo polinomial para tan sólo uno de estos
-problemas es encontrar un algoritmo polinomial para todos.
+embargo, la característica más especial de éstos es el segundo ítem de arriba:
+encontrar un algoritmo polinomial para tan sólo uno de ellos es encontrar un
+algoritmo polinomial para todos.
 
 De modo pues que la motivación para este proyecto estriba en el hecho de que
-\emph{SAT} fue el primer problema que se encontró en \emph{NP-Completos} y que
-todos los problemas en esta clase son reducibles en tiempo polinomial a
-él. Siendo así y bajo el supuesto de que estas reducciones a \emph{SAT} se
-caractericen por polinomios de bajo grado y coeficientes pequeños, cualquier
-mejora en tiempo que se pueda realizar a los algoritmos exponenciales hoy
-conocidos para resolver el problema \emph{SAT} es una mejora para los algoritmos
-exponenciales conocidos para los demás problemas en \emph{NP-completos}.
+\emph{SAT} fue el primer problema que se demostró que pertenece a
+\emph{NP-Completos} y que todos los problemas en esta clase son reducibles en
+tiempo polinomial a él. Siendo así y bajo el supuesto de que estas reducciones a
+\emph{SAT} se caractericen por polinomios de bajo grado y coeficientes pequeños,
+cualquier mejora en tiempo que se pueda realizar a los algoritmos exponenciales
+hoy conocidos para resolver el problema \emph{SAT} es una mejora para los
+algoritmos exponenciales conocidos para los demás problemas en
+\emph{NP-completos}.
 
 \subsection{Breve descripción del problema} 
 Si $S=\{x_1,x_2,\ldots,x_n\}$ es un conjunto finito de variables booleanas,
@@ -74,26 +75,109 @@ general de las instancias al problema y de la pregunta:
 
 \section{Diseño}
 
+\subsection{Descripción general del algoritmo empleado}
 \subsection{Fase de selección de variables a asignar}
 
 \subsection{Fase de Deducción}
 
-\subsubsection{Propagación de cláusulas unitarias}
+Una vez que se ha seleccionado una variable para asignar junto al valor que se
+le asignará, se procede a la propagación de cláusulas unitarias.
+
+
+
+\subsubsection{Identificación y propagación de cláusulas
+  unitarias}\label{UnitPropagation}
+Tal como se indica en \cite{Zhang} y \cite{ZhangThesis}, con el estudio de
+implementaciones del algoritmo DPLL que se han realizado con el pasar de los
+años, sugiere que la propagación de cláusulas unitarias como mecanismo de
+deducción parece ser el más eficiente que se ha encontrado hasta ahora.
+
+La \emph{propagación de cláusulas unitarias} consiste en ubicar cúales cláusulas
+de la fórmula ---dada ésta en forma normal conjuntiva--- están compuestas de un
+sólo literal. Estas cláusulas son llamadas \emph{cláusulas unitarias} y se
+satisfacen con asignar a éste único literal el valor de verdad correspondiente.
+Lo explicamos con un ejemplo: En la fórmula $F_1:\ (x_1 \vee x_2 \vee
+\overline{x_3}) \wedge (x_1 \vee \overline{x_2}) \wedge (\overline{x_3})$, la
+única cláusula unitaria es $\overline{x_3}$. Si se asigna $x_3:=0$, queda la
+nueva fórmula $F_2:\ (x_1 \vee x_2 \vee \overline{x_3}) \wedge (x_1 \vee
+\overline{x_2}) $ y bajo el supuesto de que $x_3=0$ se tiene que $F_2$ es
+satisfactible si y sólo si $F_1$ lo es.
+
+
+Para la implementación de este mecanismo de deducción, se escogió la
+implementación de los \emph{2-watched literals} descrita en las fuentes
+\cite{Marques}, \cite{Zhang} y \cite{ZhangThesis} y que fue propuesta con el programa
+\emph{zChaff}. 
+
+% Seguidamente describiremos someramente la implementación \emph{2-watched
+%   literals} para la detección de cláusulas unitarias. Sin embargo, referimos al
+% lector a los trabajos \cite{Marques}, \cite{Zhang} y \cite{ZhangThesis} para una
+% explicación más detallada.
+
+
+Las razones para escoger esta implementación de \emph{2-watched literals} para
+la identificación de cláusulas unitarias son las siguientes:\vspace{-2.5mm}
+\begin{enumerate}
+\item En pruebas de ejecución\cite{Zhang} se ha observado que el comportamiento
+  de la implementación por \emph{2-watched literals} requiere de menor tiempo
+  que implementaciones como la de \emph{SATO} ---implementación a la que
+  \cite{Zhang} se refiere como \emph{Head/Tail lists}--- y considerablemente
+  menor tiempo que la implementación por contadores.
+\item La implementación de \emph{2-watched literals} no requiere que se realicen
+  operaciones sobre los \emph{watchers}, o sobre el conjunto de datos que
+  permite directamente determinar cuáles son las cláusulas unitarias, cuando se
+  realiza el \emph{backtracking} a un nivel de decisión anterior. Las
+  implementaciones de \emph{SATO} y contadores sí requieren estas
+  operaciones. Esta ventaja es señalada por el trabajo \cite{Marques}.
+\end{enumerate}
+
+Entre las desventajas que trae consigo la implementación de \emph{2-watched
+  literlas} está:\vspace{-2.5mm}
+\begin{enumerate}
+\item Cuando es necesario mover alguno de los \emph{watchers}, porque la variable
+  a la que apuntan en la cláusula resulta asignada, se debe buscar una nueva
+  variable no asignada---puede que ni exista tal variable--- en la misma
+  cláusula. Entonces, en el peor caso, para identificar una cláusula unitaria,
+  la implementación de \emph{2-watched literals} tendrá que \emph{recorrer todos
+    los literales de una misma cláusula} en busca de esta variable no asignada.
+\end{enumerate}
+
+
 
 \subsubsection{Eliminación de literales puros}
 
+La \emph{eliminación de literales puros} en una fórmula dada en forma normal
+conjuntiva consiste en ubicar primero cuáles son las variables booleanas que
+sólo ocurren con una polaridad en la fórmula. Ahora bien, estos literales que
+ocurren con una única polaridad en toda la fórmula no condicionan la
+satisfacción de la fórmula; es decir, si se eliminaran todos los literales
+puros, la fórmula resultante es satisfactible si y sólo si asignando a los
+literales puros los valores de verdad que los satisfagan, se logra que la
+fórmula original lo sea. Lo explicamos con un ejemplo: En la fórmula siguiente
+$F_1:\ (x_1 \vee x_2 \vee \overline{x_3}) \wedge (x_1 \vee \overline{x_2})
+\wedge (\overline{x_3})$ el único literal puro es $x_1$, de forma que $F_1$ será
+satisfactible si y sólo si asignando a $x_1$ el valor de verdad se logra que
+$F_2:\ (x_2 \vee \overline{x_3}) \wedge (\overline{x_2}) \wedge
+(\overline{x_3})$ sea satisfecha.
+
+Para la implementación de este mecanismo de deducción se hizo un recorrido por
+todas las cláusulas de la fórmula anotando cuál es la polaridad que se ha
+observado para cada literal. Si en un momento del paseo por las cláusulas de la
+fórmula se encuentra con un literal que ocurre con una polaridad distinta a la
+ya observada anteriormente para ese literal, se descarta que esa variable sea un
+literal puro. Para más detalles consultar más adelante.
 
 \section{Detalles de implementación}
 
 
 La implementación de la propagación de cláusulas unitarias con 2 testigos por
-cláusula (\cite{} los llama \emph{2-watched literals}) empleada por
-\emph{zChaff} asocia a cada literal $x_i, i\in{1,\ldots,n}$ un par de listas, la
-primera de ellas tiene como elementos a todas las cláusulas en las que la el
-literal $x_i$ ocurre no negado (polaridad positiva) como testigo o \emph{watched
-  literal}. La segunda lista asociada a $x_i$ tiene como elementos a todas las
-cláusulas en las que el literal $\overline{x_i}$ ocurre como testigo o
-\emph{watched literal}. 
+cláusula (\cite{Zhang} y \cite{ZhangThesis} los llama \emph{2-watched literals})
+empleada por \emph{zChaff} asocia a cada literal $x_i,\ i\in{1,\ldots,n}$ un par
+de listas, la primera de ellas tiene como elementos a todas las cláusulas en las
+que la el literal $x_i$ ocurre no negado (polaridad positiva) como testigo o
+\emph{watched literal}. La segunda lista asociada a $x_i$ tiene como elementos a
+todas las cláusulas en las que el literal $\overline{x_i}$ ocurre como testigo o
+\emph{watched literal}.
 
 \begin{itemize}
 \item En la implementación que aquí se describe, se optó por por los campos {\tt
@@ -162,9 +246,14 @@ variables apuntado por {\tt literals} implica: \vspace{-2.5mm}
   cláusula. Hecho que resulta de particular utilidad en los recorridos a través
   de los literales de cada cláusula que son efectuados durante la detección de
   literales puros y durante la actualización de los \emph{watchers} o testigos
-  que permiten identificar cláusulas unitarias.
+  que permiten identificar cláusulas unitarias. 
 
-\item Un ahorro de espacio para los apuntadores, que se necesitaría si la
+  Recuerde el lector que se ha mencionado en la sección \ref{UnitPropagation} que
+  una de las desventajas de las implementación por \emph{2-watched literals} es
+  que en el peor caso hay que recorrer todos los literales de una cláusula para
+  determinar si ésta es unitaria o no.
+
+\item Un ahorro de espacio para los apuntadores, el cual sería necesario si la
   conjunción de literales en las cláusulas se implementara con una lista
   enlazada.
 \end{itemize}
@@ -203,7 +292,7 @@ variables booleanas.
 El \emph{backtracking} se implementó iterativo en lugar de recursivo, por los
 motivos que se señalan en la sección \ref{VentajasBacktracking}. Para ello fue
 necesario trabajar explícitamente con una pila de elementos de un nuevo tipo de
-dato llamado {\tt decision\_level\_data}. Este tipo almacena los datos que
+dato llamado {\tt decision\_level\_data}. Este tipo almacena la información que
 caracterizan a cada nodo del árbol implícito que se recorre en el
 \emph{backtracking}\footnote{En \cite{Zhang} les llaman niveles de decisión.} y
 que deben ser conservados en caso de que el algoritmo se encuentre con un nodo
@@ -233,7 +322,7 @@ que a continuación describimos:
   programa. Este elemento tendrá en su campo {\tt assigned\_literal} a la
   variable $x_{i_{k+1}}$ con su valor.
 \item El campo {\tt missing\_branch} es un valor booleano que es cierto si y
-  sólo si se ha explorado con la asignación de {\tt assigned\_literal} con un
+  sólo si se ha explorado la asignación de {\tt assigned\_literal} con un
   sólo valor de verdad. Es decir, si
   $[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} = v_k ]$, $k< n$, $v_k
   \in \mathbb{B}$ es un nodo de la arborescencia recorrida con el
@@ -271,16 +360,21 @@ con la pila de llamadas a subrutinas.
 \section{Instrucciones de operación}
 Para emplear la aplicación, escribir en la consola el comando
 \begin{lstlisting}[style=consola]
-# sat -f inputfilename -o outputfilename 
+# kec_o_sat_s -f inputfilename -o outputfilename 
 \end{lstlisting}
 \noindent donde:
 \vspace{-2.5mm}
 \begin{itemize}
 \item {\tt inputfilename} es el nombre del archivo que contiene la instancia del
   problema SAT a resolver. Esta instancia debe estar en el formato DIMACS.
+(Consultar http://logic.pdmi.ras.ru/~basolver/dimacs.html para información sobre
+este formato.)
 \item {\tt outputfilename} es el nombre del archivo que contendrá los resultados
   generados tras correr el algoritmo.
 \end{itemize}
+
+Para más detalles acerca de la operación, leer el archivo {\tt README} que se
+incluye con la distribución del programa.
 \section{Estado Actual}
 
 \section{Conclusiones y recomendaciones}
@@ -294,7 +388,10 @@ Para emplear la aplicación, escribir en la consola el comando
 \bibitem{Marques}Lynce, I. y Marques-Silva, J.: ``Efficient Data Structures for
   Fast SAT Solvers''. Reporte Técnico. \emph{Cadence European Laboratories,
     Instituto de Engenharia de Sistemas e Computadores}. 2001.
-\bibitem{Zhang}Zhang, Lintao y Malik, Sharad: ``The Quest for Efficient Boolean Satisfiability Solvers''.
+\bibitem{Zhang}Zhang, Lintao y Malik, Sharad: ``The Quest for Efficient Boolean
+  Satisfiability Solvers''.
+\bibitem{ZhangThesis}Zhang, Lintao: ``Searching for truth: Techniques for
+  satisfiability of boolean formulas''. \emph{Tesis de doctorado. Princeton University}. 2003.
 \end{thebibliography}
 
 \end{document}
