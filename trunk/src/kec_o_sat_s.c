@@ -24,12 +24,6 @@
 #include "sat.h"
 #include "sat_io.h"
 
-void doalarm() 
-{
-    printf("Time limit exceeded.\n");
-    exit(2);
-}
-
 void print_usage();
 void catch_alarm();
 
@@ -49,8 +43,6 @@ int main(int argc, char* argv[]){
     sat_gs.verbose_mode = FALSE;
     sat_gs.time_out = 0;
     sat_gs.detect_pure_literals = FALSE;
-
-    int time_limit = -1;
     
     {
         int i=1;
@@ -96,9 +88,9 @@ int main(int argc, char* argv[]){
     //Set the alarm before trying to solve the SAT instance,
     //and unset it after solving
     alarm(sat_gs.time_out);
+    
     int status = solve_sat();
-    alarm(0);
-
+    
     if ( status == SATISFIABLE ){
         printf("%s: SATISFIABLE\n\n",sat_gs.program_name);
     } else {
