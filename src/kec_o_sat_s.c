@@ -17,18 +17,28 @@
 
 #include<stdio.h>
 #include"sat.h"
+#include"sat_io.h"
+
+void print_usage();
 
 int main(int argc, char* argv[]){
 
     if(argc<2){
-        printf("usage: %s -f <cnf_file> [OPTIONS]\n",argv[0]);
+        print_usage();
         exit(1);
     }
 
-    //Parse the arguments, the next ones are the default
-    //options
-    char *cnf_file = NULL;
-    char *output_file = NULL;
+    //Parse the arguments, and stor them in the SAT_global_settings
+    //global variable sat_gs. The next ones are the default
+    //options:
+
+    //char *cnf_file = NULL;
+    //char *output_file = NULL;
+
+    sat_gs.program_name = argv[0];
+    sat_gs.input_file = NULL;
+    sat_gs.output_file = NULL;
+    sat_gs.verbose_mode = FALSE;
     
     {
         int i=1;
@@ -36,20 +46,19 @@ int main(int argc, char* argv[]){
             
             if( strcmp(argv[i],"-f") == 0 && i+1<argc ){
                 
-                cnf_file = argv[++i];
+                sat_gs.input_file = argv[++i];
                 
             } else if ( strcmp(argv[i], "-o") == 0 && i+1<argc){
                 
-                output_file = argv[++i];
+                sat_gs.output_file = argv[++i];
+
+            } else if ( strcmp(argv[i], "-v") == 0 ){
                 
+                sat_gs.verbose_mode = TRUE;
+
             }else {
-                
-                printf("usage: %s -f <cnf_file> [OPTIONS]\n",argv[0]);
-                printf("    OPTIONS:\n");
-                printf("    -h                Print this message\n");
-                printf("    -o <output_file>  Write results in <output_file>\n");
+                print_usage();                
                 exit(1);
-                
             }
             
             i++;
@@ -60,19 +69,39 @@ int main(int argc, char* argv[]){
     //Initialize the instance, print the initial status,
     //and solve
     
-    set_initial_sat_status(cnf_file);
+    set_initial_sat_status();
     
     int status = solve_sat();
     
     if ( status == SATISFIABLE ){
-        printf("kec_o_sat_s: SATISFIABLE\n\n");
+        printf("%s: SATISFIABLE\n\n",sat_gs.program_name);
     } else {
-        printf("kec_o_sat_s: UNSATISFIABLE\n\n");
+        printf("%s: UNSATISFIABLE\n\n",sat_gs.program_name);
     }
     
-    if ( output_file != NULL){
-        print_sol(status, output_file);
+    if ( sat_gs.output_file != NULL){
+        print_sol(status);
     }
     
     return 0;
 }
+
+void print_usage(){
+
+    printf("usage: %s -f <cnf_file> [OPTIONS]\n",sat_gs.program_name);
+    printf("\n");
+    printf("    OPTIONS:\n");
+    printf("\n");
+    printf("    -h                Print this message\n");
+    printf("\n");
+    printf("    -o <output_file>  Write results in <output_file>\n");
+    printf("                      if not provided, the reults will\n");
+    printf("                      be writen through the stdout\n");
+    printf("\n");
+    printf("    -v                Activates verbose mode; Prints detailed\n");
+    printf("                      information about the status of the algorithm\n");
+    printf("                      when executing\n");
+
+}
+
+
