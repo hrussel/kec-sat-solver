@@ -43,6 +43,7 @@ int decide_next_branch(){
         ){
             free_variable++;
     }
+    
     */
     variable free_variable=sat_st.num_vars + 1;
     int num_affected_cl = -1;
@@ -61,6 +62,7 @@ int decide_next_branch(){
             }
             free_v++;
     }
+    
     
     //If there are no more variables to assign, report an error
     if( free_variable > sat_st.num_vars ){
@@ -148,7 +150,7 @@ int solve_sat(){
 
         decision_level_data *top_el =
             (decision_level_data*) top(&sat_st.backtracking_status);
-
+        
         //Make the assignment of the literal that appeared on top
         //of the stack
         

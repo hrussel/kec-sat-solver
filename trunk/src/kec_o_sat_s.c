@@ -21,6 +21,15 @@
 #include"sat.h"
 #include"sat_io.h"
 
+#include "sat.h"
+#include "sat_io.h"
+
+void doalarm() 
+{
+    printf("Time limit exceeded.\n");
+    exit(2);
+}
+
 void print_usage();
 void catch_alarm();
 
@@ -41,6 +50,8 @@ int main(int argc, char* argv[]){
     sat_gs.time_out = 0;
     sat_gs.detect_pure_literals = FALSE;
 
+    int time_limit = -1;
+    
     {
         int i=1;
         while( i<argc ){
@@ -74,7 +85,7 @@ int main(int argc, char* argv[]){
         }
 
     }
-
+    
     //Set the catcher for alarm signals
     signal(SIGALRM, catch_alarm);
 
