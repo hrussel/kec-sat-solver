@@ -48,7 +48,7 @@ independiente, el primer problema en esta categoría \emph{NP-completos}: el
 problema de la \emph{satisfacción booleana~(SAT)}. Un año después, Richard~Karp
 identificó otros 21 problemas en esta categoría \cite{Karp}, los cuales tenían
 la notoria característica de que para ellos no se conoce un algoritmo polinomial
-(en función del tamaño de la instancia) que les de solución, una cualidad que
+(en función del tamaño de la instancia) que les dé solución, una cualidad que
 comparten todos los problemas en esta clase, junto al hecho de que todos estos
 problemas ocurren con una marcada frecuencia en el área de la computación. Sin
 embargo, la característica más especial de éstos es el segundo ítem de arriba:
@@ -176,14 +176,14 @@ de identificación y eliminación de literales puros.
 
 \subsubsection{Identificación y propagación de cláusulas
   unitarias}\label{UnitPropagation}
-Tal como se indica en \cite{Zhang} y \cite{ZhangThesis}, con el estudio de
+Tal como se indica en \cite{Zhang} y \cite{ZhangThesis}, el estudio de
 implementaciones del algoritmo DPLL que se han realizado con el pasar de los
 años, sugiere que la propagación de cláusulas unitarias como mecanismo de
 deducción parece ser el más eficiente que se ha encontrado hasta ahora.
 
 La \emph{propagación de cláusulas unitarias} consiste en ubicar cuáles cláusulas
 de la fórmula ---dada ésta en forma normal conjuntiva--- están compuestas de un
-sólo literal. Estas cláusulas son llamadas \emph{cláusulas unitarias} y se
+solo literal. Estas cláusulas son llamadas \emph{cláusulas unitarias} y se
 satisfacen con asignar a éste único literal el valor de verdad correspondiente.
 Lo explicamos con un ejemplo: En la fórmula $F_1:\ (x_1 \vee x_2 \vee
 \overline{x_3}) \wedge (x_1 \vee \overline{x_2}) \wedge (\overline{x_3})$, la
@@ -215,7 +215,7 @@ entonces esa cláusula es unitaria.
 Para la implementación de este mecanismo de deducción, se escogió la
 implementación de los \emph{2-watched literals} descrita en las fuentes
 \cite{Marques}, \cite{Zhang} y \cite{ZhangThesis} y que fue propuesta con el
-programa \emph{zChaff}.
+programa \emph{Chaff}.
 
 % Seguidamente describiremos someramente la implementación \emph{2-watched
 %   literals} para la detección de cláusulas unitarias. Sin embargo, referimos al
@@ -574,7 +574,7 @@ Más abajo se incluye una gráfica que permitirá captar más fácilmente las di
 Comentarios acerca de los resultados obtenidos, expuestos gráficamente en la ilustración de arriba:\vspace{-2.5mm}
 \begin{itemize}
 \item En 27 de los 60 casos de prueba (cerca del 50\% de los casos), KECOSATS
-  tiene un rendimiento \emph{ligeremente mejor} que zChaff. En estos casos, las
+  tiene un rendimiento \emph{ligeramente mejor} que zChaff. En estos casos, las
   diferencias de tiempo entre KECOSATS y zChaff son algunas centésimas de
   segundo.
 \item En 11 de los 60 casos de prueba (cerca del 15\% de los casos), KECOSATS
