@@ -344,7 +344,8 @@ void solve_and_read(char* command, int** t, int n, char* solver, FILE* in_pdf){
     double time = 0;
     if (cnf_output2sudoku(t, n, "sudoku.out", &time)){
         
-        fprintf(in_pdf, "%s\n%1.4lf\n", solver, t_final - t_inicial);
+        time = t_final - t_inicial;
+        fprintf(in_pdf, "%s\n%1.4lf\n", solver, time);
         
         print_sudoku_pdf(t, n, in_pdf);
     } else {
@@ -360,7 +361,7 @@ void solve_and_read(char* command, int** t, int n, char* solver, FILE* in_pdf){
         fprintf(in_pdf, "\n");
     }
     
-    printf("%lf ", time);
+    printf("%1.4lf ", time);
 }
 
 int main(int argc, char* argv[]){
@@ -476,7 +477,7 @@ int main(int argc, char* argv[]){
                          output_pdf_filename);
         system(command);
         
-        //system("rm -rf auxiliar_pdf sudoku.out sudoku.out2");
+        system("rm -rf auxiliar_pdf sudoku.out sudoku.out2");
     }
     
     fclose (f);
