@@ -18,7 +18,7 @@ backgroundcolor=\color{gray75},
 \pagestyle{fancy}
 
 
-\title{Primer informe de KECOSATS}
+\title{Primer versión de KECOSATS}
 \author{Carlos Colmenares \and Kelwin Fernández \and Eleazar Leal}
 \begin{document}
 \maketitle
@@ -133,12 +133,12 @@ hace sólo de un nivel de decisión en un nivel de decisión (cronológico).
 
 Entre las razones por las que se escogió el algorimo DPLL están:
 \begin{enumerate}
-\item Este algoritmo es la base para las implementaciones en los
-  \emph{SAT-solvers} más eficientes conocidos.
+\item Este algoritmo es la base para las implementaciones de los
+  \emph{SAT-solvers} completos ---no estocásticos--- más eficientes conocidos.
 \item El esquema general del algoritmo es bastante sencillo de implementar como
   de comprender.
 \end{enumerate}
-\subsection{Fase de selección de variables a asignar}
+\subsection{Fase de selección de variables a asignar}\label{ProxVariable}
 
 En esta primera versión de KECOSATS se propone una heurística para la selección
 de la próxima variable no asignada, a la que se le dará un valor booleano. La
@@ -184,6 +184,25 @@ nueva fórmula $F_2:\ (x_1 \vee x_2 \vee \overline{x_3}) \wedge (x_1 \vee
 \overline{x_2}) $ y bajo el supuesto de que $x_3=0$ se tiene que $F_2$ es
 satisfactible si y sólo si $F_1$ lo es.
 
+La implementación de la propagación de cláusulas unitarias con 2 testigos por
+cláusula (\cite{Zhang} y \cite{ZhangThesis} los llama \emph{2-watched literals})
+empleada por \emph{zChaff} asocia a cada literal $x_i,\ i\in{1,\ldots,n}$ un par
+de listas, la primera de ellas tiene como elementos a todas las cláusulas en las
+que la el literal $x_i$ ocurre no negado (polaridad positiva) como testigo o
+\emph{watched literal}. La segunda lista asociada a $x_i$ tiene como elementos a
+todas las cláusulas en las que el literal $\overline{x_i}$ ocurre como testigo o
+\emph{watched literal}.
+
+Asimismo, cada cláusula tiene asociados dos apuntadores a literales que ocurren
+dentro de ella, estos apuntadores son los \emph{watchers} a los que nos hemos
+referido antes.
+
+Ahora bien, para detectar si, tras asignar $x_i=0$, una cláusula
+es unitaria se buscan todas las cláusulas en las que aparezca $x_i$ con
+polaridad positiva (no negada) y como \emph{watcher}. Este último apuntador debe
+ser movido a otro literal no asignado en la misma cláusula. Si el único literal
+no asignado en esa cláusula está siendo apuntado por el otro \emph{watcher}
+entonces esa cláusula es unitaria. 
 
 Para la implementación de este mecanismo de deducción, se escogió la
 implementación de los \emph{2-watched literals} descrita en las fuentes
@@ -249,20 +268,6 @@ ya observada anteriormente para ese literal, se descarta que esa variable sea un
 literal puro. Para más detalles consultar más adelante.
 
 \section{Implementación}
-
-
-La implementación de la propagación de cláusulas unitarias con 2 testigos por
-cláusula (\cite{Zhang} y \cite{ZhangThesis} los llama \emph{2-watched literals})
-empleada por \emph{zChaff} asocia a cada literal $x_i,\ i\in{1,\ldots,n}$ un par
-de listas, la primera de ellas tiene como elementos a todas las cláusulas en las
-que la el literal $x_i$ ocurre no negado (polaridad positiva) como testigo o
-\emph{watched literal}. La segunda lista asociada a $x_i$ tiene como elementos a
-todas las cláusulas en las que el literal $\overline{x_i}$ ocurre como testigo o
-\emph{watched literal}.
-
-Asimismo, cada cláusula tiene asociados dos apuntadores a literales que ocurren
-dentro de ella, estos apuntadores son los \emph{watchers} a los que nos hemos
-referido.
 
 El programa que proponemos está orientado por los cambios que se efectúan,
 durante la ejecución, sobre una variable global de nombre {\tt sat\_st} que es la
@@ -491,7 +496,27 @@ propagación de cláusulas unitarias no difiere de la expuesta en \cite{Zhang},
 consideramos que no hay nada más que agregar al respecto.
 
 \section{Dificultades encontradas}
-
+Entre las dificultades encontradas a lo largo del desarrollo de esta primera
+versión de KECOSATS están:
+\begin{itemize}
+\item El problema del manejo de la memoria: En varios puntos del programa se
+  emplean listas enlazadas para implementar pilas. Así que todas las operaciones
+  de empilamiento ejecutan llamadas al sistema que consumen mucho tiempo. En
+  esta primera entrega se decidió mantener esta implementación de pilas que
+  realizan llamadas al sistema en cada {\tt push} por el motivo de su
+  sencillez. Se dice ``sencillez'' porque para evitarse estas llamadas al
+  sistema KECOSATS tendría que tener su propio manejador de memoria.
+\item El problema de la selección de la próxima variable a asignar. En un
+  principio se consideró como algoritmo de selección de variables el siguiente:
+  se supone que las variables $x_1,x_2,\ldots,x_n$ de la instancia están
+  ordenadas. Se selecciona la variable $x_i$ con el índice $i$ menor entre todas
+  las variables que no han sido asignadas. Como se tiene almacenada la última
+  variable asignada y una vez asignada una variable ésta permanece asignada, la
+  selección de la próxima variable tarda un tiempo constante. Al observar con
+  algunas instancias pequeñas que KECOSATS se demoraba un poco, se decidió
+  sustituir este algoritmo por el que se describió en la sección
+  \ref{ProxVariable}, logrando con ello mejorar el desempeño del programa.
+\end{itemize}
 \section{Instrucciones de operación}
 Para emplear la aplicación, escribir en la consola el comando
 \begin{lstlisting}[style=consola]
@@ -515,6 +540,38 @@ El programa se encuentra totalmente operativo.
 
 \section{Conclusiones y recomendaciones}
 
+A continuación se comentará sobre algunas recomendaciones para KECOSATS.
+
+En esta primera versión de KECOSATS hay varios aspectos que pudieran ser
+modificados para obtener un mejor desempeño. Entre los aspectos que podemos
+citar están:
+\begin{itemize}
+\item El manejo de la memoria. En varios puntos del programa es necesario armar
+  listas de elementos y estas operaciones implican llamadas al sistema para la
+  solicitud de memoria. Demás está decir el tiempo que consumen estas peticiones
+  al sistema operativo. Se propone para la próxima entrega que KECOSATS
+  incorpore su propio manejador de memoria, que solicite al arrancar un gran
+  trozo de memoria y se encargue él solo de la gestión de este recurso,
+  ahorrando así el tiempo que se consumen las llamadas {\tt malloc}. Ahora bien,
+  es conocido por los desarrolladores que la realización de un manejador de
+  memoria de ``buen desempeño'' no es algo trivial, particularmente si los
+  segmentos de memoria que se solicitaría el programa a sí mismo pueden tener
+  cualquier tamaño en algún rango dado. No obstante, dada la naturaleza de los
+  elementos en las listas, los bloques de memoria que el programa se solicitaría
+  a su propio manejador serían prácticamente homogéneos en cuanto al tamaño, lo
+  cual facilitaría la tarea de programación de este manejador.
+\item El problema de la selección de la próxima variable, al que nos hemos
+  referido anteriormente en varias oportunidades. La mejora en los tiempos de
+  ejecución de KECOSATS, producto del algoritmo implementado, que consiste en
+  seleccionar la variable que apareza en el mayor número de cláusulas como
+  \emph{watcher}, nos inclina a conjeturar que es posible que otras heurísticas
+  igualmente sencillas puedan producir resultados aún mejores. Es conveniente
+  por ello consultar un poco más a fondo sobre estos algoritmos de selección de
+  variables en fuentes como \cite{Zhang} y \cite{ZhangThesis}, en las que se
+  comenta sobre heurísticas como la  \emph{Variable State Independent Decaying
+    Sum (VSIDS)}. Sería recomendable considerar mejorar la heurística para una
+  segunda versión de KECOSATS.
+\end{itemize}
 
 \begin{thebibliography}{99}
 \bibitem{Cook}Cook, Stephen: ``The complexity of theorem-proving
@@ -528,7 +585,8 @@ El programa se encuentra totalmente operativo.
 \bibitem{Zhang}Zhang, Lintao y Malik, Sharad: ``The Quest for Efficient Boolean
   Satisfiability Solvers''.
 \bibitem{ZhangThesis}Zhang, Lintao: ``Searching for truth: Techniques for
-  satisfiability of boolean formulas''. \emph{Tesis de doctorado. Princeton University}. 2003.
+  satisfiability of boolean formulas''. \emph{Tesis de doctorado. Princeton
+    University}. 2003.
 \end{thebibliography}
 
 \end{document}
