@@ -85,6 +85,12 @@ forma general de las instancias al problema y de la pregunta: \vspace{-2.5mm}
   verdad?
 \end{enumerate}
 
+\subsection{Descripción del contenido del informe}
+En el presente reporte se expondrán los algoritmos y tipos de datos
+fundamentales empleados por el programa KECOSATS para decidir el problema de la
+satisfacción booleana. Asimismo, se presentarán las decisiones de diseño que
+orientaron la implementación del mismo.
+
 \section{Diseño}
 
 \subsection{Descripción general del algoritmo empleado}
@@ -167,7 +173,7 @@ implementaciones del algoritmo DPLL que se han realizado con el pasar de los
 años, sugiere que la propagación de cláusulas unitarias como mecanismo de
 deducción parece ser el más eficiente que se ha encontrado hasta ahora.
 
-La \emph{propagación de cláusulas unitarias} consiste en ubicar cúales cláusulas
+La \emph{propagación de cláusulas unitarias} consiste en ubicar cuáles cláusulas
 de la fórmula ---dada ésta en forma normal conjuntiva--- están compuestas de un
 sólo literal. Estas cláusulas son llamadas \emph{cláusulas unitarias} y se
 satisfacen con asignar a éste único literal el valor de verdad correspondiente.
@@ -254,6 +260,10 @@ que la el literal $x_i$ ocurre no negado (polaridad positiva) como testigo o
 todas las cláusulas en las que el literal $\overline{x_i}$ ocurre como testigo o
 \emph{watched literal}.
 
+Asimismo, cada cláusula tiene asociados dos apuntadores a literales que ocurren
+dentro de ella, estos apuntadores son los \emph{watchers} a los que nos hemos
+referido.
+
 El programa que proponemos está orientado por los cambios que se efectúan,
 durante la ejecución, sobre una variable global de nombre {\tt sat\_st} que es la
 única con el tipo {\tt SAT\_status} en todo el programa. 
@@ -320,7 +330,7 @@ las sucesivas llamadas a funciones durante la ejecución del algoritmo son:
   campos de esta variable.
 \end{enumerate}
 
-\subsection{Implementación de las cláusulas}
+\subsection{Implementación de las cláusulas}\label{clausulas}
 
 Para la implementación de cada cláusula se definió el siguiente tipo de dato
 {\tt clause}:
@@ -464,6 +474,21 @@ con la pila de llamadas a subrutinas.
 
 
 %\subsection{Problemas encontrados y la manera como fueron resueltos}
+\section{Implementación de Propagación de Cláusulas Unitarias.}
+Como se mencionó en la sección \ref{UnitPropagation}, el algoritmo empleado para
+la detección y propagación de cláusulas unitarias es el de los \emph{2-watched
+  literals}, que fue propuesto por los desarrolladores del programa
+\emph{zChaff}. Ahora bien, nuestra implementación del algoritmo no difiere de la
+que se encuentra descrita en \cite{Zhang}. En la sección \ref{clausulas}
+comentamos acerca del par de \emph{watchers} que tiene asociados cada cláusula y
+anteriormente comentamos también sobre los arreglos de cabezas de listas {\tt
+  pos\_watched\_list} y {\tt neg\_watched\_list}, tales que  {\tt
+  neg\_watched\_list[i]} es la cabeza de la lista de cláusulas en las que el
+literal $x_i$ ocurre de la forma $\overline{x_i}$ como watcher.
+
+Una vez comentado esto y en virtud de que nuestra implementación de la
+propagación de cláusulas unitarias no difiere de la expuesta en \cite{Zhang},
+consideramos que no hay nada más que agregar al respecto.
 
 \section{Dificultades encontradas}
 
