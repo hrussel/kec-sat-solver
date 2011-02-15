@@ -9,7 +9,6 @@
  *
  ******************************************************************************/
 #include "pure_literals.h"
-#include <stdio.h>
 
 typedef struct {
     int polarity;
