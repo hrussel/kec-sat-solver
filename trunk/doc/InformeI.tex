@@ -10,6 +10,7 @@
   language=C,
   basicstyle=\small
 }
+\usepackage[pdftex]{graphicx}
 \usepackage{color}
 \definecolor{gray75}{gray}{.75}
 \lstdefinestyle{consola}
@@ -565,7 +566,12 @@ desempeñó mejor que zChaff en tiempo.
 
 \input{comparacionDesempenoI.tex}
 
-Comentarios acerca de los resultados:\vspace{-2.5mm}
+Más abajo se incluye una gráfica que permitirá captar más fácilmente las diferencias en el rendimiento entre estos dos programas:
+\begin{center}
+\includegraphics[scale=0.6]{compare.png}
+\end{center}
+
+Comentarios acerca de los resultados obtenidos, expuestos gráficamente en la ilustración de arriba:\vspace{-2.5mm}
 \begin{itemize}
 \item En 27 de los 60 casos de prueba (cerca del 50\% de los casos), KECOSATS
   tiene un rendimiento \emph{ligeremente mejor} que zChaff. En estos casos, las
