@@ -197,9 +197,14 @@ int cnf_output2sudoku(int** t, int n, char* filename, double* time){
     n2 = n*n;
     f = fopen(filename,"r");
     
+    for (i=0; i<n2; i++){
+        for (j=0; j<n2; j++){
+            t[i][j] = 0;
+        }
+    }
+    
     if ( f == NULL ){
-        printf("Error: Can't open file\n");
-        exit(1);
+        return 0;
     }
     
     fscanf(f, "%s%lf", sat, time);
@@ -303,13 +308,16 @@ void parse_args(int argc, char* argv[]){
     if ( time_limit != -1  && output_pdf_filename != NULL){
         char tl[10];
         memset(tl, 0, sizeof tl);
-        sprintf(tl, "%d", time_limit);
+        sprintf(tl, "-t %d", time_limit);
         strcat(command1, tl);
+        
+        memset(tl, 0, sizeof tl);
+        sprintf(tl, "%d", time_limit);
         strcat(command2, tl);
     }
     
     strcat(command1, " > salida_aux; rm -rf salida_aux");
-    strcat(command2, " > salida_aux; rm -rf salida_aux");
+    strcat(command2, " > sudoku.out2");
 }
 
 void solve_and_read(char* command, int** t, int n, char* solver, FILE* in_pdf){
@@ -324,25 +332,35 @@ void solve_and_read(char* command, int** t, int n, char* solver, FILE* in_pdf){
         exit(2);
     }
    
-    if ( system(command) == 0 ){
+    system(command);
         
-        if (!gettimeofday(&t_p,NULL))
-            t_final = (double) t_p.tv_sec + ((double) t_p.tv_usec)/1000000.0;
-        else {
-            printf("Error: Bad time request.\n");
-            exit(2);
-        }
-        
-        double time = 0;
-        if (cnf_output2sudoku(t, n, "sudoku.out", &time)){
-            
-            print_sudoku(t, n);
-            
-            fprintf(in_pdf, "%s\n%1.4lf\n", solver, t_final - t_inicial);
-            
-            print_sudoku_pdf(t, n, in_pdf);
-        }
+    if (!gettimeofday(&t_p,NULL))
+        t_final = (double) t_p.tv_sec + ((double) t_p.tv_usec)/1000000.0;
+    else {
+        printf("Error: Bad time request.\n");
+        exit(2);
     }
+    
+    double time = 0;
+    if (cnf_output2sudoku(t, n, "sudoku.out", &time)){
+        
+        fprintf(in_pdf, "%s\n%1.4lf\n", solver, t_final - t_inicial);
+        
+        print_sudoku_pdf(t, n, in_pdf);
+    } else {
+        
+        time = -1;
+        fprintf(in_pdf, "%s\n-1\n", solver);
+        
+        int n2 = n*n;
+        n2 *= n2;
+        while(n2--){
+            fprintf(in_pdf, "0 ");
+        }
+        fprintf(in_pdf, "\n");
+    }
+    
+    printf("%lf ", time);
 }
 
 int main(int argc, char* argv[]){
@@ -368,6 +386,8 @@ int main(int argc, char* argv[]){
             printf("Error: can't open file %s.\n", output_pdf_filename);
             exit(1);
         }
+        
+        printf("Report: zchaff kec_o_sat_s (milliseconds)\n");
     }
     
     // It reads each instance of sudoku problem
@@ -417,18 +437,23 @@ int main(int argc, char* argv[]){
             
             fprintf(in_pdf, "2\n", n);
             
-            print_sudoku(t, n);
-            
-            printf("Solving instance with kec_o_sat_s:\n\n");
-            solve_and_read(command1, t, n, "kec_o_sat_s", in_pdf);
+            // Solving with ZCHAFF
             
             char command3[10000];
             memset(command3, 0, sizeof(command3));
             sprintf(command3,
-                    "%s; ./sudoku2cnf/parse_zchaff_output %d sudoku.out2 sudoku.out",
-                    command2, n*n);
-            printf("Solving instance with zchaff:\n\n");
-            solve_and_read(command2, t, n, "zchaff", in_pdf);
+                    "%s ; ./sudoku2cnf/parse_zchaff_output %d sudoku.out2 sudoku.out",
+                    command2, (n*n)*(n*n)*(n*n));
+            
+            solve_and_read(command3, t, n, "zchaff", in_pdf);
+            system("rm -rf sudoku.out sudoku.out2");
+            
+            // Solving with KEC_O_SAT_S
+            
+            solve_and_read(command1, t, n, "kec_o_sat_s", in_pdf);
+            system("rm -rf sudoku.out");
+            
+            printf("\n");
         }
         
         // Free memory allocated to the sudoku board.
@@ -447,10 +472,11 @@ int main(int argc, char* argv[]){
         
         char command[1000];
         memset(command, 0, sizeof command);
-        sprintf(command, "python archive/sudoku2pdf.py auxiliar_pdf sudokus.pdf",
+        sprintf(command, "python archive/sudoku2pdf.py auxiliar_pdf %s",
                          output_pdf_filename);
         system(command);
-        system("rm -rf auxiliar_pdf sudoku.out");
+        
+        //system("rm -rf auxiliar_pdf sudoku.out sudoku.out2");
     }
     
     fclose (f);
