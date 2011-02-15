@@ -4,6 +4,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{fancyhdr}
+\usepackage{longtable}
 \usepackage{listings}
 \lstset{
   language=C,
@@ -144,12 +145,18 @@ En esta primera versión de KECOSATS se propone una heurística para la selecci�
 de la próxima variable no asignada, a la que se le dará un valor booleano. La
 heurística consiste en seleccionar entre todas las variables no asignadas hasta
 el momento, a aquella variable ---sin importar la polaridad--- que aparezca como
-\emph{watcher} o testigo en el mayor número de cláusulas posible.
+\emph{watcher} o testigo en el mayor número de cláusulas posible. Ahora bien,
+para seleccionar el valor de verdad que se va a asignar esta variable, se escoge
+aquél valor que genere el mayor número de movimientos de \emph{watchers} en
+todas las cláusulas.
 
 La ventajas de haber escogido esta heurística son las siguientes:
 \begin{enumerate}
 \item En la mayoría de las instancias de pequeño tamaño en las que se probó esta
   heurística, se redujeron los tiempos de ejecución del programa.
+\item La forma de escoger el valor a asignar a la variable, antes descrita,
+  sugiere que pudiera ser más probable que se detecten con mayor rapidez los
+  conflictos ---en caso de que los hubiera.
 \item Se trata de una heurística muy sencilla de comprender e implementar.
 \end{enumerate}
 
@@ -517,6 +524,7 @@ versión de KECOSATS están:
   sustituir este algoritmo por el que se describió en la sección
   \ref{ProxVariable}, logrando con ello mejorar el desempeño del programa.
 \end{itemize}
+
 \section{Instrucciones de operación}
 Para emplear la aplicación, escribir en la consola el comando
 \begin{lstlisting}[style=consola]
@@ -537,6 +545,44 @@ Para más detalles acerca de la operación, leer el archivo {\tt README} que se
 incluye con la distribución del programa.
 \section{Estado Actual}
 El programa se encuentra totalmente operativo.
+
+\section{Comparación de desempeño entre KECOSATS y zChaff}
+
+Tras ejecutar $60$ casos de prueba
+\footnote{http://www.ldc.usb.ve/\%7Emeza/ci-5651/e-m2011/InstanciasSudoku.txt},
+cada uno una instancia de SUDOKU que es transformada a una instancia equivalente
+de SAT, en un computador Intel Core 2 Duo, 2.4Ghz con 4Gb de memoria RAM
+corriendo en la distribución Ubuntu 10.04, se
+obtuvieron los siguientes resultados:
+
+Nota 1: Un tiempo de $-1$ segundos en la columna de tiempos para KECOSATS indica que
+este programa, para esa instancia de SUDOKU (transformada a SAT), se demoró más
+de $6$ minutos en dar una respuesta.
+
+Nota 2: Los tiempos en negrillas en la columna de tiempos para KECOSATS indica
+que este programa, para esa instancia de SUDOKU (transformada a SAT) se
+desempeñó mejor que zChaff en tiempo.
+
+\input{comparacionDesempenoI.tex}
+
+Comentarios acerca de los resultados:\vspace{-2.5mm}
+\begin{itemize}
+\item En 27 de los 60 casos de prueba (cerca del 50\% de los casos), KECOSATS
+  tiene un rendimiento \emph{ligeremente mejor} que zChaff. En estos casos, las
+  diferencias de tiempo entre KECOSATS y zChaff son algunas centésimas de
+  segundo.
+\item En 11 de los 60 casos de prueba (cerca del 15\% de los casos), KECOSATS
+  tiene un rendimiento \emph{ligeramente peor} que zChaff. En estos casos, las
+  diferencias de tiempo entre KECOSATS y zChaff son algunas centésimas de
+  segundo.
+\item En 1 de los 60 casos de prueba (cerca del 2\% de los casos), KECOSATS
+  tiene un rendimiento \emph{peor} que zChaff. En este caso, la diferencia de
+  tiempo entre KECOSATS y zChaff es de unos 45 segundos, cuando zChaff da la
+  respuesta en fracciones de segundo.
+\item En 21 de los 60 casos de prueba (cerca del 30\% de los casos), la demora
+  de KECOSATS en dar una solución es superior a los 6 min, cuando zChaff da
+  resultados en fracciones de segundo.
+\end{itemize}
 
 \section{Conclusiones y recomendaciones}
 
@@ -572,6 +618,16 @@ citar están:
     Sum (VSIDS)}. Sería recomendable considerar mejorar la heurística para una
   segunda versión de KECOSATS.
 \end{itemize}
+
+Como conclusión de los resultados obtenidos tras la comparación de la demora de
+KECOSATS y la de zChaff para resolver los 60 casos de prueba, concluimos que el
+rendimiento de KECOSATS es aceptable para esta primera versión del programa
+porque el 67\% de los casos de prueba dieron resultados en un tiempo
+razonable. No obstante, la demora de más de 6 minutos para el 30\% de los casos
+probados es un asunto en el que hay que trabajar con más cuidado. Consideramos
+entonces que las mejoras propuestas en el apartado de arriba merecen especial
+consideración, con el objetivo de disminuir los tiempos de este 30\% de los
+casos.
 
 \begin{thebibliography}{99}
 \bibitem{Cook}Cook, Stephen: ``The complexity of theorem-proving
