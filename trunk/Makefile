@@ -36,12 +36,13 @@ bin/list.o: $(DEP_list:%=src/%.c) $(DEP_list:%=lib/%.h)
 .PHONY: doc
 
 sudoku:
-	make; $(GCC) sudoku2cnf/sudoku.c -o sudoku
+	make; $(GCC) sudoku2cnf/sudoku.c -o sudoku;
+	$(GCC) sudoku2cnf/parse_zchaff_output.c -o sudoku2cnf/parse_zchaff_output
 
 doc:
 	doxygen doc/Doxyfile
 clean:
-	rm -f bin/*.o kec_o_sat_s sudoku
+	rm -f bin/*.o kec_o_sat_s sudoku sudoku2cnf/parse_zchaff_output
 
 cleandoc:
 	rm -rf doc/html
