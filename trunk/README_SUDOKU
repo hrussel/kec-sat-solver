@@ -1,0 +1,85 @@
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+
+                KECOSATS (Kelwin-Eleazar-Carlos Optimized SAT Solver)
+		    Instructions for solving SUDOKU instances
+
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+
+Authors:
+ Carlos Colmenares
+ Eleazar Leal
+ Kelwin Fernandez
+
+Universidad Simón Bolívar. 
+Caracas, Venezuela.
+
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+
+% This file is an extension of the README file located in the root directory,
+% it describes how to  solve sudoku instances using KECOSATS
+
+README FILE
+-----------
+SUMMARY:
+
+(I)     Aditional technical requirements
+(II)    Compiling
+(III)   Solving sudoku instances
+
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+
+--------------------------------------------------------------------------------
+(I) Tech Specs
+--------------------------------------------------------------------------------
+
+In adition to the standard technical requirement of the KECOSATS, for solving
+sudoku instances the next software is needed:
+
+    (a) perl v5.8.8 (or later)
+    (b) pdfTeX 3.141592-1.40.3-2.2 (Web2C 7.5.6) 
+    (c) zChaff 2007.3.12
+
+    The zchaff softaware is included in the project, its directory can be found
+in the 'sudoku2cnf' directory (the directory is called 'zchaff')
+
+--------------------------------------------------------------------------------
+(II) Compiling KECOSATS sudoku solver
+--------------------------------------------------------------------------------
+
+Two steps are needed: complie zchaff, and then comile KECOSATS
+
+0.- For compiling zChaff go to the zChaff directory and run the makefile.
+    E.G.:
+
+    > cd /opt/kecosats
+    > cd sudoku2cnf/zchaff
+    > make
+
+1.- On the root directory of the KECOSATS, run the makefile with the
+    'sudoku rule'.
+    E.G.:
+
+    > cd /opt/kecosats
+    > make sudoku
+
+--------------------------------------------------------------------------------
+(III) Solving Sudoku instances
+--------------------------------------------------------------------------------
+
+After compiling, for tsting sudoku files, just execute the 'sudoku' executable
+in the root directory and pass the correct arguments, E.G.:
+
+   > cd /opt/kecosats
+   > ./sudoku -f test/sudoku.in -o sudoku.cnf -e solution.pdf -t 60
+
+   Where:
+
+   - test/sudoku.in = The input sudoku cases to solve
+   - sudoku.cnf = The output cnf file of the last sudoku case tested
+   - solution.pdf = The solution of all test cases in pdf
+   - 60 = The time limit in seconds for KECOSATS to solve a SAT instance,
+          if the solver takes more than this time, it will abort.
+
+For further information, give tha flag -h to the executable.
+
+
