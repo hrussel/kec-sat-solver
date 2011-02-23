@@ -284,7 +284,7 @@ void parse_args(int argc, char* argv[]){
                     "./kec_o_sat_s -f %s -o sudoku.out ",
                     output_filename);
             sprintf(command2,
-                    "./sudoku2cnf/zchaff/zchaff sudoku.cnf ",
+                    "./sudoku2cnf/zchaff/zchaff %s ",
                     output_filename);
         } else if ( strcmp(argv[i], "-t") == 0){
             
@@ -451,7 +451,7 @@ int main(int argc, char* argv[]){
             
             // Solving with KEC_O_SAT_S
             
-            solve_and_read(command1, t, n, "kec_o_sat_s", in_pdf);
+            solve_and_read(command1, t, n, "kecosats", in_pdf);
             system("rm -rf sudoku.out");
             
             printf("\n");
@@ -473,7 +473,7 @@ int main(int argc, char* argv[]){
         
         char command[1000];
         memset(command, 0, sizeof command);
-        sprintf(command, "python archive/sudoku2pdf.py auxiliar_pdf %s",
+        sprintf(command, "perl ./sudoku2cnf/sudoku2pdfLatex.pl auxiliar_pdf %s",
                          output_pdf_filename);
         system(command);
         
