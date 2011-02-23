@@ -13,8 +13,12 @@ int main(int argc, char* argv[]){
     fin = fopen(argv[2], "r");
     fout = fopen(argv[3], "w");
     
-    if ( fin == NULL || fout == NULL){
-        printf("Error: can't open file.\n");
+    if ( fin == NULL ){
+        printf("Error: can't open input file.\n");
+        exit(1);
+    }
+    if ( fout == NULL ){
+        printf("Error: can't open output file.\n");
         exit(1);
     }
     
@@ -44,4 +48,5 @@ int main(int argc, char* argv[]){
     } else {
         fprintf(fout, "UNSAT\n");
     }
+
 }
