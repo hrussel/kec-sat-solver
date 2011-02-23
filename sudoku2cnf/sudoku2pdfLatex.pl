@@ -74,7 +74,7 @@ sub print_sudoku() {
 
     print TEMP_FILE "\\begin{sudoku}\n";
     while( @sudoku ) {
-        @current_line = splice( @sudoku, 0, 9); 
+        @current_line = splice( @sudoku, 0, 9);
         @current_line = join("|", @current_line);
         unshift  @current_line, "|";
         push @current_line, "|.\n";

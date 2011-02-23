@@ -232,7 +232,7 @@ int cnf_output2sudoku(int** t, int n, char* filename, double* time){
 }
 
 void print_help(){
-
+    
     printf("usage: sudoku -f <input_file_sudoku> -o <output_dimacs_cnf_formula> [OPTIONS]\n");
     printf("\n");
     printf("    OPTIONS:\n");
@@ -388,7 +388,7 @@ int main(int argc, char* argv[]){
             exit(1);
         }
         
-        printf("Report: zchaff kec_o_sat_s (milliseconds)\n");
+        printf("Report: kec_o_sat_s (seconds)\n");
     }
     
     // It reads each instance of sudoku problem
@@ -436,10 +436,10 @@ int main(int argc, char* argv[]){
             fprintf(in_pdf, "%d\n", n);
             print_sudoku_pdf(t, n, in_pdf);
             
-            fprintf(in_pdf, "2\n", n);
+            fprintf(in_pdf, "1\n", n);
             
             // Solving with ZCHAFF
-            
+            /*
             char command3[10000];
             memset(command3, 0, sizeof(command3));
             sprintf(command3,
@@ -448,10 +448,14 @@ int main(int argc, char* argv[]){
             
             solve_and_read(command3, t, n, "zchaff", in_pdf);
             system("rm -rf sudoku.out sudoku.out2");
-            
+            */
             // Solving with KEC_O_SAT_S
             
             solve_and_read(command1, t, n, "kecosats", in_pdf);
+            
+            printf("\n");
+            print_sudoku(t,n);
+            
             system("rm -rf sudoku.out");
             
             printf("\n");
@@ -473,8 +477,11 @@ int main(int argc, char* argv[]){
         
         char command[1000];
         memset(command, 0, sizeof command);
-        sprintf(command, "perl ./sudoku2cnf/sudoku2pdfLatex.pl auxiliar_pdf %s",
-                         output_pdf_filename);
+        sprintf(command, "perl ./sudoku2cnf/sudoku2pdfLatex.pl auxiliar_pdf sudoku.tex");
+        system(command);
+        
+        memset(command, 0, sizeof command);
+        sprintf(command, "cp sudoku.pdf %s", output_pdf_filename);
         system(command);
         
         system("rm -rf auxiliar_pdf sudoku.out sudoku.out2");
