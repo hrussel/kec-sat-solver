@@ -46,16 +46,10 @@ in the 'sudoku2cnf' directory (the directory is called 'zchaff')
 (II) Compiling KECOSATS sudoku solver
 --------------------------------------------------------------------------------
 
-Two steps are needed: complie zchaff, and then comile KECOSATS
+Two steps are needed: complie zchaff, and then comile KECOSATS, however,
+all of this can be done just executing the "sudoku" target of the Makefile:
 
-0.- For compiling zChaff go to the zChaff directory and run the makefile.
-    E.G.:
-
-    > cd /opt/kecosats
-    > cd sudoku2cnf/zchaff
-    > make
-
-1.- On the root directory of the KECOSATS, run the makefile with the
+0.- On the root directory of the KECOSATS, run the makefile with the
     'sudoku rule'.
     E.G.:
 

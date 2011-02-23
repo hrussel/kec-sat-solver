@@ -36,7 +36,7 @@ bin/list.o: $(DEP_list:%=src/%.c) $(DEP_list:%=lib/%.h)
 .PHONY: doc
 
 sudoku:
-	make; make sudoku2cnf/zchaff/Makefile; $(GCC) sudoku2cnf/sudoku.c -o sudoku;
+	make; make -C sudoku2cnf/zchaff; $(GCC) sudoku2cnf/sudoku.c -o sudoku;
 	$(GCC) sudoku2cnf/parse_zchaff_output.c -o sudoku2cnf/parse_zchaff_output
 
 doc:
