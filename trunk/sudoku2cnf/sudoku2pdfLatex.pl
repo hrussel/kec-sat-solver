@@ -58,6 +58,7 @@ while( <INPUT_FILE> != 0) {
 #     }
 #     print TEMP_FILE "\\end{sudoku}\n";
         $num_cases--;
+        print TEMP_FILE "\\newpage\n";
     }
 }
 print TEMP_FILE "\\end{document}";
@@ -65,7 +66,8 @@ print TEMP_FILE "\\end{document}";
 close TEMP_FILE;
 
 system("pdflatex", $temp_file);
-system("rm -rf $temp_file.aux $temp_file.log");
+#This should be modified!
+system("rm -rf *.aux *.log");
 
 sub print_sudoku() {
     @sudoku = @_;
