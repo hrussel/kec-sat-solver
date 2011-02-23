@@ -1,6 +1,6 @@
 #! /usr/bin/perl
-use warnings;
-use strict;
+# use warnings;
+# use strict;
 
 # File: sudoku2pdfLatex.pl
 #
@@ -10,39 +10,42 @@ use strict;
 
 my ($input_file, $output_file) = @ARGV;
 my $case_num = 0;
+my $caso = 0;
 my @sudoku;
 my @current_line;
 my ($solver, $time);
-my $temp_file = "sal";
+my $temp_file = $output_file;
 my $i = 0;
 
 open(INPUT_FILE, "<", $input_file ) or die $!;
 open(TEMP_FILE, ">", $temp_file) or die $!;
-my $sudoku_card    = <INPUT_FILE>;
-my @initial_sudoku = split(" ", <INPUT_FILE>);
-my $num_cases = <INPUT_FILE>;
-
-print "cardi: $sudoku_card";
-
 
 my $string = "\\documentclass{article}
-\\usepackage{sudoku}\\setlength\\sudokusize{7cm}\\begin{document}";
-
-
+    \\usepackage{sudoku}\\setlength\\sudokusize{10cm}\\begin{document}";
 print TEMP_FILE $string;
-print TEMP_FILE "\\begin{center}{\\huge Sudoku Inicial}\\end{center}";
-print_sudoku(@initial_sudoku);
-print TEMP_FILE "\\section{Resultados}";
 
-while( $num_cases ) {
-    my $sudoku_card = $_;
+while( <INPUT_FILE> != 0) {
+
+    $caso++;
+    print TEMP_FILE "\\Huge{Caso $caso}";
+    
+    #my $sudoku_card    = <INPUT_FILE>;
+    my @initial_sudoku = split(" ", <INPUT_FILE>);
+    my $num_cases = <INPUT_FILE>;
+    
+    print TEMP_FILE "\\begin{center}{\\huge Sudoku Inicial}\\end{center}";
+    print_sudoku(@initial_sudoku);
+    print TEMP_FILE "\\section{Resultados}";
+
+    while( $num_cases ) {
+        my $sudoku_card = $_;
 
 
-    chomp($solver = <INPUT_FILE>);
-    chomp($time = <INPUT_FILE>);
-    print TEMP_FILE "\n{\\subsection*{Soluci\\'on del solver: $solver}\\subsection*{Tiempo: $time ms.}}\n";
-    @sudoku = split(" ", <INPUT_FILE>);
-    print_sudoku(@sudoku);
+        chomp($solver = <INPUT_FILE>);
+        chomp($time = <INPUT_FILE>);
+        print TEMP_FILE "\n{\\subsection*{Soluci\\'on del solver: $solver}\\subsection*{Tiempo: $time ms.}}\n";
+        @sudoku = split(" ", <INPUT_FILE>);
+        print_sudoku(@sudoku);
 
 #     print TEMP_FILE "\\begin{sudoku}\n";
 #     while( @sudoku ) {
@@ -54,14 +57,15 @@ while( $num_cases ) {
 #         print TEMP_FILE  @current_line;
 #     }
 #     print TEMP_FILE "\\end{sudoku}\n";
-    $num_cases--;
+        $num_cases--;
+    }
 }
-
 print TEMP_FILE "\\end{document}";
 
 close TEMP_FILE;
 
 system("pdflatex", $temp_file);
+system("rm -rf $temp_file.aux $temp_file.log");
 
 sub print_sudoku() {
     @sudoku = @_;

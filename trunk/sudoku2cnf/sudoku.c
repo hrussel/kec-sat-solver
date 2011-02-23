@@ -233,13 +233,13 @@ int cnf_output2sudoku(int** t, int n, char* filename, double* time){
 
 void print_help(){
 
-    printf("usage: sudoku -f <input> -o <output_file> [OPTIONS]\n");
+    printf("usage: sudoku -f <input_file_sudoku> -o <output_dimacs_cnf_formula> [OPTIONS]\n");
     printf("\n");
     printf("    OPTIONS:\n");
     printf("\n");
     printf("    -h                Print this message\n");
     printf("\n");
-    printf("    -e <output_pdf>   Write results in a pdf file <output_pdf>\n");
+    printf("    -e <output_pdf_file>  Write results in a pdf file <output_file>\n");
     printf("                      if it's not provided, the formula will not be\n");
     printf("                      verified\n");
     printf("    -t <time>         Abort the execution of the program after\n");
