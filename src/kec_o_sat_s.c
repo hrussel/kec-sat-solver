@@ -88,8 +88,8 @@ int main(int argc, char* argv[]){
     //Set the alarm before trying to solve the SAT instance,
     //and unset it after solving
     alarm(sat_gs.time_out);
-    
     int status = solve_sat();
+    alarm(0);
     
     if ( status == SATISFIABLE ){
         printf("%s: SATISFIABLE\n\n",sat_gs.program_name);
