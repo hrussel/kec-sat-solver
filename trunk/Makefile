@@ -42,7 +42,8 @@ sudoku:
 doc:
 	doxygen doc/Doxyfile
 clean:
-	rm -f bin/*.o kec_o_sat_s sudoku sudoku2cnf/parse_zchaff_output
+	rm -f bin/*.o kec_o_sat_s sudoku sudoku2cnf/parse_zchaff_output;
+	make clean -C sudoku2cnf/zchaff
 
 cleandoc:
 	rm -rf doc/html
