@@ -8,14 +8,16 @@ FILES=\
     sat \
     sat_io \
     pure_literals \
+    kecosats_structures \
     list 
 
 #The next variables hold the dependencies of each file
 #DEP_example=dep1 dep2 dep3
-DEP_sat=list
-DEP_sat_io=list sat 
-DEP_kec_o_sat_s=sat sat_io
-DEP_pure_literals=sat
+DEP_sat=list kecosats_structures
+DEP_sat_io=list kecosats_structures
+DEP_kec_o_sat_s=sat sat_io kecosats_structures
+DEP_pure_literals=kecosats_structures
+DEP_kecosats_structures=list
 DEP_list=
 
 #Rule for compiling the main file
@@ -31,6 +33,7 @@ bin/%.o: src/%.c lib/%.h
 bin/sat.o: $(DEP_sat:%=src/%.c) $(DEP_sat:%=lib/%.h)
 bin/sat_io.o: $(DEP_sat_io:%=src/%.c) $(DEP_sat_io:%=lib/%.h)
 bin/pure_literals.o: $(DEP_pure_literals:%=src/%.c) $(DEP_pure_literals:%=lib/%.h)
+bin/kecosats_structures.o: $(DEP_kecosats_structures:%=src/%.c) $(DEP_kecosats_structures:%=lib/%.h)
 bin/list.o: $(DEP_list:%=src/%.c) $(DEP_list:%=lib/%.h)
 
 .PHONY: doc

@@ -18,11 +18,10 @@
 #include<stdio.h>
 #include<signal.h>
 #include<unistd.h>
+#include"kecosats_structures.h"
 #include"sat.h"
 #include"sat_io.h"
 
-#include "sat.h"
-#include "sat_io.h"
 
 void print_usage();
 void catch_alarm();
