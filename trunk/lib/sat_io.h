@@ -19,7 +19,11 @@
 
 #include<stdio.h>
 #include<stdlib.h>
-#include"sat.h"
+#include<string.h>
+#include<ctype.h>
+#include"kecosats_structures.h"
+
+#define BUFFERSIZE 10123
 
 /**
  * The purpose of this procedure is to initialize a clause from an array

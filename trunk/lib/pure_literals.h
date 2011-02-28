@@ -13,7 +13,8 @@
 #define _KECOSATS_PURE_LITERALS_
 
 #include <stdio.h>
-#include "sat.h"
+#include <string.h>
+#include "kecosats_structures.h"
 
 /**
  * This function finds all pure literals in a boolean formula.
