@@ -5,7 +5,7 @@ GCC_FLAGS=-Ilib -Wall -O3
 MAIN_FILE=kec_o_sat_s
 
 FILES=\
-    sat \
+    kecosats_algorithm \
     sat_io \
     pure_literals \
     kecosats_structures \
@@ -13,9 +13,9 @@ FILES=\
 
 #The next variables hold the dependencies of each file
 #DEP_example=dep1 dep2 dep3
-DEP_sat=list kecosats_structures
+DEP_kecosats_algorithm=list kecosats_structures
 DEP_sat_io=list kecosats_structures
-DEP_kec_o_sat_s=sat sat_io kecosats_structures
+DEP_kec_o_sat_s=kecosats_algorithm sat_io kecosats_structures
 DEP_pure_literals=kecosats_structures
 DEP_kecosats_structures=list
 DEP_list=
@@ -30,7 +30,7 @@ bin/%.o: src/%.c lib/%.h
 
 #Dependencies:
 #bin/example.o: $(DEP_example:%=src/%.c) $(DEP_example:%=lib/%.h)
-bin/sat.o: $(DEP_sat:%=src/%.c) $(DEP_sat:%=lib/%.h)
+bin/kecosats_algorithm.o: $(DEP_kecosats_algorithm:%=src/%.c) $(DEP_kecosats_algorithm:%=lib/%.h)
 bin/sat_io.o: $(DEP_sat_io:%=src/%.c) $(DEP_sat_io:%=lib/%.h)
 bin/pure_literals.o: $(DEP_pure_literals:%=src/%.c) $(DEP_pure_literals:%=lib/%.h)
 bin/kecosats_structures.o: $(DEP_kecosats_structures:%=src/%.c) $(DEP_kecosats_structures:%=lib/%.h)

@@ -8,7 +8,7 @@
  * @author Leal, Eleazar (06-39780@usb.ve)
  *
  ******************************************************************************/
-#include "sat.h"
+#include "kecosats_algorithm.h"
 
 void free_decision_level_data(decision_level_data* dld){
     //free_list(dld->propagated_var);

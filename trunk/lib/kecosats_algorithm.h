@@ -16,8 +16,8 @@
  * @author Leal, Eleazar (06-39780@usb.ve)
  *
  ******************************************************************************/
-#ifndef _KECOSATS_SAT_
-#define _KECOSATS_SAT_
+#ifndef _KECOSATS_ALGORITHM_
+#define _KECOSATS_ALGORITHM_
 
 #include <string.h>
 #include <stdio.h>
