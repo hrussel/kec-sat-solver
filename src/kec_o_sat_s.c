@@ -19,7 +19,7 @@
 #include<signal.h>
 #include<unistd.h>
 #include"kecosats_structures.h"
-#include"sat.h"
+#include"kecosats_algorithm.h"
 #include"sat_io.h"
 
 
