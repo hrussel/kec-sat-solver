@@ -99,7 +99,9 @@ void set_initial_sat_status(){
     
     // We read the number of variables and clauses.
     sscanf( buffer, "p cnf %d%d", &sat_st.num_vars, &sat_st.num_clauses);
-    
+
+    sat_st.num_original_clauses = sat_st.num_clauses;
+
     clause_buffer = (int*) malloc( 2*sat_st.num_vars*sizeof(int) );
     
     // We allocate memory for each of sat_st's internal structures. 

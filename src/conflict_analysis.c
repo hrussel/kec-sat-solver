@@ -9,3 +9,5 @@ int analyze_conflict() {
 
   return 1;
 }
+
+

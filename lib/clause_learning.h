@@ -19,3 +19,13 @@ void learn_clause( int clause_length, int lit[] );
  *
  */
 void unlearn_clause( int clause_index );
+
+/**
+ *
+ * This function searches for all clauses marked @e too_large: those which have
+ * more than @esat_st.clause_upper_bound literals. If one of these clauses is
+ * found to be non-unitary, it will be unlearned (discarded). Otherwise, it will
+ * be preserved.
+ *
+ */
+void unlearn_large_clauses();
