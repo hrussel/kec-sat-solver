@@ -27,7 +27,6 @@ void learn_clause( int clause_length, int lit[] ){
         sat_st.clause_available_space = num_clauses;
     }
 
-    //    sat_st.num_original_clauses;
     sat_st.num_clauses++;
     sat_st.clause_available_space--;
     // Set watchers lists and initialize clause.
@@ -56,4 +55,33 @@ void unlearn_clause( int clause_index ) {
 
     sat_st.num_clauses--;
     sat_st.clause_available_space++;
+}
+
+/**
+ *
+ * This function searches for all clauses tagged @e too_large: those
+ * which have more than @esat_st.clause_upper_bound literals. If one of these
+ * clauses is found to be non-unitary, it will be unlearned (discarded). Otherwise,
+ * it will be preserved.
+ *
+ */
+void unlearn_large_clauses() {
+    int status;
+    int current_clause;
+    for (current_clause = sat_st.num_original_clauses;
+         current_clause < sat_st.num_clauses;
+         current_clause++)
+    {
+        if ( sat_st.formula[current_clause].too_large == TRUE ) {
+            // A learned clause marked for possible deletion
+            // has been found. If it's not a unitary clause
+            // it may be deleted. Otherwise, it will be kept.
+                
+            status = update_watcher( &sat_st.formula[current_clause] );
+
+            if ( status == UNIT_CLAUSE ) {
+                unlearn_clause( current_clause );
+            }
+        }
+    }
 }

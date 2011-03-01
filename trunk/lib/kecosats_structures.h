@@ -84,6 +84,8 @@ typedef struct clause{
 *         deleted.
 *  @param clause_available_space Indicates how many clauses be learned, given
 *         the current available space in the formula.
+*  @param num_original_clauses The number of clauses originally given with the
+*         formula.
 *
 */
 typedef struct SAT_status{
@@ -100,6 +102,7 @@ typedef struct SAT_status{
                                     // to literals, that is under study.
     int clause_upper_bound;
     int clause_available_space;
+    int num_original_clauses;
 } SAT_status;
 
 /**
