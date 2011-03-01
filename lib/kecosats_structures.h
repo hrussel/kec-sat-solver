@@ -43,6 +43,9 @@ typedef list stack;
 *  This struct models a clause in the formula.
 *
 *  @param size The number of literals in the clause.
+*  @param too_large A boolean value that is true iff the clause was a
+*         conflict-induced clause and its length is greater or equal than
+*         a certain upper bound.
 *  @param head_watcher Pointer to one of the clause's literals, which is
 *         being watched.
 *  @param tail_watcher Pointer to one of the clause's literals, which is
@@ -53,6 +56,7 @@ typedef list stack;
 */
 typedef struct clause{
     int size;
+    int too_large;
     variable* head_watcher;
     variable* tail_watcher;
     variable* literals;
@@ -75,6 +79,11 @@ typedef struct clause{
 *  @param model An array A such that A[i] holds the current assignment of 
 *         variable x_i. This assignment can be only one of the following:
 *         TRUE, FALSE, UNKNOWN.
+*  @param clause_upper_bound An integer such that every learned non-unitary 
+*         clause whose size is larger than or equal to it will be eventually
+*         deleted.
+*  @param clause_available_space Indicates how many clauses be learned, given
+*         the current available space in the formula.
 *
 */
 typedef struct SAT_status{
@@ -89,6 +98,8 @@ typedef struct SAT_status{
     stack backtracking_status;
     int *model;                     // The current assignment of boolean values
                                     // to literals, that is under study.
+    int clause_upper_bound;
+    int clause_available_space;
 } SAT_status;
 
 /**
