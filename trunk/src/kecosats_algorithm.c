@@ -9,6 +9,7 @@
  *
  ******************************************************************************/
 #include "kecosats_algorithm.h"
+#include "conflict_analysis.h"
 
 void free_decision_level_data(decision_level_data* dld){
     //free_list(dld->propagated_var);
@@ -167,37 +168,46 @@ int solve_sat(){
         //a variable that can be flipped is found.
         else if( assignment_result == CONFLICT ){ 
             
-            decision_level_data *top_el = NULL;
-
-            do {
-
-                top_el = (decision_level_data*) 
-                    top(&sat_st.backtracking_status);
-
-                //Undo the assignments made in the
-                //decision level
-                undo_assignments(top_el);
-
-                if( top_el->missing_branch == TRUE ){
-                    //If the opposite branch has not been tried,
-                    //then flip the assignment and continue the
-                    //recursion (iteratively)
-
-                    //Flip the value
-                    top_el->assigned_literal = - top_el->assigned_literal; 
-
-                    top_el->missing_branch = FALSE;
-                    break;
-
-                } else {
-                    //Destroy the structure and continue
-                    //the search for a variable that can be flipped
-                    free_decision_level_data(top_el);
-                    pop(&sat_st.backtracking_status);
+            int backtrack_to_level = analyze_conflict();
+            if ( backtrack_to_level == 0 ) {
+                while( !empty(&sat_st.backtracking_status) ) {
+                    pop( &sat_st.backtracking_status );
                 }
+            }
+            else {
+                // It's possible to backtrack.
+                decision_level_data *top_el = NULL;
 
-            } while( !empty(&sat_st.backtracking_status) );
-            
+                do {
+
+                    top_el = (decision_level_data*) 
+                        top(&sat_st.backtracking_status);
+
+                    //Undo the assignments made in the
+                    //decision level
+                    undo_assignments(top_el);
+
+                    if( top_el->missing_branch == TRUE ){
+                        //If the opposite branch has not been tried,
+                        //then flip the assignment and continue the
+                        //recursion (iteratively)
+
+                        //Flip the value
+                        top_el->assigned_literal = - top_el->assigned_literal; 
+
+                        top_el->missing_branch = FALSE;
+                        break;
+
+                    } else {
+                        //Destroy the structure and continue
+                        //the search for a variable that can be flipped
+                        free_decision_level_data(top_el);
+                        pop(&sat_st.backtracking_status);
+                    }
+
+                } while( /*top_el->decision_level != backtrack_to_level*/
+                         !empty(&sat_st.backtracking_status) );
+            }
             //If the stack got empty, then no backtracking was
             //possible, hence, the formula is UNSATISFIABLE
             if( empty(&sat_st.backtracking_status) )
