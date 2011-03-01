@@ -19,11 +19,6 @@ void learn_clause( int clause_length, int lit[] ){
         sat_st.formula = (clause*) realloc(sat_st.formula,
                                            2*num_clauses*sizeof(clause));
 
-        sat_st.pos_watched_list = (list*) realloc(sat_st.pos_watched_list,
-                                           2*num_clauses*sizeof(list));
-
-        sat_st.neg_watched_list = (list*) realloc(sat_st.neg_watched_list,
-                                           2*num_clauses*sizeof(list));
         sat_st.clause_available_space = num_clauses;
     }
 
