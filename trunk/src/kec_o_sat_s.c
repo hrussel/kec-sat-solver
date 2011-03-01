@@ -33,7 +33,7 @@ int main(int argc, char* argv[]){
         exit(1);
     }
 
-    //Parse the arguments, and stor them in the SAT_global_settings
+    //Parse the arguments, and store them in the SAT_global_settings
     //global variable sat_gs. The next ones are the default
     //options:
     sat_gs.program_name = argv[0];
