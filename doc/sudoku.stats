@@ -1,0 +1,260 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 20.20     18.42    18.42 990256027     0.00     0.00  update_watcher
+ 16.75     33.69    15.27        1    15.27    91.18  solve_sat
+ 14.26     46.69    13.00 79609320     0.00     0.00  set_newly_watchers
+ 12.71     58.28    11.59 2533839533     0.00     0.00  pop
+  9.63     67.06     8.78 2402709673     0.00     0.00  push
+  6.71     73.18     6.12 990256027     0.00     0.00  is_head_watcher
+  5.33     78.04     4.86 2886750217     0.00     0.00  empty
+  4.74     82.36     4.32 2544677210     0.00     0.00  top
+  4.39     86.36     4.00 1090942032     0.00     0.00  add_to_watched_list
+  4.29     90.27     3.91 72953628     0.00     0.00  unit_propagation
+  0.39     90.63     0.36 131153910     0.00     0.00  queue
+  0.30     90.90     0.27 159218642     0.00     0.00  initialize_list
+  0.22     91.10     0.20 41216811     0.00     0.00  is_tail_watcher
+  0.07     91.16     0.06 41216811     0.00     0.00  swap_watchers
+  0.01     91.17     0.01  6894701     0.00     0.00  new_list
+  0.01     91.18     0.01  6894684     0.00     0.00  analyze_conflict
+  0.00     91.18     0.00        1     0.00     0.00  allocate_sat_status
+  0.00     91.18     0.00        1     0.00     0.00  print_sol
+  0.00     91.18     0.00        1     0.00     0.00  set_initial_sat_status
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 4 byte(s) for 0.01% of 91.18 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]    100.0    0.00   91.18                 main [1]
+               15.27   75.91       1/1           solve_sat [2]
+                0.00    0.00       1/1           set_initial_sat_status [19]
+                0.00    0.00       1/1           print_sol [21]
+-----------------------------------------------
+               15.27   75.91       1/1           main [1]
+[2]    100.0   15.27   75.91       1         solve_sat [2]
+               16.91   57.76 12656395/12656396     set_newly_watchers <cycle 1> [4]
+                0.63    0.00 138048068/2533839533     pop [6]
+                0.29    0.00 172521470/2886750217     empty [10]
+                0.27    0.00 158732136/2544677210     top [11]
+                0.03    0.00 6894718/2402709673     push [7]
+                0.01    0.00 6894701/6894701     new_list [17]
+                0.01    0.00 6894684/6894684     analyze_conflict [18]
+                0.00    0.00       1/12656396     unit_propagation <cycle 1> [8]
+                0.00    0.00       1/159218642     initialize_list [14]
+-----------------------------------------------
+[3]     81.9   16.91   57.76 12656396+139906552 <cycle 1 as a whole> [3]
+               13.00   55.52 79609320             set_newly_watchers <cycle 1> [4]
+                3.91    2.24 72953628             unit_propagation <cycle 1> [8]
+-----------------------------------------------
+                             66952925             unit_propagation <cycle 1> [8]
+               16.91   57.76 12656395/12656396     solve_sat [2]
+[4]     75.2   13.00   55.52 79609320         set_newly_watchers <cycle 1> [4]
+               18.42    0.00 990256027/990256027     update_watcher [5]
+               10.02    0.00 2190120583/2533839533     pop [6]
+                8.75    0.00 2395791448/2402709673     push [7]
+                6.12    0.00 990256027/990256027     is_head_watcher [9]
+                4.00    0.00 1090918525/1090942032     add_to_watched_list [12]
+                3.98    0.00 2362650609/2886750217     empty [10]
+                3.70    0.00 2181837050/2544677210     top [11]
+                0.27    0.00 159218640/159218642     initialize_list [14]
+                0.20    0.00 41216811/41216811     is_tail_watcher [15]
+                0.06    0.00 41216811/41216811     swap_watchers [16]
+                             72953627             unit_propagation <cycle 1> [8]
+-----------------------------------------------
+               18.42    0.00 990256027/990256027     set_newly_watchers <cycle 1> [4]
+[5]     20.2   18.42    0.00 990256027         update_watcher [5]
+-----------------------------------------------
+                0.63    0.00 138048068/2533839533     solve_sat [2]
+                0.94    0.00 205670882/2533839533     unit_propagation <cycle 1> [8]
+               10.02    0.00 2190120583/2533839533     set_newly_watchers <cycle 1> [4]
+[6]     12.7   11.59    0.00 2533839533         pop [6]
+-----------------------------------------------
+                0.00    0.00   23507/2402709673     set_initial_sat_status [19]
+                0.03    0.00 6894718/2402709673     solve_sat [2]
+                8.75    0.00 2395791448/2402709673     set_newly_watchers <cycle 1> [4]
+[7]      9.6    8.78    0.00 2402709673         push [7]
+-----------------------------------------------
+                             72953627             set_newly_watchers <cycle 1> [4]
+                0.00    0.00       1/12656396     solve_sat [2]
+[8]      6.7    3.91    2.24 72953628         unit_propagation <cycle 1> [8]
+                0.94    0.00 205670882/2533839533     pop [6]
+                0.59    0.00 351578138/2886750217     empty [10]
+                0.36    0.00 131153910/131153910     queue [13]
+                0.35    0.00 204108024/2544677210     top [11]
+                             66952925             set_newly_watchers <cycle 1> [4]
+-----------------------------------------------
+                6.12    0.00 990256027/990256027     set_newly_watchers <cycle 1> [4]
+[9]      6.7    6.12    0.00 990256027         is_head_watcher [9]
+-----------------------------------------------
+                0.29    0.00 172521470/2886750217     solve_sat [2]
+                0.59    0.00 351578138/2886750217     unit_propagation <cycle 1> [8]
+                3.98    0.00 2362650609/2886750217     set_newly_watchers <cycle 1> [4]
+[10]     5.3    4.86    0.00 2886750217         empty [10]
+-----------------------------------------------
+                0.27    0.00 158732136/2544677210     solve_sat [2]
+                0.35    0.00 204108024/2544677210     unit_propagation <cycle 1> [8]
+                3.70    0.00 2181837050/2544677210     set_newly_watchers <cycle 1> [4]
+[11]     4.7    4.32    0.00 2544677210         top [11]
+-----------------------------------------------
+                0.00    0.00   23507/1090942032     set_initial_sat_status [19]
+                4.00    0.00 1090918525/1090942032     set_newly_watchers <cycle 1> [4]
+[12]     4.4    4.00    0.00 1090942032         add_to_watched_list [12]
+-----------------------------------------------
+                0.36    0.00 131153910/131153910     unit_propagation <cycle 1> [8]
+[13]     0.4    0.36    0.00 131153910         queue [13]
+-----------------------------------------------
+                0.00    0.00       1/159218642     solve_sat [2]
+                0.00    0.00       1/159218642     set_initial_sat_status [19]
+                0.27    0.00 159218640/159218642     set_newly_watchers <cycle 1> [4]
+[14]     0.3    0.27    0.00 159218642         initialize_list [14]
+-----------------------------------------------
+                0.20    0.00 41216811/41216811     set_newly_watchers <cycle 1> [4]
+[15]     0.2    0.20    0.00 41216811         is_tail_watcher [15]
+-----------------------------------------------
+                0.06    0.00 41216811/41216811     set_newly_watchers <cycle 1> [4]
+[16]     0.1    0.06    0.00 41216811         swap_watchers [16]
+-----------------------------------------------
+                0.01    0.00 6894701/6894701     solve_sat [2]
+[17]     0.0    0.01    0.00 6894701         new_list [17]
+-----------------------------------------------
+                0.01    0.00 6894684/6894684     solve_sat [2]
+[18]     0.0    0.01    0.00 6894684         analyze_conflict [18]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[19]     0.0    0.00    0.00       1         set_initial_sat_status [19]
+                0.00    0.00   23507/1090942032     add_to_watched_list [12]
+                0.00    0.00   23507/2402709673     push [7]
+                0.00    0.00       1/159218642     initialize_list [14]
+                0.00    0.00       1/1           allocate_sat_status [20]
+-----------------------------------------------
+                0.00    0.00       1/1           set_initial_sat_status [19]
+[20]     0.0    0.00    0.00       1         allocate_sat_status [20]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[21]     0.0    0.00    0.00       1         print_sol [21]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+
+Index by function name
+
+  [12] add_to_watched_list    [17] new_list                [2] solve_sat
+  [20] allocate_sat_status     [6] pop                    [16] swap_watchers
+  [18] analyze_conflict       [21] print_sol              [11] top
+  [10] empty                   [7] push                    [8] unit_propagation
+  [14] initialize_list        [13] queue                   [5] update_watcher
+   [9] is_head_watcher        [19] set_initial_sat_status  [3] <cycle 1>
+  [15] is_tail_watcher         [4] set_newly_watchers
