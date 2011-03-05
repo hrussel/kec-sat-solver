@@ -17,7 +17,6 @@
 void set_clause( clause* cl, int clause_length, int lit[] ){
     
     cl->size = clause_length;
-    cl->too_large = FALSE;
     
     cl->literals = (variable*) malloc (clause_length*sizeof(variable));
     memcpy( cl->literals, lit, clause_length*sizeof(int) );
@@ -69,6 +68,7 @@ void allocate_sat_status(){
     memset(sat_st.model, -1, (sat_st.num_vars+1)*sizeof(int));
     
     //TODO: Think this through...
+    impl_graph = (decision_node*) malloc(sat_st.num_vars*sizeof(int));
     sat_st.clause_upper_bound = 8;
     sat_st.clause_available_space = 0;
 }
