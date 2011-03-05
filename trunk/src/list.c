@@ -46,11 +46,11 @@ void push(list* l, void* item){
     l->size++;
 }
 
-void* top(list* l){
-    if (!empty(l)){
-        return l->first->item;
-    } else {
+inline void* top(list* l){
+    if (empty(l)){
         return 0;
+    } else {
+        return l->first->item;;
     }
 }
 
@@ -76,7 +76,7 @@ void pop(list* l){
     }
 }
 
-int empty(list* l){
+inline int empty(list* l){
     return l->size == 0;
 }
 
