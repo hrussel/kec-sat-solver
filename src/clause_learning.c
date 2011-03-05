@@ -13,28 +13,33 @@
  */
 
 void learn_clause( int clause_length, int lit[] ){
+    
+    int erased = FALSE;
+    int clause_index = sat_st.num_clauses;
+    
     if ( sat_st.clause_available_space == 0 ) {
-      int num_clauses = sat_st.num_clauses;
-        // Get more space
-        sat_st.formula = (clause*) realloc(sat_st.formula,
-                                           2*num_clauses*sizeof(clause));
-
-        sat_st.clause_available_space = num_clauses;
+        /* Decidir cual clausula se borra */
+        clause_index = choose_victim_clause();
+        
+        if ( sat_st.formula[clause_index].size >= clause_length ){
+            erased = TRUE;
+            unlearn_clause(clause_index);
+        }
     }
-
-    sat_st.num_clauses++;
-    sat_st.clause_available_space--;
-    // Set watchers lists and initialize clause.
-    set_clause( &sat_st.formula[sat_st.num_clauses], clause_length, lit );    
-
-    // If the clauses' length is greater than a certain bound, it is marked
-    // to indicate that as soon as it stops being a unitary clause it will be
-    // considered for deletion.
-    if ( clause_length >= sat_st.clause_upper_bound ) {
-        // Mark the clause.
-        sat_st.formula[sat_st.num_clauses].too_large = TRUE;
+    
+    if ( sat_st.clause_available_space > 0 ){
+        /* Aprender clausula */
+        sat_st.clause_available_space--;
+        
+        // Set watchers lists and initialize clause.
+        set_clause( &sat_st.formula[clause_index], clause_length, lit );
+        
+        sat_st.num_clauses++;
     }
 }
+
+/* OJOOOOOOOOOO: CAMBIAR LOS WATCHERS DE LAS DOS CLAUSULAS
+ */
 
 /**
  *
@@ -47,7 +52,7 @@ void unlearn_clause( int clause_index ) {
     int last_clause_index = sat_st.num_clauses-1;
     swap_clauses( sat_st.formula, clause_index, last_clause_index );
     free( sat_st.formula[last_clause_index].literals );
-
+    
     sat_st.num_clauses--;
     sat_st.clause_available_space++;
 }

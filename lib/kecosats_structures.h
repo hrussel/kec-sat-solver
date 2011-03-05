@@ -43,9 +43,6 @@ typedef list stack;
 *  This struct models a clause in the formula.
 *
 *  @param size The number of literals in the clause.
-*  @param too_large A boolean value that is true iff the clause was a
-*         conflict-induced clause and its length is greater or equal than
-*         a certain upper bound.
 *  @param head_watcher Pointer to one of the clause's literals, which is
 *         being watched.
 *  @param tail_watcher Pointer to one of the clause's literals, which is
@@ -56,11 +53,15 @@ typedef list stack;
 */
 typedef struct clause{
     int size;
-    int too_large;
     variable* head_watcher;
     variable* tail_watcher;
     variable* literals;
 } clause;
+
+typedef struct {
+    int decision_level;
+    clause* conflictive_clause; // o el indice de la clausula?
+} decision_node;
 
 /**
 *  This struct models the current state of analysis of the problem. There is a
@@ -86,6 +87,8 @@ typedef struct clause{
 *         the current available space in the formula.
 *  @param num_original_clauses The number of clauses originally given with the
 *         formula.
+*  @param impl_graph Keeps the information that makes possible the construction
+*         of the implication graph for clause learning.
 *
 */
 typedef struct SAT_status{
@@ -103,6 +106,8 @@ typedef struct SAT_status{
     int clause_upper_bound;
     int clause_available_space;
     int num_original_clauses;
+    
+    decision_node *impl_graph;
 } SAT_status;
 
 /**
