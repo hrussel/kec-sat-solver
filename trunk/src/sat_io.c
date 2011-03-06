@@ -14,6 +14,8 @@
 
 #include "sat_io.h"
 
+extern int* visited;
+
 void set_clause( clause* cl, int clause_length, int lit[] ){
     
     cl->size = clause_length;
@@ -64,14 +66,22 @@ void allocate_sat_status(){
     sat_st.model = (int*)malloc( (sat_st.num_vars+1)*sizeof(int) );
     if( sat_st.model == NULL )
         report_io_error(3);
-
+    
     memset(sat_st.model, -1, (sat_st.num_vars+1)*sizeof(int));
     
     //TODO: Think this through...
     sat_st.impl_graph =
-        (decision_node*)malloc(sat_st.num_vars*sizeof(decision_node));
+        (decision_node*)malloc((sat_st.num_vars + 1)*sizeof(decision_node));
     sat_st.clause_upper_bound = 8;
     sat_st.clause_available_space = 0;
+    
+    visited = (int*)malloc ( (sat_st.num_vars + 1)*sizeof(int) );
+    
+    if ( visited == NULL ){
+        report_io_error(3);
+    }
+    
+    memset(visited, 0, (sat_st.num_vars + 1)*sizeof(int));
 }
 
 void set_initial_sat_status(){
@@ -157,7 +167,13 @@ void set_initial_sat_status(){
     
     initialize_list(&sat_st.backtracking_status);
     //initialize_list_bt(&sat_st.backtracking_status);
-
+    
+    int i ;
+    for (i = 0; i<=sat_st.num_vars; i++){
+        sat_st.impl_graph[i].decision_level = -1;
+        sat_st.impl_graph[i].conflictive_clause = 0;
+    }
+    
     free( buffer );
     free( clause_buffer );
     

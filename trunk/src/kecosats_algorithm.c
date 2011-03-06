@@ -63,6 +63,10 @@ int decide_next_branch(){
         return SATISFIED;
     }
     
+    sat_st.impl_graph[free_variable].decision_level
+            = sat_st.backtracking_status.size + 1;
+    sat_st.impl_graph[free_variable].conflictive_clause = NULL;
+    
     if ( sat_st.pos_watched_list[free_variable].size
            > sat_st.neg_watched_list[free_variable].size )
     {
@@ -133,13 +137,13 @@ int solve_sat(){
     }
     
     while ( TRUE ){
-
+        
         //Check the top variable in the stack, if the
         //stack is empty, then all possible assignments were tried
         //and the formula is UNSATISFIABLE
         if( empty(&sat_st.backtracking_status) )
             return UNSATISFIABLE;
-
+        
         decision_level_data *top_el =
             (decision_level_data*) top(&sat_st.backtracking_status);
         
@@ -194,17 +198,24 @@ int solve_sat(){
 
                         //Flip the value
                         top_el->assigned_literal = - top_el->assigned_literal; 
-
                         top_el->missing_branch = FALSE;
+                        
+                        sat_st.impl_graph[abs(top_el->
+                                            assigned_literal)].decision_level 
+                            = sat_st.backtracking_status.size;
+                        
+                        sat_st.impl_graph[abs(top_el->assigned_literal)
+                                            ].conflictive_clause = NULL;
+                        
                         break;
-
+                    
                     } else {
                         //Destroy the structure and continue
                         //the search for a variable that can be flipped
                         free_decision_level_data(top_el);
                         pop(&sat_st.backtracking_status);
                     }
-
+                    
                 } while( /*top_el->decision_level != backtrack_to_level*/
                          !empty(&sat_st.backtracking_status) );
             }
@@ -226,6 +237,9 @@ void undo_assignments(decision_level_data *dec_lev_dat){
 
     sat_st.model[ assigned_var ] = UNKNOWN;
     
+    sat_st.impl_graph[ assigned_var].decision_level = -1;
+    sat_st.impl_graph[ assigned_var].conflictive_clause = NULL;
+        
     //Similarly, unset the assignments for the propageted
     //literals
     while( !empty(&dec_lev_dat->propagated_var) ){
@@ -235,6 +249,9 @@ void undo_assignments(decision_level_data *dec_lev_dat){
 
         assigned_var = abs(*watcher);
         sat_st.model[ assigned_var ] = UNKNOWN;
+        
+        sat_st.impl_graph[ assigned_var].decision_level = -1;
+        sat_st.impl_graph[ assigned_var].conflictive_clause = NULL;
         
         pop(&dec_lev_dat->propagated_var);
 
@@ -351,7 +368,16 @@ int unit_propagation( stack* unit_clauses )
         // We need to keep track of the variables that were propagated, to
         // ensure the correctness of the backtracking procedure.
         if ( dec_level_data ){
-            queue( &(dec_level_data->propagated_var), cl->tail_watcher );
+            push( &(dec_level_data->propagated_var), cl->tail_watcher );
+        }
+        
+        // Add this implication edge to the implication graph.
+        {
+            int implied_var = abs(*cl->tail_watcher);
+            
+            sat_st.impl_graph[implied_var].decision_level
+                = sat_st.backtracking_status.size + 1;
+            sat_st.impl_graph[implied_var].conflictive_clause = cl;
         }
         
         // Propagate the single variable in each the unitary clause. The

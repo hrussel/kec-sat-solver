@@ -70,6 +70,7 @@ void unlearn_clause( int clause_index ) {
  * it will be preserved.
  *
  */
+/*
 void unlearn_large_clauses() {
     int status;
     int current_clause;
@@ -90,6 +91,7 @@ void unlearn_large_clauses() {
         }
     }
 }
+*/
 
 void remove_cl_from_watcher_list( int clause_index ) {
     clause* cl = sat_st.formula + clause_index;
@@ -105,16 +107,18 @@ void remove_cl_from_watcher_list( int clause_index ) {
     list *watched_list;
 
     if( head_watcher > 0 ){
-        watched_list = pos_watched_list[abs_head_watcher];
+        watched_list = &sat_st.pos_watched_list[abs_head_watcher];
     }
     else {
-        watched_list = neg_watched_list[abs_head_watcher];
+        watched_list = &sat_st.neg_watched_list[abs_head_watcher];
     }
 
     while( top(watched_list) != cl ) {
         // The pop procedure takes place at the beginning
         // of the list.
-        current_clause = pop(watched_list);
+        current_clause = top(watched_list);
+        pop(watched_list);
+        
         // The enqueueing procedure takes place at the
         // end of the list that implements the stack.
         queue(watched_list, current_clause);
@@ -126,16 +130,18 @@ void remove_cl_from_watcher_list( int clause_index ) {
     // OJO Codigo repetido.....
 
     if( tail_watcher > 0 ){
-        watched_list = pos_watched_list[abs_tail_watcher];
+        watched_list = &sat_st.pos_watched_list[abs_tail_watcher];
     }
     else {
-        watched_list = neg_watched_list[abs_tail_watcher];
+        watched_list = &sat_st.neg_watched_list[abs_tail_watcher];
     }
 
     while( top(watched_list) != cl ) {
         // The pop procedure takes place at the beginning
         // of the list.
-        current_clause = pop(watched_list);
+        current_clause = top(watched_list);
+        pop(watched_list);
+        
         // The enqueueing procedure takes place at the
         // end of the list that implements the stack.
         queue(watched_list, current_clause);
@@ -157,20 +163,20 @@ void add_cl_to_watcher_list( int clause_index ) {
     list *watched_list;
 
     if( head_watcher > 0 ){
-        watched_list = pos_watched_list[abs_head_watcher];
+        watched_list = &sat_st.pos_watched_list[abs_head_watcher];
     }
     else {
-        watched_list = neg_watched_list[abs_head_watcher];
+        watched_list = &sat_st.neg_watched_list[abs_head_watcher];
     }
 
     // Add the clause cl to its head_watcher's watched list.
     push( watched_list, cl );
 
     if( tail_watcher > 0 ){
-        watched_list = pos_watched_list[abs_tail_watcher];
+        watched_list = &sat_st.pos_watched_list[abs_tail_watcher];
     }
     else {
-        watched_list = neg_watched_list[abs_tail_watcher];
+        watched_list = &sat_st.neg_watched_list[abs_tail_watcher];
     }
 
     // Add the clause cl to its tail_watcher's watched list.
