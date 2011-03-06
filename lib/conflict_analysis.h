@@ -1,3 +1,6 @@
+#include "kecosats_structures.h"
+#include <string.h>
+
 /**
  *
  * This function analyses a conflict and returns the decision_level to which

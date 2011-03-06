@@ -1,5 +1,5 @@
 GCC=gcc
-GCC_FLAGS=-Ilib -Wall -O3 
+GCC_FLAGS=-Ilib -Wall -O3 -g
 
 #Name of the files that are part of the project
 MAIN_FILE=kec_o_sat_s
@@ -10,8 +10,7 @@ FILES=\
     pure_literals \
     kecosats_structures \
     list \
-    conflict_analysis \
-    clause_learning 
+    conflict_analysis
 
 #The next variables hold the dependencies of each file
 #DEP_example=dep1 dep2 dep3
