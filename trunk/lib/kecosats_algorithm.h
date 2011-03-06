@@ -25,7 +25,7 @@
 #include "list.h"
 #include "kecosats_structures.h"
 #include "pure_literals.h"
-
+#include "backtrack_stack.h"
 /**
  * This function destroys an element of type decision_level_data:
  * It destroys its internal lists and also frees its own block of
