@@ -1,5 +1,7 @@
 #include "pure_literals.h"
 #include "sat_io.h"
+#include "clause_learning.h"
+
 /**
  *
  * Given an array of literals, it adds a new clause to the formula.

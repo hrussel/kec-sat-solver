@@ -68,7 +68,8 @@ void allocate_sat_status(){
     memset(sat_st.model, -1, (sat_st.num_vars+1)*sizeof(int));
     
     //TODO: Think this through...
-    impl_graph = (decision_node*) malloc(sat_st.num_vars*sizeof(int));
+    sat_st.impl_graph =
+        (decision_node*)malloc(sat_st.num_vars*sizeof(decision_node));
     sat_st.clause_upper_bound = 8;
     sat_st.clause_available_space = 0;
 }
@@ -155,7 +156,8 @@ void set_initial_sat_status(){
     }
     
     initialize_list(&sat_st.backtracking_status);
-    
+    //initialize_list_bt(&sat_st.backtracking_status);
+
     free( buffer );
     free( clause_buffer );
     

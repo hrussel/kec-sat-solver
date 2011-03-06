@@ -12,12 +12,13 @@
  * @author Fernandez, Kelwin (07-40888@usb.ve)
  * @author Leal, Eleazar (06-39780@usb.ve)
  *
+ * @since 1.0
  ******************************************************************************/
 #ifndef _KECOSATS_STRUCTS_
 
 #define _KECOSATS_STRUCTS_
 
-#include<stdio.h>
+#include <stdio.h>
 #include "list.h"
 
 #define TRUE 1
@@ -58,10 +59,59 @@ typedef struct clause{
     variable* literals;
 } clause;
 
+/**
+*
+*  This struct models a node of the implication graph of a sequence of
+*  assignments. This nodes correspond to a boolean assignment of a
+*  variable @e x_i.
+*
+*  @param decision_level The decision level of the variable @e x_i.
+*  @param conflictive_clause If the value of this field is non-void, then it
+*         corresponds to the clause @e cl that makes @x_i to be a unitary
+*         variable, thus indicating that @e x_i's assignment was not a decision
+*         assignment, but an implication assignment. If this field's value is
+*         void  and its decision_level value is distinct from -1, then @e x_i's
+*         assignment was a decision assignment.
+*
+* Note:   If a decision node has -1 value decision_level, then the variable @x_i
+*         corresponding to this decision_node is not a node in the current
+*         implication graph.
+*
+*/
 typedef struct {
     int decision_level;
     clause* conflictive_clause; // o el indice de la clausula?
 } decision_node;
+
+/**
+*  This struct models the applied changes in a certain decision level.
+*
+*  @param assigned_literal The first literal selected for assignment in a 
+*         decision level. This assignment may span other assigned_literals with
+*         the aid of Boolean Constrain Propagation (unit_propagation).
+*  @param missing_branch true iff we need to test the opposite
+*         polarity of the decision variable. Note that the value of this
+*         member of the struct should be ignored if the variable @e unassign
+*         is set to TRUE.
+*  @param propagated_var A list of variables whose assignment was inferred from
+*         the assignment of @e assigned_literal.
+*         where the variable x_i occurs positively.
+*  @param satisfied_clauses A list of the clauses that in the current
+*         decision level have already been satisfied.
+*/
+typedef struct decision_level_data{
+    
+    variable assigned_literal;
+    int missing_branch;             
+                                   
+    list propagated_var;
+    
+} decision_level_data;
+
+typedef struct backtrack_stack{
+    int first_free_pos;
+    decision_level_data* stack;
+} backtrack_stack;
 
 /**
 *  This struct models the current state of analysis of the problem. There is a
@@ -109,31 +159,6 @@ typedef struct SAT_status{
     
     decision_node *impl_graph;
 } SAT_status;
-
-/**
-*  This struct models the applied changes in a certain decision level.
-*
-*  @param assigned_literal The first literal selected for assignment in a 
-*         decision level. This assignment may span other assigned_literals with
-*         the aid of Boolean Constrain Propagation (unit_propagation).
-*  @param missing_branch true iff we need to test the opposite
-*         polarity of the decision variable. Note that the value of this
-*         member of the struct should be ignored if the variable @e unassign
-*         is set to TRUE.
-*  @param propagated_var A list of variables whose assignment was inferred from
-*         the assignment of @e assigned_literal.
-*         where the variable x_i occurs positively.
-*  @param satisfied_clauses A list of the clauses that in the current
-*         decision level have already been satisfied.
-*/
-typedef struct decision_level_data{
-    
-    variable assigned_literal;
-    int missing_branch;             
-                                   
-    list propagated_var;
-    
-} decision_level_data;
 
 /**
  * This structure defines the different settings that define the behaviour
