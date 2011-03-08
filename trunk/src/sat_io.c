@@ -44,7 +44,7 @@ void set_clause( clause* cl, int clause_length, int lit[] ){
 
 void allocate_sat_status(){
     // Allocate space for the boolean formula.
-    sat_st.formula = (clause*) malloc ( sat_st.num_clauses*sizeof(clause) );
+    sat_st.formula = (clause*) malloc ( 2*sat_st.num_clauses*sizeof(clause) );
     if( sat_st.formula == NULL )
         report_io_error(3);
     
@@ -178,6 +178,10 @@ void set_initial_sat_status(){
     free( clause_buffer );
     
     fclose(file);
+    
+    sat_st.clause_upper_bound = 2*sat_st.num_clauses;
+    sat_st.clause_available_space = sat_st.num_clauses;
+    sat_st.num_original_clauses = sat_st.num_clauses;
 }
 
 void print_formula(){
@@ -203,6 +207,7 @@ void print_formula(){
         if ( !satisfied ){
             
             literal = 0;
+            int empty = TRUE;
             
             while (literal < sat_st.formula[clause].size){
                 
@@ -212,8 +217,12 @@ void print_formula(){
                 if ( sat_st.model[abs_variable] == UNKNOWN )
                 {
                     printf(" %d", sat_st.formula[clause].literals[literal]);
+                    empty = FALSE;
                 }
                 literal++;
+            }
+            if ( empty ){
+                printf("CONFLICT\n");
             }
         } else {
             printf(" SATISFIED");
@@ -271,6 +280,8 @@ void print_sol(int status){
             fprintf(file, "%d\n",sat_st.model[i]);
         }
     }
+    
+    free(buffer);
     
     fclose(file);
 }
