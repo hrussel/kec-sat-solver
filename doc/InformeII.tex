@@ -5,6 +5,8 @@
 \usepackage{amssymb}
 \usepackage{fancyhdr}
 \usepackage{longtable}
+\usepackage{sudoku}
+\usepackage[hyphens]{url}
 \usepackage{listings}
 \lstset{
   language=C,
@@ -30,8 +32,8 @@ backgroundcolor=\color{gray75},
 \section{Introducción}
 
 \subsection{Motivación del proyecto}
-En 1971, Stephen~Cook propuso en su trabajo\cite{Cook} una nueva categoría de complejidad
-de problemas de decisión computacionales, a la que llamó problemas
+En 1971, Stephen~Cook propuso en su trabajo\cite{Cook} una nueva categoría de
+complejidad de problemas de decisión computacionales, a la que llamó problemas
 \emph{NP-completos}. La caracterización de esta categoría se hace sobre estas
 dos propiedades:
 \begin{itemize}
@@ -66,11 +68,143 @@ algoritmos exponenciales conocidos para los demás problemas en
 \emph{NP-completos}.
 
 \subsection{Breve descripción del problema} 
-Llamaremos \emph{cláusula} a la disjunción de un conjunto finito de variables
-booleanas, cada una de las cuales puede ocurrir con polaridad positiva (no
-negada: $x_i$) o con polaridad negativa (negada $\overline{x_i}$).  
-Ejemplos de cláusulas son: $(x_1 \wedge x_2)$, $(\overline{x_3})$,
-$(\overline{x_1} \wedge x_3)$.
+
+El problema del \emph{Sudoku}, al cual queremos encontrar una solución
+algorítmica ``eficiente'', consiste en lo siguiente:\vspace{-2.5mm}
+\begin{enumerate}
+\item La forma general de las instancias: Están dados un tablero de $N^2 \times
+  N^2$ casillas, con $N\geq 3$. Este tablero está dividido en $N^2$ sub-tableros
+  \emph{Sudoku} de $N \times N$ casillas, tal que estos sub-tableros no se
+  solapan. Se da también con la instancia una colección $S$ de casillas de este
+  tablero que ya han sido asignadas con valores en $V=\{1,2,\ldots,N\}$ tal que
+  esta asignación preliminar $S$ a las casillas no viola ninguna de las reglas
+  de \emph{Sudoku} que se enuncian más abajo. Ver la figura
+  \ref{instanciaSudoku} para apreciar un ejemplo de instancia de \emph{Sudoku}
+  $3 \times 3$.
+
+  \item La pregunta cuya respuesta se quiere determinar: ¿existe alguna
+    asignación de enteros del conjunto $V=\{1,2,\ldots,N\}$ en las casillas del
+    tablero restante ---las que no han sido asignadas en esta asignación
+    preliminar ---, tal que se cumplan todas las condiciones siguientes?
+    \begin{itemize}
+    \item Por cada fila del tablero, cada entero en $V$ ocurre una y sólo una
+      vez.
+    \item Por cada columna del tablero, cada entero en $V$ ocurre una y sólo una
+      vez.
+    \item Por cada $N \times N$ sub-tablero \emph{Sudoku}, cada entero en $V$
+      ocurre una y sólo una vez.
+    \end{itemize}
+    En caso de que exista tal asignación, se quiere saber cuál es. Véase la
+    figura \ref{solSudoku} para apreciar una asignación que satisface a la
+    instancia de \emph{Sudoku} que se propone en la figura
+    \ref{instanciaSudoku}. 
+\end{enumerate}
+\begin{figure}\caption{Ejemplo de instancia de Sudoku para un tablero $3 \times 3$.}
+\label{instanciaSudoku}
+\setlength\sudokusize{6.5cm}
+\begin{sudoku}
+| |2| | |9|1| | | |.
+|7| | | | | | |6| |.
+| | |6| |7| |2|9|8|.
+| | | |5|6| |3| | |.
+| |5| |2| | | | | |.
+|2| | | | | | | |4|.
+|4|9|1| | |3| |8| |.
+| | | | |2|8|1| | |.
+| | |2| | | | | |7|.
+\end{sudoku}
+\end{figure}
+
+\begin{figure}\caption{Ejemplo de asignación que satisface a la instancia de
+    Sudoku propuesta en la figura \ref{instanciaSudoku}.}
+\label{solSudoku}
+\setlength\sudokusize{6.5cm}
+\begin{sudoku}
+|8|2|5|6|9|1|4|7|3|.
+|7|4|9|3|8|2|5|6|1|.
+|3|1|6|4|7|5|2|9|8|.
+|1|7|8|5|6|4|3|2|9|.
+|9|5|4|2|3|7|8|1|6|.
+|2|6|3|8|1|9|7|5|4|.
+|4|9|1|7|5|3|6|8|2|.
+|6|3|7|9|2|8|1|4|5|.
+|5|8|2|1|4|6|9|3|7|.
+\end{sudoku}
+\end{figure}
+
+\vspace{-2.5mm}
+
+\subsection{Estrategia para abordar el problema}
+
+Como se demuestra en \cite{YatoSeta}, el problema de \emph{Sudoku} antes
+descrito pertenece a la categoría NP-completos, de modo pues que hasta la fecha
+no se conoce un algoritmo polinomial que lo resuelva. Asimismo, el hecho de que
+este problema sea NP-completo implica que el problema de satisfacción booleana
+\emph{SAT} es reducible en tiempo polinomial a él y viceversa. Más
+concretamente, la siguiente formulación es una reducción polinomial del problema
+\emph{Sudoku} a \emph{SAT}:
+
+\rule{4cm}{0.3mm}
+
+\textbf{Reducción polinomial de \emph{Sudoku} a \emph{SAT} }
+
+La siguiente reducción polinomial ha sido adaptada de 
+\url{http://www.ldc.usb.ve/~meza/ci-5651/e-m2008/articulosYsoftware/FormulacionSATdeSUDOKU}
+
+\begin{itemize}
+\item Para todo $i,j,d \in \{ 1,2,\ldots,N\}$, se definen las variables:
+
+\[ x_{i,j}^d = \begin{cases} 1, & \mbox{si la casilla $(i,j)$ tiene el número
+    $d$.} \\
+    0, & \mbox{si no.} \end{cases}\]
+
+\item Luego se consideran las siguientes cláusulas, clasificadas en 3 grupos:
+\vspace{-2.5mm}
+
+\begin{enumerate}
+\item Cada casilla debe contener un número del $1$ al $N$.
+
+     Para cada $i,j \in \{1,2,\ldots,N\}$ se tiene la cláusula:
+       \[ x_{i,j}^1 \vee x_{i,j}^2 \vee \ldots \vee x_{i,j}^N.\]
+
+\item Una casilla no puede tener dos números distintos asignados:
+
+     Para cada $i,j \in \{1,2,\ldots,N\}$ se tiene la cláusula:
+     \[ \bigwedge_{1\leq d < d' \leq N} (\neg x_{i,j}^d \vee x_{i,j}^{d'}).\]
+
+\item Dos casillas distintas en una misma fila, columna o sub-tablero
+  \emph{Sudoku} no pueden tener asignadas el mismo número:
+
+     Si $x_1,x_2,\ldots, x_{N^2}$ representan las casillas de una fila, columna
+     o sub-tablero dado, tendremos la siguiente cláusula:
+
+     \[ \bigwedge_{d=1}^{9} \left( \bigwedge_{1\leq i < j \leq N^2}
+       \left( \neg x_{i}^d \vee \neg x_{j}^{d} \right)\right).\]
+\end{enumerate}
+
+\end{itemize}
+\rule{4cm}{0.3mm}
+
+Una vez presentada la anterior formulación de \emph{Sudoku} en términos de
+\emph{SAT}, aclaramos que será esta reducción y no la inversa ---que no hemos
+expuesto--- la que nos servirá de utilidad para intentar resolver el problema de
+\emph{Sudoku}.
+
+En virtud de que \emph{SAT} es un problema que ha sido estudiado con bastante
+profundidad, se han propuesto numerosas heurísticas para acelerar el proceso de
+búsqueda de soluciones. Es por ello que abordar \emph{Sudoku} con esta
+estrategia que hemos descrito promete buenos resultados.
+
+Una vez escogida esta estrategia para abordar el problema de \emph{Sudoku}, es
+necesario entonces exponer también el problema \emph{SAT} al cual hemos
+reducido el anterior. Para ello presentaremos un par de definiciones
+preliminares y luego describiremos brevemente a \emph{SAT}.
+
+ Llamaremos \emph{cláusula} a la disjunción de un conjunto finito de
+variables booleanas, cada una de las cuales puede ocurrir con polaridad positiva
+(no negada: $x_i$) o con polaridad negativa (negada $\overline{x_i}$).  Ejemplos
+de cláusulas son: $(x_1 \wedge x_2)$, $(\overline{x_3})$, $(\overline{x_1}
+\wedge x_3)$.
 
 Una \emph{fórmula} es en cambio la conjunción de un conjunto finito de
 cláusulas. Por ejemplo: $F_1:\ (x_1 \vee x_2 \vee \overline{x_3}) \wedge (x_1
@@ -84,8 +218,11 @@ forma general de las instancias al problema y de la pregunta: \vspace{-2.5mm}
   en forma normal conjuntiva (CNF).
 \item La pregunta cuya respuesta se quiere determinar: ¿existe una asignación de
   valores de verdad a las variables $x_1,\ldots, x_n$ tal que la fórmula sea
-  verdad?
+  verdad? En caso de que exista tal asignación, se quiere saber cuál es.
 \end{enumerate}
+
+De aquí en adelante, concentraremos nuestra atención en el problema de
+\emph{satisfacción booleana}.
 
 \subsection{Descripción del contenido del informe}
 En el presente reporte se expondrán los algoritmos y tipos de datos
@@ -727,6 +864,8 @@ casos.
     Instituto de Engenharia de Sistemas e Computadores}. 2001.
 \bibitem{grasp96}Marques Silva, J. y Sakallah, Karem: ``Grasp--A New Search
   Algorithm for Satisfiability''. 1996.
+\bibitem{YatoSeta}Yato, Takayuki y Seta, Takahiro: ``Complexity and Completeness
+  of Finding Another Solution and Its Application to Puzzles''  \emph{Trans. IEICE}, E86-A(5), 2003.
 \bibitem{Zhang}Zhang, Lintao y Malik, Sharad: ``The Quest for Efficient Boolean
   Satisfiability Solvers''.
 \bibitem{ZhangThesis}Zhang, Lintao: ``Searching for truth: Techniques for
