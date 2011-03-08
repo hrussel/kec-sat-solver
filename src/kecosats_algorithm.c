@@ -160,7 +160,7 @@ int solve_sat(){
         //Make the assignment of the literal that appeared on top
         //of the stack
         
-        //printf("Decido %d\n", top_el->assigned_literal);
+        printf("Decido %d\n", top_el->assigned_literal);
         
         int assignment_result = deduce(top_el->assigned_literal);
         
@@ -446,6 +446,9 @@ int unit_propagation( stack* unit_clauses )
         
         // Propagate the single variable in each the unitary clause. The
         // tail_watcher points to its single variable.
+        printf("   De la decision: %d propago: %d por la clausula no. %d\n", dec_level_data->assigned_literal, *cl->tail_watcher, cl-sat_st.formula);
+        printf("      el antecesor de %d con nivel de decision %d cuando la pila tiene tam %d \n", *cl->tail_watcher, sat_st.impl_graph[abs(*cl->tail_watcher)].decision_level, sat_st.backtracking_status.size);
+
         status = deduce( *cl->tail_watcher );
     }
     

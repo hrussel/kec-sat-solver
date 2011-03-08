@@ -86,6 +86,7 @@ int* get_conflict_induced_cl( variable abs_literal, int* conflict_cl_length ) {
                             && !visited[abs(pred_pred)])
                     {
                         push(&reachable, &cl->literals[i]);
+                        //                        printf("      empilo %d cuando el tope vale %d\n", cl->literals[i], ((decision_level_data*)top(&sat_st.backtracking_status))->assigned_literal);
                     }
                 }
             }
@@ -100,6 +101,9 @@ int* get_conflict_induced_cl( variable abs_literal, int* conflict_cl_length ) {
     while( !empty(&conflict_induced_cl) ){
         clause[i] = *((int*)top(&conflict_induced_cl));
         
+        //        printf("   el tope vale %d\n", cl->literals[i], ((decision_level_data*)top(&sat_st.backtracking_status))->assigned_literal);
+
+        printf("vino valiendo %d \n", clause[i]);
         if ( sat_st.model[clause[i]] > 0 ){
             clause[i] = -abs(clause[i]);
         } else {
@@ -107,7 +111,7 @@ int* get_conflict_induced_cl( variable abs_literal, int* conflict_cl_length ) {
         }
         
         printf(" %d", clause[i]);
-        
+                printf("    el modelo de %d vale %d\n", clause[i], sat_st.model[clause[i]]);
         pop(&conflict_induced_cl);
         i++;
     }
