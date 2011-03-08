@@ -316,7 +316,8 @@ void parse_args(int argc, char* argv[]){
         strcat(command2, tl);
     }
     
-    strcat(command1, " > salida_aux; rm -rf salida_aux");
+    //strcat(command1, " > salida_aux");
+    //strcat(command1, " > salida_aux; rm -rf salida_aux");
     strcat(command2, " > sudoku.out2");
 }
 

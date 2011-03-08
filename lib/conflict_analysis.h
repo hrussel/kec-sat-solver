@@ -1,5 +1,8 @@
 #include "kecosats_structures.h"
+#include "clause_learning.h"
 #include <string.h>
+
+#define max(a,b) (a<b?b:a)
 
 /**
  *

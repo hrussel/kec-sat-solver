@@ -1,3 +1,7 @@
+#include "sat_io.h"
+#include "kecosats_structures.h"
+#include "kecosats_algorithm.h"
+
 /**
  *
  * Given an array of literals, it adds a new clause to the formula.
@@ -9,7 +13,7 @@
  *        the clause.
  *
  */
-void learn_clause( int clause_length, int lit[] );
+clause* learn_clause( int clause_length, int lit[] );
 
 /**
  *

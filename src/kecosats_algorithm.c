@@ -12,8 +12,10 @@
 #include "conflict_analysis.h"
 
 void free_decision_level_data(decision_level_data* dld){
-    //free_list(dld->propagated_var);
-    //free_list(dld->satisfied_clauses);
+    while(!empty(&dld->propagated_var)){
+        pop(&dld->propagated_var);
+    }
+    
     free(dld);
 }
 
@@ -21,7 +23,7 @@ int decide_next_branch(){
     //Create the structure that will be pushed
     decision_level_data *dec_lev_dat =
         (decision_level_data*)malloc(sizeof(decision_level_data));
-
+    
     //Initialize the lists
     dec_lev_dat->propagated_var = *(new_list()); 
 
@@ -72,6 +74,14 @@ int decide_next_branch(){
     {
         free_variable = -free_variable;
     }
+    
+    /*
+    if ( free_variable > 0 ){
+        sat_st.model[free_variable] = TRUE;
+    } else {
+        sat_st.model[-free_variable] = FALSE;
+    }
+    */
     
     dec_lev_dat->assigned_literal = free_variable;
     dec_lev_dat->missing_branch = TRUE;
@@ -150,9 +160,9 @@ int solve_sat(){
         //Make the assignment of the literal that appeared on top
         //of the stack
         
-        //printf("solve_sat: deducing -> %d\n",top_el->assigned_literal);
+        //printf("Decido %d\n", top_el->assigned_literal);
+        
         int assignment_result = deduce(top_el->assigned_literal);
-        //printf("solve_sat: result of %d -> ",top_el->assigned_literal);
         
         //If the result is UNKNOWN, continue the recursion (iteratively)
         if( assignment_result == DONT_CARE ){
@@ -166,67 +176,118 @@ int solve_sat(){
         //If the assignment satisfied the formula, return a positive
         //answer and finish the funtion
         else if( assignment_result == UNIT_CLAUSE ){  //TODO this should be SATISFIED
+            
+            // OJOOOOOOOO: TAL VEZ SE ELIMINE ESTO
+            //             REVISAR SI DEDUCE PUEDE RETORNAR UNIT_CLAUSE
+            //             SE CREE QUE NO
+            
             return SATISFIABLE;
         }
+        
         //If the assignment made the formula FALSE, then backtrack until
         //a variable that can be flipped is found.
-        else if( assignment_result == CONFLICT ){ 
+        else if( assignment_result == CONFLICT ){
             
-            int backtrack_to_level = analyze_conflict();
-            if ( backtrack_to_level == 0 ) {
-                while( !empty(&sat_st.backtracking_status) ) {
-                    pop( &sat_st.backtracking_status );
-                }
-            }
-            else {
-                // It's possible to backtrack.
-                decision_level_data *top_el = NULL;
-
-                do {
-
-                    top_el = (decision_level_data*) 
-                        top(&sat_st.backtracking_status);
-
-                    //Undo the assignments made in the
-                    //decision level
-                    undo_assignments(top_el);
-
-                    if( top_el->missing_branch == TRUE ){
-                        //If the opposite branch has not been tried,
-                        //then flip the assignment and continue the
-                        //recursion (iteratively)
-
-                        //Flip the value
-                        top_el->assigned_literal = - top_el->assigned_literal; 
-                        top_el->missing_branch = FALSE;
-                        
-                        sat_st.impl_graph[abs(top_el->
-                                            assigned_literal)].decision_level 
-                            = sat_st.backtracking_status.size;
-                        
-                        sat_st.impl_graph[abs(top_el->assigned_literal)
-                                            ].conflictive_clause = NULL;
-                        
-                        break;
-                    
-                    } else {
-                        //Destroy the structure and continue
-                        //the search for a variable that can be flipped
-                        free_decision_level_data(top_el);
-                        pop(&sat_st.backtracking_status);
+            /*
+            {
+                int i;
+                for (i = 1; i<= sat_st.num_vars; i++){
+                    if ( sat_st.impl_graph[i].decision_level != -1 ){
+                        printf("(%d,%d,%d)\n",i, sat_st.impl_graph[i].decision_level,
+                                                sat_st.impl_graph[i].conflictive_clause - sat_st.formula);
                     }
-                    
-                } while( /*top_el->decision_level != backtrack_to_level*/
-                         !empty(&sat_st.backtracking_status) );
+                }
+                printf("\n");
             }
+            */
+            
+            int* lit;
+            int clause_length;
+            
+            int backtrack_to_level;
+            backtrack_to_level = analyze_conflict(&lit, &clause_length);
+            backtrack_to_level = sat_st.backtracking_status.size;
+            
+            // Return to the target level, which can be a non-chronological
+            // jump.
+            
+            while ( sat_st.backtracking_status.size > backtrack_to_level ){
+                
+                printf("no cronologico\n");
+                while(1);
+                undo_assignments( top(&sat_st.backtracking_status) );
+                pop( & sat_st.backtracking_status );
+            }
+            
+            //@assert At this point we are at the maximum decision_level
+            //        corresponding to the conflict found.
+            
             //If the stack got empty, then no backtracking was
             //possible, hence, the formula is UNSATISFIABLE
             if( empty(&sat_st.backtracking_status) )
                 return UNSATISFIABLE;
+            
+            //printf("Conflicto %d -> %d\n", sat_st.backtracking_status.size, backtrack_to_level);
+            
+            clause* learned_clause = NULL; //learn_clause(clause_length, lit);
+            
+            // Jump to the maximum decision_level with a non-flipped variable.
+            // Destroy the structure and continue the search for a variable that
+            // can be flipped.
+            
+            while ( !empty(&sat_st.backtracking_status) 
+                            && ((decision_level_data*)
+                                    top(&sat_st.backtracking_status)
+                                )->missing_branch == FALSE )
+            {
+                learned_clause = NULL;
+                
+                top_el = (decision_level_data*)top(&sat_st.backtracking_status);
+                
+                undo_assignments(top_el);
+                free_decision_level_data(top_el);
+                
+                pop(&sat_st.backtracking_status);
+            }
+            
+            //@assert At this point we are at the maximum decision_level
+            //        corresponding to the conflict found and "flippable"
+            //        literal.
+            
+            /*@assert If the assigned_literal corresponding to the
+                      backtrack_to_level level in the stack has no
+                      missing_branch (all possible assignments to this variable
+                      have already been tested), then the next flip is a
+                      decision assignment and not an implication assignment.
+                      Hence, its Antecedent asssignment set is void (the
+                      conflictive_clause doesn't affect the assigned_literal).
+            */
+            
+            if( !empty( &sat_st.backtracking_status) ){
+                
+                top_el = (decision_level_data*)top(&sat_st.backtracking_status);
+                
+                undo_assignments(top_el);
+                
+                //If the opposite branch has not been tried,
+                //then flip the assignment and continue the
+                //recursion (iteratively)
+                top_el->assigned_literal = -top_el->assigned_literal; 
+                top_el->missing_branch = FALSE;
+                
+                sat_st.impl_graph[abs(top_el->
+                                    assigned_literal)].decision_level
+                    = sat_st.backtracking_status.size;
+                
+                sat_st.impl_graph[abs(top_el->assigned_literal)
+                                    ].conflictive_clause = learned_clause;
+            } else {            
+                return UNSATISFIABLE;
+            }
+            
         }
-
     }
-
+    
     return UNSATISFIABLE;
 }
 
@@ -234,19 +295,18 @@ void undo_assignments(decision_level_data *dec_lev_dat){
     //First, unset the assigned variable in the
     //given decision level
     variable assigned_var = abs(dec_lev_dat->assigned_literal);
-
-    sat_st.model[ assigned_var ] = UNKNOWN;
     
+    sat_st.model[ assigned_var ] = UNKNOWN;
     sat_st.impl_graph[ assigned_var].decision_level = -1;
     sat_st.impl_graph[ assigned_var].conflictive_clause = NULL;
-        
+    
     //Similarly, unset the assignments for the propageted
     //literals
     while( !empty(&dec_lev_dat->propagated_var) ){
-
+        
         variable *watcher =
             (variable*)top(&dec_lev_dat->propagated_var);
-
+        
         assigned_var = abs(*watcher);
         sat_st.model[ assigned_var ] = UNKNOWN;
         
@@ -365,6 +425,8 @@ int unit_propagation( stack* unit_clauses )
     while( !empty(unit_clauses ) && status == DONT_CARE){
         
         clause* cl = (clause*)top(unit_clauses);
+        pop(unit_clauses);
+        
         // We need to keep track of the variables that were propagated, to
         // ensure the correctness of the backtracking procedure.
         if ( dec_level_data ){
@@ -375,16 +437,16 @@ int unit_propagation( stack* unit_clauses )
         {
             int implied_var = abs(*cl->tail_watcher);
             
+            // OBS: P Q PUSIMOS + 1?
+            
             sat_st.impl_graph[implied_var].decision_level
-                = sat_st.backtracking_status.size + 1;
+                = sat_st.backtracking_status.size;
             sat_st.impl_graph[implied_var].conflictive_clause = cl;
         }
         
         // Propagate the single variable in each the unitary clause. The
         // tail_watcher points to its single variable.
         status = deduce( *cl->tail_watcher );
-        
-        pop(unit_clauses);
     }
     
     while( !empty(unit_clauses ) ){
