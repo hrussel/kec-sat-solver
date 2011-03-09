@@ -92,7 +92,6 @@ int* get_conflict_induced_cl( variable abs_literal, int* conflict_cl_length ) {
                     if ( pred2 != abs_pred && !visited[pred2] )
                     {
                         push(&reachable, &cl->literals[i]);
-                        //                        printf("      empilo %d cuando el tope vale %d\n", cl->literals[i], ((decision_level_data*)top(&sat_st.backtracking_status))->assigned_literal);
                     }
                 }
             }
@@ -120,7 +119,7 @@ int* get_conflict_induced_cl( variable abs_literal, int* conflict_cl_length ) {
         }
         
         //printf(" %d", clause[i]);
-                printf("    el modelo de %d vale %d\n", clause[i], sat_st.model[clause[i]]);
+        
         pop(&conflict_induced_cl);
         i++;
     }
