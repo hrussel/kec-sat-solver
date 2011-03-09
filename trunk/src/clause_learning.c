@@ -34,27 +34,9 @@ void add_cl_to_watcher_list( int clause_index ) {
 
 }
 
-void learn_unit_clause( int literal ){
+void learn_unit_clause( int* lit ){
     
-    printf("%d 0\n", literal);
-    
-    //Create the structure that will be pushed
-    decision_level_data *dec_lev_dat =
-        (decision_level_data*)malloc(sizeof(decision_level_data));
-    
-    //Initialize the lists
-    dec_lev_dat->propagated_var = *(new_list()); 
-    
-    //Push the structure in the stack
-    push((&sat_st.backtracking_status), dec_lev_dat);
-    
-    //printf("se requiere %d\n", lit[0]);
-    
-    int status = deduce(literal);
-    
-    pop( &sat_st.backtracking_status );
-    
-    //sat_st.num_clauses++;
+    push(&sat_st.unit_learned_clauses, (void*)lit[0]);
     
     return ;
 }
@@ -80,38 +62,16 @@ clause* learn_clause( int clause_length, int lit[] ){
     
     int i = 0;
     
+    if ( clause_length != 1 ){
+        free(lit);
+        return NULL;
+    }
     /*
-    printf("learn %d\n", clause_length);
-    for (i=0; i<sat_st.backtracking_status.size; i++){
-        printf(" ");
-    }
-    printf("CONFLICTO:\n");
-    
-    for (i=0; i<sat_st.backtracking_status.size; i++){
-        printf(" ");
-    }
-    */
     for (i=0; i<clause_length; i++){
         printf("%d ", lit[i]);
     }
     printf("0\n");
-    
-    /*
-    for (i=0; i<sat_st.backtracking_status.size; i++){
-        printf(" ");
-    }
-    printf("ESTADO:\n");
-    for (i=0; i<sat_st.backtracking_status.size; i++){
-        printf(" ");
-    }
-    for (i=0; i<clause_length; i++){
-        printf("%d ", sat_st.model[abs(lit[i])]);
-    }
     */
-    //printf("\n\n");
-    
-    return NULL;
-    
     if ( sat_st.clause_available_space == 0 ) {
         free(lit);
         return NULL;
@@ -122,6 +82,8 @@ clause* learn_clause( int clause_length, int lit[] ){
     if ( sat_st.clause_available_space > 0 ){
         
         if ( clause_length > 1 ){
+            
+            return NULL;
             
             clause* cl = sat_st.formula + sat_st.num_clauses;
             
@@ -187,28 +149,9 @@ clause* learn_clause( int clause_length, int lit[] ){
         } else {
             
             // Clauses with one literal
-            
-            /* TODO En este punto planteamos realizar un restart cada cierto
-                    numero de clausulas de longitud 1 encontradas
-             */
-            
-            //learn_unit_clause(lit[0]);
+            learn_unit_clause(lit);
             
             return NULL;
-            
-            clause* cl = sat_st.formula + sat_st.num_clauses;
-            
-            cl->size = clause_length;
-            cl->head_watcher = lit;
-            cl->tail_watcher = lit;
-            cl->literals = lit;
-            
-            add_cl_to_watcher_list(cl - sat_st.formula);
-            
-            sat_st.num_clauses++;
-            sat_st.clause_available_space--;
-            
-            return cl;
         }
         
         //print_status();

@@ -11,6 +11,35 @@
 #include "kecosats_algorithm.h"
 #include "conflict_analysis.h"
 
+void restart(){
+    
+    while( !empty(&sat_st.backtracking_status) ){
+        undo_assignments( top(&sat_st.backtracking_status) );
+        free_decision_level_data( top(&sat_st.backtracking_status) );
+        
+        pop(&sat_st.backtracking_status);
+    }
+}
+
+int expand_unit_learned_clauses(){
+    decide_next_branch();
+    
+    int status = DONT_CARE;
+    
+    while( !empty(&sat_st.unit_learned_clauses) && status == DONT_CARE){
+        printf("%d 0\n", (int)top(&sat_st.unit_learned_clauses));
+        
+        status = deduce((int)top(&sat_st.unit_learned_clauses));
+        pop(&sat_st.unit_learned_clauses);
+    }
+    
+    free_decision_level_data(
+        (decision_level_data*)top(&sat_st.backtracking_status));
+    pop(&sat_st.backtracking_status);
+    
+    return status;
+}
+
 void free_decision_level_data(decision_level_data* dld){
     while(!empty(&dld->propagated_var)){
         pop(&dld->propagated_var);
@@ -191,10 +220,6 @@ int solve_sat(){
         //answer and finish the funtion
         else if( assignment_result == UNIT_CLAUSE ){  //TODO this should be SATISFIED
             
-            // OJOOOOOOOO: TAL VEZ SE ELIMINE ESTO
-            //             REVISAR SI DEDUCE PUEDE RETORNAR UNIT_CLAUSE
-            //             SE CREE QUE NO
-            
             return SATISFIABLE;
         }
         
@@ -230,8 +255,6 @@ int solve_sat(){
             if( empty(&sat_st.backtracking_status) )
                 return UNSATISFIABLE;
             
-            //printf("Conflicto %d -> %d\n", sat_st.backtracking_status.size, backtrack_to_level);
-            
             // Jump to the maximum decision_level with a non-flipped variable.
             // Destroy the structure and continue the search for a variable that
             // can be flipped.
@@ -241,6 +264,31 @@ int solve_sat(){
             
             learned_clause = learn_clause(clause_length, lit);
             //learned_clause = NULL;
+            
+            if ( sat_st.unit_learned_clauses.size != 0 ){
+                
+                restart();
+                
+                int status = expand_unit_learned_clauses();
+                
+                if ( status != DONT_CARE ){
+                    return status;
+                }
+                
+                /*
+                int i=1;
+                for (i=1; i<=sat_st.num_vars; i++){
+                    if ( sat_st.model[i] != UNKNOWN ){
+                        printf("%c%d ", (sat_st.model[i]==1 ? '+':'-'), i);
+                    }
+                }
+                printf("\n");
+                */
+                
+                if ( decide_next_branch() == SATISFIED ){
+                    return SATISFIABLE;
+                }
+            }
             
             while ( !empty(&sat_st.backtracking_status) 
                             && ((decision_level_data*)

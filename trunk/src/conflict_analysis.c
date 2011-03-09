@@ -166,5 +166,3 @@ int analyze_conflict(int** conflictive_clause, int* clause_length) {
     return sat_st.backtracking_status.size;
     //return learn_clause( clause_length, learned_clause );
 }
-
-
