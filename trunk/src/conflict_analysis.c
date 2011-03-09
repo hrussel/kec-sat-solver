@@ -12,17 +12,22 @@ int get_bt_target_level( int clause_length, int* conflict_clause ) {
     for( i=0; i<clause_length; i++ ) {
         current_dec_node = sat_st.impl_graph + abs(conflict_clause[i]);
         current_max = max(current_max, current_dec_node->decision_level);
-        
-        
     }
     
     return current_max;
 }
 
+extern clause* orig_conflict_clause;
+
 int* get_conflict_induced_cl( variable abs_literal, int* conflict_cl_length ) {
     
     clause* unit_conflict_clause =
                 sat_st.impl_graph[abs_literal].conflictive_clause;
+    
+    if ( unit_conflict_clause == NULL ){
+        *conflict_cl_length = 0;
+        return NULL;
+    }
     
     memset(visited, 0, (sat_st.num_vars+1)*sizeof(int));
     
@@ -31,35 +36,37 @@ int* get_conflict_induced_cl( variable abs_literal, int* conflict_cl_length ) {
     stack reachable;
     initialize_list(&reachable);
     
-    list conflict_induced_cl;
+    stack conflict_induced_cl;
     initialize_list(&conflict_induced_cl);
     
-    if ( unit_conflict_clause == NULL ){
-        *conflict_cl_length = 0;
-        return NULL;
-    }
-    
-    //printf("la clausula de %d es %d\n", abs_literal, unit_conflict_clause - sat_st.formula);
     // Set directed predecessors reachables
     {
+        int i, cl_size;
         
-        int cl_size = unit_conflict_clause->size;
+        cl_size = unit_conflict_clause->size;
         
-        int i;
         for( i=0; i<cl_size; i++ ) {
             int pred = unit_conflict_clause->literals[i];
             
             if ( abs(pred) != abs_literal ){
-                //printf("Variable %d es alcanzable\n", pred);
-                
                 push(&reachable, &unit_conflict_clause->literals[i]);
+            }
+        }
+        
+        cl_size = orig_conflict_clause->size;
+        
+        for ( i=0; i< cl_size; i++ ){
+            
+            int pred = orig_conflict_clause->literals[i];
+            
+            if ( abs(pred) != abs_literal){
+                push(&reachable, &orig_conflict_clause->literals[i]);
             }
         }
     }
     
     while(!empty(&reachable)){
         int pred = *((int*)top(&reachable));
-        //printf("            PRED: %d\n", pred);
         
         int abs_pred = abs(pred);
         
@@ -80,16 +87,16 @@ int* get_conflict_induced_cl( variable abs_literal, int* conflict_cl_length ) {
                 
                 int i;
                 for( i=0; i<cl_size; i++ ) {
-                    int pred_pred = cl->literals[i];
+                    int pred2 = abs(cl->literals[i]);
                     
-                    if ( abs(pred_pred) != abs_pred 
-                            && !visited[abs(pred_pred)])
+                    if ( pred2 != abs_pred && !visited[pred2] )
                     {
                         push(&reachable, &cl->literals[i]);
                         //                        printf("      empilo %d cuando el tope vale %d\n", cl->literals[i], ((decision_level_data*)top(&sat_st.backtracking_status))->assigned_literal);
                     }
                 }
             }
+            
         } else {
             pop(&reachable);
         }
@@ -99,23 +106,27 @@ int* get_conflict_induced_cl( variable abs_literal, int* conflict_cl_length ) {
     int* clause = (int*)malloc(conflict_induced_cl.size*sizeof(int));
     
     while( !empty(&conflict_induced_cl) ){
-        clause[i] = *((int*)top(&conflict_induced_cl));
         
-        //        printf("   el tope vale %d\n", cl->literals[i], ((decision_level_data*)top(&sat_st.backtracking_status))->assigned_literal);
-
-        printf("vino valiendo %d \n", clause[i]);
-        if ( sat_st.model[clause[i]] > 0 ){
+        clause[i] = abs( *((int*)top(&conflict_induced_cl)) );
+        
+        /*
+        printf("(%d,%d,%d)", clause[i], sat_st.model[clause[i]],
+               (int)sat_st.impl_graph[clause[i]].conflictive_clause);
+        */
+        if ( sat_st.model[ clause[i] ] > 0 ){
             clause[i] = -abs(clause[i]);
         } else {
             clause[i] = abs(clause[i]);
         }
         
-        printf(" %d", clause[i]);
+        //printf(" %d", clause[i]);
                 printf("    el modelo de %d vale %d\n", clause[i], sat_st.model[clause[i]]);
         pop(&conflict_induced_cl);
         i++;
     }
-    printf(" 0\n");
+    //printf("\n");
+    
+    //printf(" 0\n");
     
     *conflict_cl_length = i;
     

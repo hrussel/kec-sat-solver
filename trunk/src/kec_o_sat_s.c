@@ -93,6 +93,7 @@ int main(int argc, char* argv[]){
     if ( status == SATISFIABLE ){
         printf("%s: SATISFIABLE\n\n",sat_gs.program_name);
     } else {
+        //print_status();
         printf("%s: UNSATISFIABLE\n\n",sat_gs.program_name);
     }
     

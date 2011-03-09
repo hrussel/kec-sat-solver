@@ -1,5 +1,5 @@
 GCC=gcc
-GCC_FLAGS=-Ilib -Wall -O3
+GCC_FLAGS=-Ilib -Wall -g
 
 #Name of the files that are part of the project
 MAIN_FILE=kec_o_sat_s

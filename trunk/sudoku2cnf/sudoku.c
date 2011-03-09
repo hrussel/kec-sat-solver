@@ -460,6 +460,9 @@ int main(int argc, char* argv[]){
             system("rm -rf sudoku.out");
             
             printf("\n");
+            
+            //char ss;
+            //scanf("%c",&ss);
         }
         
         // Free memory allocated to the sudoku board.
