@@ -157,6 +157,8 @@ typedef struct SAT_status{
     int clause_available_space;
     int num_original_clauses;
     
+    stack unit_learned_clauses;
+    
     decision_node *impl_graph;
 } SAT_status;
 

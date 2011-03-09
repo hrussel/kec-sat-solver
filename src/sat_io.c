@@ -168,6 +168,8 @@ void set_initial_sat_status(){
     initialize_list(&sat_st.backtracking_status);
     //initialize_list_bt(&sat_st.backtracking_status);
     
+    initialize_list(&sat_st.unit_learned_clauses);
+    
     int i ;
     for (i = 0; i<=sat_st.num_vars; i++){
         sat_st.impl_graph[i].decision_level = -1;
