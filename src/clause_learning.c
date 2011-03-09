@@ -1,11 +1,12 @@
 #include "clause_learning.h"
 
 void add_cl_to_watcher_list( int clause_index ) {
+    
     clause* cl = sat_st.formula + clause_index;
-
+    
     variable *tail_watcher = cl->tail_watcher;
     int abs_tail_watcher   = abs(*tail_watcher);
-
+    
     variable *head_watcher = cl->head_watcher;
     int abs_head_watcher   = abs(*head_watcher);
     
@@ -27,10 +28,35 @@ void add_cl_to_watcher_list( int clause_index ) {
     else {
         watched_list = &sat_st.neg_watched_list[abs_tail_watcher];
     }
-
+    
     // Add the clause cl to its tail_watcher's watched list.
     push( watched_list, cl );
 
+}
+
+void learn_unit_clause( int literal ){
+    
+    printf("%d 0\n", literal);
+    
+    //Create the structure that will be pushed
+    decision_level_data *dec_lev_dat =
+        (decision_level_data*)malloc(sizeof(decision_level_data));
+    
+    //Initialize the lists
+    dec_lev_dat->propagated_var = *(new_list()); 
+    
+    //Push the structure in the stack
+    push((&sat_st.backtracking_status), dec_lev_dat);
+    
+    //printf("se requiere %d\n", lit[0]);
+    
+    int status = deduce(literal);
+    
+    pop( &sat_st.backtracking_status );
+    
+    //sat_st.num_clauses++;
+    
+    return ;
 }
 
 /**
@@ -48,68 +74,144 @@ void add_cl_to_watcher_list( int clause_index ) {
 
 clause* learn_clause( int clause_length, int lit[] ){
     
-    return NULL;
-    
     if ( clause_length == 0 ){
-        printf("clausula vacia\n");
         return NULL;
     }
     
+    int i = 0;
+    
+    /*
+    printf("learn %d\n", clause_length);
+    for (i=0; i<sat_st.backtracking_status.size; i++){
+        printf(" ");
+    }
+    printf("CONFLICTO:\n");
+    
+    for (i=0; i<sat_st.backtracking_status.size; i++){
+        printf(" ");
+    }
+    */
+    for (i=0; i<clause_length; i++){
+        printf("%d ", lit[i]);
+    }
+    printf("0\n");
+    
+    /*
+    for (i=0; i<sat_st.backtracking_status.size; i++){
+        printf(" ");
+    }
+    printf("ESTADO:\n");
+    for (i=0; i<sat_st.backtracking_status.size; i++){
+        printf(" ");
+    }
+    for (i=0; i<clause_length; i++){
+        printf("%d ", sat_st.model[abs(lit[i])]);
+    }
+    */
+    //printf("\n\n");
+    
+    return NULL;
+    
     if ( sat_st.clause_available_space == 0 ) {
-        
-        // OJO CON ESTO
+        free(lit);
         return NULL;
         
         /* Decidir cual clausula se borra */
-        /*
-        clause_index = choose_victim_clause();
-        
-        if ( sat_st.formula[clause_index].size >= clause_length ){
-            erased = TRUE;
-            unlearn_clause(clause_index);
-        }
-        */
     }
     
     if ( sat_st.clause_available_space > 0 ){
         
-        clause* cl = sat_st.formula + sat_st.num_clauses;
-        
-        cl->size = clause_length;
-        cl->head_watcher = lit;
-        cl->tail_watcher = NULL;
-        cl->literals = lit;
-        
         if ( clause_length > 1 ){
-            int i = 0;
             
-            while ( sat_st.model[ abs(lit[i]) ] != UNKNOWN 
-                        && !is_satisfied( abs(lit[i])) ){
+            clause* cl = sat_st.formula + sat_st.num_clauses;
+            
+            cl->size = clause_length;
+            cl->head_watcher = NULL;
+            cl->tail_watcher = NULL;
+            cl->literals = lit;
+            
+            /* Set the tail watcher to the first unknown variable. At this
+               point, there aren't another free variable in the clause.
+             */
+            int i=0;
+            while ( sat_st.model[ abs(lit[i]) ] != UNKNOWN ){
+                i++;
+            }
+            cl->tail_watcher = lit + i;
+            
+            /* The head_watcher needs to reference to the decision variable
+               decided in the more recent instant
+             */
+            
+            if ( i > 0 ){
+                cl->head_watcher = lit;
+            } else {
+                cl->head_watcher = lit + 1;
+            }
+            
+            i=0;
+            while ( i<clause_length ){
+                
+                int abs_lit = abs(lit[i]);
+                
+                if ( sat_st.model[ abs_lit ] != UNKNOWN 
+                     && lit + i != cl->tail_watcher
+                     && sat_st.impl_graph[ abs_lit ] .decision_level
+                            > sat_st.impl_graph[
+                                    abs(* (cl->head_watcher) )].decision_level
+                    )
+                {
+                    cl->head_watcher = lit+i;
+                }
                 i++;
             }
             
-            cl->tail_watcher = cl->tail_watcher = lit + i;
-            
-            update_watcher( cl );
+            // @assert cl->tail_watcher isn't assigned
+            // @assert cl->head_watcher has the maximum decision level
             
             add_cl_to_watcher_list(cl - sat_st.formula);
             
             sat_st.num_clauses++;
+            sat_st.clause_available_space--;
             
+            /*printf("learned clauses %d\n", sat_st.num_clauses - sat_st.num_original_clauses);
+            printf("%d : h[%d](%d,%d) t[%d](%d,%d)\n", 
+                   sat_st.backtracking_status.size,
+                   sat_st.impl_graph[abs(*cl->head_watcher)].decision_level,
+                   *cl->head_watcher, sat_st.model[abs(*cl->head_watcher)],
+                   sat_st.impl_graph[abs(*cl->tail_watcher)].decision_level,
+                   *cl->tail_watcher, sat_st.model[abs(*cl->tail_watcher)]
+                   );
+            */
+            return cl;
         } else {
+            
+            // Clauses with one literal
+            
+            /* TODO En este punto planteamos realizar un restart cada cierto
+                    numero de clausulas de longitud 1 encontradas
+             */
+            
+            //learn_unit_clause(lit[0]);
             
             return NULL;
             
-            cl->head_watcher = cl->tail_watcher = lit;
-            sat_st.num_clauses++;
+            clause* cl = sat_st.formula + sat_st.num_clauses;
             
-            printf("preprocess\n");
-            preprocess();
+            cl->size = clause_length;
+            cl->head_watcher = lit;
+            cl->tail_watcher = lit;
+            cl->literals = lit;
+            
+            add_cl_to_watcher_list(cl - sat_st.formula);
+            
+            sat_st.num_clauses++;
+            sat_st.clause_available_space--;
+            
+            return cl;
         }
         
         //print_status();
-        
-        return cl;
     }
     
     return NULL;

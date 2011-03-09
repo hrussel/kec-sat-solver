@@ -19,6 +19,8 @@ void free_decision_level_data(decision_level_data* dld){
     free(dld);
 }
 
+clause* orig_conflict_clause = NULL;
+
 int decide_next_branch(){
     //Create the structure that will be pushed
     decision_level_data *dec_lev_dat =
@@ -28,9 +30,7 @@ int decide_next_branch(){
     dec_lev_dat->propagated_var = *(new_list()); 
 
     //Choose the next unassigned variable. TODO do this more efficient!
-
     
-    /*
     variable free_variable=1;
     while(  free_variable <= sat_st.num_vars &&
             sat_st.model[free_variable] != UNKNOWN
@@ -38,7 +38,7 @@ int decide_next_branch(){
             free_variable++;
     }
     
-    */
+    /*
     variable free_variable=sat_st.num_vars + 1;
     int num_affected_cl = -1;
     variable free_v = 1;
@@ -56,7 +56,7 @@ int decide_next_branch(){
             }
             free_v++;
     }
-    
+    */
     
     //If there are no more variables to assign, report an error
     if( free_variable > sat_st.num_vars ){
@@ -119,11 +119,19 @@ int preprocess(){
         
     }
     
+    int status = DONT_CARE;
+    
     if ( unit_clauses.size > 0 ){
-        return unit_propagation( &unit_clauses );
-    } else {
-        return DONT_CARE;
+        status = unit_propagation( &unit_clauses );
     }
+    
+    int i;
+    for (i=1; i<=sat_st.num_vars; i++){
+        sat_st.impl_graph[i].decision_level = -1;
+        sat_st.impl_graph[i].conflictive_clause = NULL;
+    }
+    
+    return status;
 }
 
 int solve_sat(){
@@ -136,8 +144,6 @@ int solve_sat(){
         return SATISFIABLE;
     }
     
-    //The algorithm is an iterative backtracking.
-
     //Decide next branch, and push it as a
     //decision_level_data structure in the
     //backtracking_status variable of the global
@@ -157,10 +163,18 @@ int solve_sat(){
         decision_level_data *top_el =
             (decision_level_data*) top(&sat_st.backtracking_status);
         
+        /*
+        {
+            int i=0;
+            for (; i<sat_st.backtracking_status.size; i++){
+                printf(" ");
+            }
+            printf("decido %d\n", top_el->assigned_literal);
+        }
+        */
+        
         //Make the assignment of the literal that appeared on top
         //of the stack
-        
-        printf("Decido %d\n", top_el->assigned_literal);
         
         int assignment_result = deduce(top_el->assigned_literal);
         
@@ -188,19 +202,6 @@ int solve_sat(){
         //a variable that can be flipped is found.
         else if( assignment_result == CONFLICT ){
             
-            /*
-            {
-                int i;
-                for (i = 1; i<= sat_st.num_vars; i++){
-                    if ( sat_st.impl_graph[i].decision_level != -1 ){
-                        printf("(%d,%d,%d)\n",i, sat_st.impl_graph[i].decision_level,
-                                                sat_st.impl_graph[i].conflictive_clause - sat_st.formula);
-                    }
-                }
-                printf("\n");
-            }
-            */
-            
             int* lit;
             int clause_length;
             
@@ -211,10 +212,12 @@ int solve_sat(){
             // Return to the target level, which can be a non-chronological
             // jump.
             
+            if ( sat_st.backtracking_status.size > backtrack_to_level ){
+                //printf("no cronologico\n");
+            }
+            
             while ( sat_st.backtracking_status.size > backtrack_to_level ){
                 
-                printf("no cronologico\n");
-                while(1);
                 undo_assignments( top(&sat_st.backtracking_status) );
                 pop( & sat_st.backtracking_status );
             }
@@ -229,11 +232,15 @@ int solve_sat(){
             
             //printf("Conflicto %d -> %d\n", sat_st.backtracking_status.size, backtrack_to_level);
             
-            clause* learned_clause = NULL; //learn_clause(clause_length, lit);
-            
             // Jump to the maximum decision_level with a non-flipped variable.
             // Destroy the structure and continue the search for a variable that
             // can be flipped.
+            
+            undo_assignments( top(&sat_st.backtracking_status) );
+            clause* learned_clause;
+            
+            learned_clause = learn_clause(clause_length, lit);
+            //learned_clause = NULL;
             
             while ( !empty(&sat_st.backtracking_status) 
                             && ((decision_level_data*)
@@ -281,6 +288,16 @@ int solve_sat(){
                 
                 sat_st.impl_graph[abs(top_el->assigned_literal)
                                     ].conflictive_clause = learned_clause;
+                
+                /*
+                if ( learned_clause ){
+                    stack aux;
+                    initialize_list(&aux);
+                    push(&aux, learned_clause);
+                    
+                    status = unit_propagation(&aux);
+                }
+                */
             } else {            
                 return UNSATISFIABLE;
             }
@@ -327,7 +344,7 @@ int deduce( variable literal ) {
     variable abs_literal = abs( literal );
     
     if ( sat_st.model[abs_literal] != UNKNOWN ){
-        if ((sat_st.model[abs_literal] == TRUE) == ( literal > 0)){
+        if ((sat_st.model[abs_literal] == TRUE) == ( literal > 0) ){
             return DONT_CARE;
         } else {
             return CONFLICT;
@@ -336,11 +353,12 @@ int deduce( variable literal ) {
     
     list* clauses_affected;
     
-    sat_st.model[abs_literal] = (abs_literal/literal == 1 ? TRUE : FALSE);
-    
-    if ( sat_st.model[abs_literal] == TRUE ) {
+    // Assign the literal
+    if ( literal > 0 ){
+        sat_st.model[abs_literal] = TRUE;
         clauses_affected = &(sat_st.neg_watched_list[abs_literal]);
     } else {
+        sat_st.model[abs_literal] = FALSE;
         clauses_affected = &(sat_st.pos_watched_list[abs_literal]);
     }
     
@@ -360,6 +378,7 @@ int set_newly_watchers( list* clauses_affected, variable literal )
     
     int status = DONT_CARE;
     
+    // Set initial affected clauses
     while( !empty(clauses_affected) ){
         clause* cl = (clause*)top(clauses_affected);
         pop(clauses_affected);
@@ -372,6 +391,7 @@ int set_newly_watchers( list* clauses_affected, variable literal )
         clause* cl = (clause*)top(&clauses_affected_tmp);
         pop(&clauses_affected_tmp);
         
+        // Try to find a new watcher. Just the head_watcher will be moved.
         if ( is_head_watcher(cl, literal) ) {
             status = update_watcher( cl );
         }
@@ -396,7 +416,9 @@ int set_newly_watchers( list* clauses_affected, variable literal )
     //@Assert: status== CONFLICT || status == DONT_CARE.
     
     if (status == DONT_CARE){
-        return unit_propagation( &unit_clauses );
+        
+        status = unit_propagation( &unit_clauses );
+        
     } else {
         
         //@Assert: status == CONFLICT.
@@ -410,9 +432,9 @@ int set_newly_watchers( list* clauses_affected, variable literal )
             pop( &clauses_affected_tmp);
             add_to_watched_list(*cl->head_watcher, cl);
         }
-        
-        return status;
     }
+    
+    return status;
 }
 
 int unit_propagation( stack* unit_clauses )
@@ -434,6 +456,7 @@ int unit_propagation( stack* unit_clauses )
         }
         
         // Add this implication edge to the implication graph.
+        if ( sat_st.model[abs(*cl->tail_watcher)] == UNKNOWN )
         {
             int implied_var = abs(*cl->tail_watcher);
             
@@ -444,12 +467,18 @@ int unit_propagation( stack* unit_clauses )
             sat_st.impl_graph[implied_var].conflictive_clause = cl;
         }
         
+        //printf("propagando %d %d\n", *cl->tail_watcher,cl - sat_st.formula);
+        
         // Propagate the single variable in each the unitary clause. The
         // tail_watcher points to its single variable.
         printf("   De la decision: %d propago: %d por la clausula no. %d\n", dec_level_data->assigned_literal, *cl->tail_watcher, cl-sat_st.formula);
         printf("      el antecesor de %d con nivel de decision %d cuando la pila tiene tam %d \n", *cl->tail_watcher, sat_st.impl_graph[abs(*cl->tail_watcher)].decision_level, sat_st.backtracking_status.size);
 
         status = deduce( *cl->tail_watcher );
+        
+        if ( status == CONFLICT ){
+            orig_conflict_clause = cl;
+        }
     }
     
     while( !empty(unit_clauses ) ){
