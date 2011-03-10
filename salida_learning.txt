@@ -1,0 +1,1367 @@
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11772
+Original variables:         729
+
+Time:                       0.0181
+Expanded nodes:             51
+Conflicts:                  25
+Non-chronological jumps:    0
+Learned clauses:            2
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11772
+Original variables:         729
+
+Time:                       0.0170
+Expanded nodes:             53
+Conflicts:                  26
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       45.7095
+Expanded nodes:             1321308
+Conflicts:                  660577
+Non-chronological jumps:    421
+Learned clauses:            11762
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       55.4595
+Expanded nodes:             2961004
+Conflicts:                  1480491
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11772
+Original variables:         729
+
+Time:                       0.0151
+Expanded nodes:             12
+Conflicts:                  4
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11772
+Original variables:         729
+
+Time:                       0.0149
+Expanded nodes:             12
+Conflicts:                  4
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11769
+Original variables:         729
+
+Time:                       0.2412
+Expanded nodes:             8348
+Conflicts:                  4165
+Non-chronological jumps:    0
+Learned clauses:            199
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11769
+Original variables:         729
+
+Time:                       0.4510
+Expanded nodes:             22838
+Conflicts:                  11410
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0174
+Expanded nodes:             3
+Conflicts:                  1
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0153
+Expanded nodes:             3
+Conflicts:                  1
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11771
+Original variables:         729
+
+Time:                       0.0240
+Expanded nodes:             170
+Conflicts:                  83
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11771
+Original variables:         729
+
+Time:                       0.0226
+Expanded nodes:             170
+Conflicts:                  83
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11771
+Original variables:         729
+
+Time:                       0.0186
+Expanded nodes:             43
+Conflicts:                  19
+Non-chronological jumps:    0
+Learned clauses:            5
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11771
+Original variables:         729
+
+Time:                       0.0156
+Expanded nodes:             43
+Conflicts:                  19
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11769
+Original variables:         729
+
+Time:                       0.0161
+Expanded nodes:             25
+Conflicts:                  11
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11769
+Original variables:         729
+
+Time:                       0.0159
+Expanded nodes:             25
+Conflicts:                  11
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       1.7670
+Expanded nodes:             55772
+Conflicts:                  27875
+Non-chronological jumps:    1
+Learned clauses:            875
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       2.1519
+Expanded nodes:             138516
+Conflicts:                  69249
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11772
+Original variables:         729
+
+Time:                       0.0424
+Expanded nodes:             720
+Conflicts:                  355
+Non-chronological jumps:    0
+Learned clauses:            8
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11772
+Original variables:         729
+
+Time:                       0.0423
+Expanded nodes:             728
+Conflicts:                  359
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11769
+Original variables:         729
+
+Time:                       0.0501
+Expanded nodes:             786
+Conflicts:                  388
+Non-chronological jumps:    0
+Learned clauses:            2
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11769
+Original variables:         729
+
+Time:                       0.0507
+Expanded nodes:             822
+Conflicts:                  406
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11772
+Original variables:         729
+
+Time:                       0.0176
+Expanded nodes:             88
+Conflicts:                  42
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11772
+Original variables:         729
+
+Time:                       0.0208
+Expanded nodes:             88
+Conflicts:                  42
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       1.1293
+Expanded nodes:             35808
+Conflicts:                  17895
+Non-chronological jumps:    0
+Learned clauses:            487
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       1.8488
+Expanded nodes:             87497
+Conflicts:                  43736
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       8.3669
+Expanded nodes:             219360
+Conflicts:                  109672
+Non-chronological jumps:    46
+Learned clauses:            4378
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       12.9415
+Expanded nodes:             879519
+Conflicts:                  439748
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0160
+Expanded nodes:             29
+Conflicts:                  13
+Non-chronological jumps:    0
+Learned clauses:            3
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0146
+Expanded nodes:             29
+Conflicts:                  13
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11769
+Original variables:         729
+
+Time:                       0.0147
+Expanded nodes:             8
+Conflicts:                  2
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11769
+Original variables:         729
+
+Time:                       0.0144
+Expanded nodes:             8
+Conflicts:                  2
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       56.8149
+Expanded nodes:             1424901
+Conflicts:                  712246
+Non-chronological jumps:    1946
+Learned clauses:            11762
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       34.7593
+Expanded nodes:             2359474
+Conflicts:                  1179723
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11776
+Original variables:         729
+
+Time:                       0.0147
+Expanded nodes:             6
+Conflicts:                  2
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11776
+Original variables:         729
+
+Time:                       0.0147
+Expanded nodes:             6
+Conflicts:                  2
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       0.6627
+Expanded nodes:             22747
+Conflicts:                  11364
+Non-chronological jumps:    0
+Learned clauses:            387
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       0.8166
+Expanded nodes:             35719
+Conflicts:                  17850
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11771
+Original variables:         729
+
+Time:                       0.0141
+Expanded nodes:             3
+Conflicts:                  1
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11771
+Original variables:         729
+
+Time:                       0.0139
+Expanded nodes:             3
+Conflicts:                  1
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0171
+Expanded nodes:             70
+Conflicts:                  34
+Non-chronological jumps:    0
+Learned clauses:            2
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0176
+Expanded nodes:             70
+Conflicts:                  34
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       0.2555
+Expanded nodes:             6887
+Conflicts:                  3434
+Non-chronological jumps:    0
+Learned clauses:            106
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       0.3098
+Expanded nodes:             13181
+Conflicts:                  6580
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       5.2075
+Expanded nodes:             164752
+Conflicts:                  82369
+Non-chronological jumps:    0
+Learned clauses:            2339
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       9.5611
+Expanded nodes:             674169
+Conflicts:                  337074
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       22.2926
+Expanded nodes:             640399
+Conflicts:                  320193
+Non-chronological jumps:    5
+Learned clauses:            9426
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       33.8533
+Expanded nodes:             3249232
+Conflicts:                  1624605
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       25.3524
+Expanded nodes:             679940
+Conflicts:                  339958
+Non-chronological jumps:    369
+Learned clauses:            11762
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       39.3170
+Expanded nodes:             2581960
+Conflicts:                  1290972
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       2.4858
+Expanded nodes:             89480
+Conflicts:                  44728
+Non-chronological jumps:    0
+Learned clauses:            1742
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       6.6244
+Expanded nodes:             486685
+Conflicts:                  243329
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11768
+Original variables:         729
+
+Time:                       0.0335
+Expanded nodes:             610
+Conflicts:                  302
+Non-chronological jumps:    0
+Learned clauses:            45
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11768
+Original variables:         729
+
+Time:                       0.0337
+Expanded nodes:             674
+Conflicts:                  334
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       0.0759
+Expanded nodes:             1659
+Conflicts:                  823
+Non-chronological jumps:    0
+Learned clauses:            19
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       0.0786
+Expanded nodes:             1865
+Conflicts:                  926
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11775
+Original variables:         729
+
+Time:                       0.0170
+Expanded nodes:             62
+Conflicts:                  29
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11775
+Original variables:         729
+
+Time:                       0.0169
+Expanded nodes:             62
+Conflicts:                  29
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11767
+Original variables:         729
+
+Time:                       0.0943
+Expanded nodes:             1905
+Conflicts:                  947
+Non-chronological jumps:    0
+Learned clauses:            108
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11767
+Original variables:         729
+
+Time:                       0.0954
+Expanded nodes:             2289
+Conflicts:                  1141
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       64.6032
+Expanded nodes:             1743535
+Conflicts:                  871760
+Non-chronological jumps:    104
+Learned clauses:            11762
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       91.9994
+Expanded nodes:             7095931
+Conflicts:                  3547955
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       11.8695
+Expanded nodes:             389048
+Conflicts:                  194516
+Non-chronological jumps:    0
+Learned clauses:            3284
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       8.4634
+Expanded nodes:             513175
+Conflicts:                  256578
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       36.5183
+Expanded nodes:             1108300
+Conflicts:                  554141
+Non-chronological jumps:    16
+Learned clauses:            11762
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       61.7246
+Expanded nodes:             4728052
+Conflicts:                  2364013
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11771
+Original variables:         729
+
+Time:                       0.0286
+Expanded nodes:             261
+Conflicts:                  128
+Non-chronological jumps:    0
+Learned clauses:            7
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11771
+Original variables:         729
+
+Time:                       0.0280
+Expanded nodes:             261
+Conflicts:                  128
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       0.2828
+Expanded nodes:             9170
+Conflicts:                  4580
+Non-chronological jumps:    0
+Learned clauses:            99
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       0.4411
+Expanded nodes:             18537
+Conflicts:                  9261
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       1.0868
+Expanded nodes:             41885
+Conflicts:                  20930
+Non-chronological jumps:    3
+Learned clauses:            526
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       2.6131
+Expanded nodes:             209205
+Conflicts:                  104589
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       22.4934
+Expanded nodes:             758758
+Conflicts:                  379359
+Non-chronological jumps:    150
+Learned clauses:            11762
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       22.5803
+Expanded nodes:             1619138
+Conflicts:                  809558
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11772
+Original variables:         729
+
+Time:                       0.0151
+Expanded nodes:             24
+Conflicts:                  11
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11772
+Original variables:         729
+
+Time:                       0.0164
+Expanded nodes:             24
+Conflicts:                  11
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11770
+Original variables:         729
+
+Time:                       0.0161
+Expanded nodes:             34
+Conflicts:                  15
+Non-chronological jumps:    0
+Learned clauses:            1
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11770
+Original variables:         729
+
+Time:                       0.0164
+Expanded nodes:             34
+Conflicts:                  15
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       17.8480
+Expanded nodes:             458332
+Conflicts:                  229156
+Non-chronological jumps:    0
+Learned clauses:            11746
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       38.6171
+Expanded nodes:             2615127
+Conflicts:                  1307552
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       0.4724
+Expanded nodes:             12925
+Conflicts:                  6452
+Non-chronological jumps:    0
+Learned clauses:            446
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       0.4877
+Expanded nodes:             16601
+Conflicts:                  8290
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11768
+Original variables:         729
+
+Time:                       0.0252
+Expanded nodes:             100
+Conflicts:                  48
+Non-chronological jumps:    0
+Learned clauses:            1
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11768
+Original variables:         729
+
+Time:                       0.0248
+Expanded nodes:             100
+Conflicts:                  48
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11771
+Original variables:         729
+
+Time:                       0.0215
+Expanded nodes:             94
+Conflicts:                  45
+Non-chronological jumps:    0
+Learned clauses:            3
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11771
+Original variables:         729
+
+Time:                       0.0217
+Expanded nodes:             96
+Conflicts:                  46
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11763
+Original variables:         729
+
+Time:                       3.7480
+Expanded nodes:             94515
+Conflicts:                  47250
+Non-chronological jumps:    0
+Learned clauses:            1226
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11763
+Original variables:         729
+
+Time:                       3.8638
+Expanded nodes:             166331
+Conflicts:                  83155
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11769
+Original variables:         729
+
+Time:                       0.0252
+Expanded nodes:             232
+Conflicts:                  113
+Non-chronological jumps:    0
+Learned clauses:            8
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11769
+Original variables:         729
+
+Time:                       0.0268
+Expanded nodes:             260
+Conflicts:                  127
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0213
+Expanded nodes:             166
+Conflicts:                  81
+Non-chronological jumps:    0
+Learned clauses:            1
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0209
+Expanded nodes:             166
+Conflicts:                  81
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0159
+Expanded nodes:             33
+Conflicts:                  15
+Non-chronological jumps:    0
+Learned clauses:            3
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0157
+Expanded nodes:             33
+Conflicts:                  15
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11770
+Original variables:         729
+
+Time:                       0.0145
+Expanded nodes:             12
+Conflicts:                  3
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11770
+Original variables:         729
+
+Time:                       0.0148
+Expanded nodes:             12
+Conflicts:                  3
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0147
+Expanded nodes:             8
+Conflicts:                  2
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0145
+Expanded nodes:             8
+Conflicts:                  2
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11771
+Original variables:         729
+
+Time:                       0.0183
+Expanded nodes:             57
+Conflicts:                  27
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11771
+Original variables:         729
+
+Time:                       0.0177
+Expanded nodes:             57
+Conflicts:                  27
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11768
+Original variables:         729
+
+Time:                       0.0158
+Expanded nodes:             11
+Conflicts:                  4
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11768
+Original variables:         729
+
+Time:                       0.0172
+Expanded nodes:             11
+Conflicts:                  4
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11774
+Original variables:         729
+
+Time:                       0.0156
+Expanded nodes:             20
+Conflicts:                  9
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11774
+Original variables:         729
+
+Time:                       0.0155
+Expanded nodes:             20
+Conflicts:                  9
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11770
+Original variables:         729
+
+Time:                       0.0253
+Expanded nodes:             164
+Conflicts:                  78
+Non-chronological jumps:    0
+Learned clauses:            1
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11770
+Original variables:         729
+
+Time:                       0.0236
+Expanded nodes:             164
+Conflicts:                  78
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       25.0797
+Expanded nodes:             574564
+Conflicts:                  287182
+Non-chronological jumps:    540
+Learned clauses:            11093
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11762
+Original variables:         729
+
+Time:                       30.8302
+Expanded nodes:             2041495
+Conflicts:                  1020738
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0150
+Expanded nodes:             11
+Conflicts:                  4
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0146
+Expanded nodes:             11
+Conflicts:                  4
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0149
+Expanded nodes:             6
+Conflicts:                  2
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11773
+Original variables:         729
+
+Time:                       0.0145
+Expanded nodes:             6
+Conflicts:                  2
+Non-chronological jumps:    0
+Learned clauses:            0
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11775
+Original variables:         729
+
+Time:                       0.0224
+Expanded nodes:             117
+Conflicts:                  56
+Non-chronological jumps:    0
+Learned clauses:            3
+
+
+./kec_o_sat_s: SATISFIABLE
+
+Original clauses:           11775
+Original variables:         729
+
+Time:                       0.0206
+Expanded nodes:             123
+Conflicts:                  59
+Non-chronological jumps:    0
+Learned clauses:            0
