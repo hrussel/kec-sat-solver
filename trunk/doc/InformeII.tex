@@ -455,7 +455,7 @@ literales puros} está:\vspace{-2.5mm}
 \item Un elevado costo en tiempo del programa, por cuanto implica un recorrido
   por todos los literales de todas las cláusulas de la fórmula.
 \end{enumerate}\vspace{-2.5mm}
-\subsection{Fase de análisis del conflicto}
+\subsection{Fase de análisis del conflicto}\label{analisisConflicto}
 
 Esta fase de KECOSATS consiste de la identificación de las causas necesarias y
 suficientes para un dado conflicto, con los siguiente objetivos: evitar este
@@ -536,11 +536,57 @@ obteniendo de ello dos beneficios:
 Es claro que cada vez que se realiza un paso de \emph{backtracking}, parte del
 grafo de implicaciones debe deshacerse para reflejar el nuevo nivel de decisión
 actual.
-\subsubsection{Cláusula inducida por conflicto}
+\subsubsection{Cláusula inducida por conflicto y aprendizaje}
 
 Como hemos indicado, una vez que durante la ejecución de KECOSATS se presenta un
 conflicto, el grafo de implicaciones permite obtener un conjunto de asignaciones
-necesarias 
+necesarias y suficientes para producir el anterior. La manera como se hace esto
+es la siguiente:
+\begin{itemize}
+\item Partiendo del nodo conflicto en el grafo de implicaciones se hace un
+  recorrido hacia sus predecesores hasta encontrar los nodos raíces: Para fijar
+  ideas, digamos que para un dado conflicto, éste tiene como nodos raíces en el
+  grafo de implicaciones a las asignaciones: $x_1 \gets 1$ con nivel de
+  decisión 2 y $x_3 \gets 0$ con nivel de decisión 5. Ello quiere decir que
+  cada vez que se haga este par de asignaciones y se haga la propagación de las
+  cláusulas unitarias nos encontraremos con el mismo conflicto.
+
+\item Una vez identificadas estas asignaciones raíces, se construye una nueva
+  cláusula $x_i^{v(x_i)}$ para toda variable $x_i$ en estas asignaciones raíces
+  encontradas anteriormente en el recorrido sobre el grafo de implicaciones
+  antes descrito y donde $x_i^0= x_i$ y $x_i^1=\overline{x_i}$. En el caso anterior,
+  la cláusula nueva que se construye sería $x_1^{1} \vee x_3^{0}$ que sería
+  $\overline{x_1} \vee x_3$. Estas cláusulas construidas a partir de un conflicto se
+  conocen como \emph{cláusulas inducidas por conflicto} y son redundantes con el
+  conjunto original de cláusulas de la instancia, en el sentido en que agregar
+  estas cláusulas inducidas por conflicto al conjunto inicial de cláusulas no
+  altera la satisfactibilidad de la instancia. El aprendizaje consiste entonces
+  en incluir estas cláusulas inducidas por los conflictos en una base de datos
+  de cláusulas, con el objetivo de prevenir que la misma asignación conflictiva
+  ocurra más adelante en el transcurso de la ejecución del algoritmo sobre una
+  instancia.
+\end{itemize}
+
+Hemos mencionado brevemente cómo analizar los conflictos con la ayuda de un
+grafo de implicaciones con un ejemplo muy sencillo que implicaba asignaciones a
+$x_1$ y $x_3$. Consideramos conveniente para una descripción más detallada del
+proceso de búsqueda de las cláusulas inducidas por conflicto recomendar al lector
+que consulte además las fuentes \cite{grasp96} y \cite{ZhangThesis}, en donde se
+presentan algunos ejemplos más elaborados.
+
+\subsubsection{Backtracking no cronológico}
+Como mencionamos anteriormente, el proceso de determinación de las cláusulas
+inducidas por conflicto permite además implementar el \emph{backtracking no
+  cronológico}. Esto es porque una vez determinada la cláusula inducida por
+conflicto, que en el ejemplo anterior era $\overline{x_1} \vee x_3$, y
+conociendo los niveles de decisión de las asignaciones a estas variables se
+tiene a cuál nivel hay que retroceder en el \emph{backtracking}: basta tomar el
+máximo de los niveles de decisión de cada variable que ocurre en la cláusula
+inducida por el conflicto. En el ejemplo propuesto este máximo sería 5 ---el
+nivel de decisión en que se asignó $x_3 \gets 0$. Haciendo el
+\emph{backtracking} hasta este nivel permitiría descartar grandes secciones del
+espacio de búsqueda, porque regresando a cualquier nivel de decisión $>5$ se
+producirá el mismo conflicto.
 % Tal situación conflictiva consiste de al menos una cláusula $C=
 % \overline{x_5},\overline{x_6}$ del problema que no es satisfecha con la
 % asignación parcial que se ha construido hasta el momento
@@ -792,8 +838,8 @@ Una vez comentado esto y en virtud de que nuestra implementación de la
 propagación de cláusulas unitarias no difiere de la expuesta en \cite{Zhang},
 consideramos que no hay nada más que agregar al respecto.
 
-\subsection{Implementación del árbol de implicaciones}\label{impl}
-Para la implementación del árbol de implicaciones se optó por un arreglo de
+\subsection{Implementación del grafo de implicaciones}\label{impl}
+Para la implementación del grafo de implicaciones se optó por un arreglo de
 elementos del siguiente tipo de dato {\tt decision\_node}:
 \begin{lstlisting}
 typedef struct {
@@ -846,11 +892,50 @@ A continuación describiremos campo por campo este tipo de dato:\vspace{-2.5mm}
   pueden extraer la asignaciones antecedentes $A(x_i)$ de esta variable.
 \end{enumerate}
 
-\subsubsection{Ventajas de la implementación escogida para el árbol de implicaciones}
+\subsubsection{Ventajas de la implementación escogida para el grafo de
+  implicaciones}
+Entre las ventajas de esta implementación propuesta para el grafo de
+implicaciones están: \vspace{-2.5mm}
 
+\begin{itemize}
+\item Es económico en memoria si se le compara con el espacio que emplearía un
+  grafo explícito.  
+\item La estructura escogida permite evaluar el conflicto con la misma
+  complejidad en tiempo, que si se tuviera implementado con un grafo explícito.
+\end{itemize}
 
 \subsection{Implementación del aprendizaje de cláusulas}
-\newpage
+Para implementar el aprendizaje de cláusulas se procede tal cual se ha descrito
+en la sección \ref{analisisConflicto}, usando el grafo de implicaciones que se
+induce del campo {\tt impl\_graph} de la variable global {\tt sat\_st}. A
+continuación describimos la implementación de la base de datos de cláusulas.
+
+\subsubsection{Implementación de la base de datos de cláusulas}
+La base de datos de cláusulas aprendidas está integrada con la fórmula original
+de la instancia, de tal forma que los algoritmos implementados en la primera
+versión de KECOSATS no requiriesen de modificaciones para examinar y manejar
+estas cláusulas aprendidas. Para esto se inicializó el arreglo {\tt
+  sat\_st.formula} de la fórmula con un espacio adicional al final para poder
+agregar a éste las cláusulas aprendidas. 
+
+Un detalle que consideramos importante destacar aquí es la asignación de los
+\emph{watchers} en las cláusulas que se aprenden. Al momento de aprender una
+cláusula de tamaño mayor a 1, se coloca como \emph{tail watcher} de ésta a la
+variable de decisión del nivel actual, esto es porque la implementación
+propuesta de la propagación de cláusulas unitarias utiliza siempre el \emph{tail
+  watcher}. El \emph{head watcher} se asigna a la segunda variable con el nivel
+de decisión más alto. Esto es con el fin de cumplir el invariante de los \emph{2
+  watched-literals} que exige que los literales a los que apuntan los
+\emph{watchers} estén asignados o estén satisfechos.
+
+Dado que las cláusulas de tamaño 1 no poseen dos literales a los cuales asignar
+los \emph{watchers}, se manejan éstas de un modo diferente: al aprender un
+cierto número de cláusulas unitarias se realiza un \emph{restart} que descarta
+todas las asignaciones hechas hasta el momento ---excepto las propagadas por el
+preprocesamiento y las cláusulas unitarias anteriores--- se propagan las nuevas
+cláusulas aprendidas y se reinicia la búsqueda. La ventaja de proceder así es
+que se poda el espacio de búsqueda a la mitad por cada cláusula aprendida de
+este tipo.
 
 \section{Dificultades encontradas}
 Entre las dificultades encontradas a lo largo del desarrollo de esta segunda
@@ -883,7 +968,7 @@ versión de KECOSATS están:
   aprender cláusulas o seleccionar una de las aprendidas y eliminarla. Otra
   alternativa es ser selectivo con las cláusulas que se aprenden, para así
   controlar la disminución del espacio disponible para el aprendizaje de
-  cláusulas, pero inevitablemente se acabará éste.
+  cláusulas.
 \end{itemize}
 
 \section{Instrucciones de operación}
@@ -901,17 +986,20 @@ Una vez hecho esto, se han compilado los programas {\tt kec\_o\_sat\_s} y {\tt
 
 \end{enumerate}
 
-\textbf{Pasos para ejecutar la aplicación:}
-
-Para emplear la aplicación se debe escribir en la consola y desde el directorio
+\textbf{Paso para ejecutar la aplicación:}
+\begin{enumerate}
+\item Para emplear la aplicación se debe escribir en la consola y desde el directorio
 raíz, el siguiente comando
-\begin{lstlisting}[style=consola2]
-# ./sudoku -f test/sudoku.in -o sudoku.cnf -e solution.pdf -t 40
+
+\begin{lstlisting}[style=consola]
+# ./sudoku -f test/sudoku.in -o sudoku.cnf 
+           -e solution.pdf -t 100
 \end{lstlisting}
-donde:\vspace{-2.5mm}
+\end{enumerate}
+donde:
 \begin{itemize}
 \item {\tt test/sudoku.in} Es un archivo con una lista de instancias de
-  \emph{Sudoku}
+  \emph{Sudoku} ---los 60 casos por ejemplo.
 \item {\tt sudoku.cnf} Es el archivo {\tt .cnf} que contiene la formulación
   \emph{SAT} del último caso de prueba que está contenido en {\tt
     test/sudoku.in}.
@@ -919,8 +1007,19 @@ donde:\vspace{-2.5mm}
   soluciones a todas las instancias codificadas en el archivo {\tt
     test/sudoku.in}.
 \item{\tt 40} Es el límite de tiempo asignado a cada instancia de \emph{Sudoku}.
-  prueba 
 \end{itemize}
+
+
+\textbf{Paso para generar la documentación en \emph{html}:}
+\begin{enumerate}
+\item Para generar la documentación del programa ---al estilo \emph{javadoc} se
+  debe escribir en la consola y desde el directorio raíz, el siguiente comando
+\begin{lstlisting}[style=consola]
+# make doc
+\end{lstlisting}
+\end{enumerate}\vspace{-2.5mm}
+
+Para ello debe tenerse instalado el programa \emph{Doxygen}.
 
 Para más detalles acerca de la operación, leer los archivos {\tt README} y {\tt
   README\_SUDOKU} que se incluyen con la distribución del programa.
@@ -995,7 +1094,7 @@ ilustración de arriba:\vspace{-2.5mm}
 Más abajo se incluye una gráfica que permitirá captar más fácilmente las
 diferencias en el rendimiento entre estos dos programas:
 \begin{center}
-\includegraphics[scale=0.6]{compare.png}
+\includegraphics[scale=0.62]{figura1.png}
 \end{center}
 
 % Comentarios acerca de los resultados obtenidos, expuestos gráficamente en la
@@ -1074,7 +1173,19 @@ citar están:
   espacio de búsqueda y evitar conflictos, como cláusulas más pequeñas. Sería
   recomendable investigar sobre estas heurísticas.
 
-\item 
+\item Por último queremos mencionar acerca de los \emph{restart} o
+  reinicios. Esto consiste en que llegado cierto punto en que el \emph{SAT
+    solver} no ha encontrado todavía solución, éste decide descartar todas las
+  asignaciones que ha hecho hasta el momento para comenzar de nuevo. Sin
+  embargo, este nuevo intento de resolución del mismo problema tiene una
+  diferencia con el intento que acaba de descartar: por el hecho de haber
+  conservado las cláusulas que aprendió en el intento anterior, no tomará el
+  mismo camino porque estas cláusulas aprendidas evitarán que vuelva a caer en
+  los mismo conflictos con los que ya se había topado anteriormente. KECOSATS
+  cada cierto tiempo ejecuta estos \emph{restarts} y lo que proponemos aquí como
+  recomendación es probar con distintas heurísticas que ayuden a determinar
+  cuándo es el momento que pareciera ser más apropiado para ejecutar estos
+  reinicios.
 
 \end{itemize}
 
