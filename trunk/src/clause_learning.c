@@ -1,5 +1,16 @@
 #include "clause_learning.h"
 
+/**
+ *
+ * Given an array of literals, it adds a new clause to the formula.
+ * This function is inteded for use in the stage of learning a new
+ * clause during the non-chronological backtracking.
+ *
+ * @param clause_length The number of literals in the array @e lit.
+ * @param lit An array which contains the literals that constitute
+ *        the clause.
+ *
+ */
 void add_cl_to_watcher_list( int clause_index ) {
     
     clause* cl = sat_st.formula + clause_index;
@@ -12,6 +23,7 @@ void add_cl_to_watcher_list( int clause_index ) {
     
     list *watched_list;
     
+    // Set the correct polarity to the watched head_literal
     if( *head_watcher > 0 ){
         watched_list = &sat_st.pos_watched_list[abs_head_watcher];
     }
@@ -21,7 +33,8 @@ void add_cl_to_watcher_list( int clause_index ) {
     
     // Add the clause cl to its head_watcher's watched list.
     push( watched_list, cl );
-
+    
+    // Set the correct polarity to the watched tail_literal
     if( *tail_watcher > 0 ){
         watched_list = &sat_st.pos_watched_list[abs_tail_watcher];
     }
@@ -34,11 +47,22 @@ void add_cl_to_watcher_list( int clause_index ) {
 
 }
 
+
+/**
+ *
+ *  This function saves the new learned clause of size 1 in a global stack.
+ *  When certain number of clauses of size 1 have been learned, ocurrs an
+ *  restart and the decided and propagated variables are erased.
+ *  
+ *  The restart algorithm will just let the preprocessing variables and the
+ *  variables that ocurrs in the unit clauses with its own value. Then
+ *  propagates this new learned clauses.
+ *  
+ *  @param lit The clause of size 1.
+ **/
 void learn_unit_clause( int* lit ){
     
     push(&sat_st.unit_learned_clauses, (void*)lit[0]);
-    
-    return ;
 }
 
 /**
@@ -56,34 +80,25 @@ void learn_unit_clause( int* lit ){
 
 clause* learn_clause( int clause_length, int lit[] ){
     
+    // Analyze the case of an empty clause that doesn't need to be learned
     if ( clause_length == 0 ){
         return NULL;
     }
     
-    int i = 0;
-    
-    if ( clause_length != 1 ){
-        free(lit);
-        return NULL;
-    }
-    /*
-    for (i=0; i<clause_length; i++){
-        printf("%d ", lit[i]);
-    }
-    printf("0\n");
-    */
+    //TODO at this point we should decide if a learned clause needs to
+    //     be deleted and replaced by the lit clause.
     if ( sat_st.clause_available_space == 0 ) {
+        
         free(lit);
         return NULL;
-        
-        /* Decidir cual clausula se borra */
     }
     
+    // There is space to add the new learned clause
     if ( sat_st.clause_available_space > 0 ){
         
+        //@assert The sat_st.formula[sat_st.num_clauses] is free.
+        
         if ( clause_length > 1 ){
-            
-            return NULL;
             
             clause* cl = sat_st.formula + sat_st.num_clauses;
             
@@ -93,7 +108,7 @@ clause* learn_clause( int clause_length, int lit[] ){
             cl->literals = lit;
             
             /* Set the tail watcher to the first unknown variable. At this
-               point, there aren't another free variable in the clause.
+               point, there isn't another free variable in the clause.
              */
             int i=0;
             while ( sat_st.model[ abs(lit[i]) ] != UNKNOWN ){
@@ -102,14 +117,16 @@ clause* learn_clause( int clause_length, int lit[] ){
             cl->tail_watcher = lit + i;
             
             /* The head_watcher needs to reference to the decision variable
-               decided in the more recent instant
+               decided in the more recent instant.
              */
-            
             if ( i > 0 ){
                 cl->head_watcher = lit;
             } else {
                 cl->head_watcher = lit + 1;
             }
+            
+            //@assert The two watched literals satisty the invariant of the
+            //        watchers.
             
             i=0;
             while ( i<clause_length ){
@@ -128,40 +145,30 @@ clause* learn_clause( int clause_length, int lit[] ){
                 i++;
             }
             
-            // @assert cl->tail_watcher isn't assigned
-            // @assert cl->head_watcher has the maximum decision level
+            // @assert cl->tail_watcher is free.
+            // @assert cl->head_watcher has the maximum decision level.
             
+            // Add to the tail_watcher list and head_watcher list the new clause
+            // that is observing them.
             add_cl_to_watcher_list(cl - sat_st.formula);
             
+            // Reduce the space available to learn clauses.
             sat_st.num_clauses++;
             sat_st.clause_available_space--;
             
-            /*printf("learned clauses %d\n", sat_st.num_clauses - sat_st.num_original_clauses);
-            printf("%d : h[%d](%d,%d) t[%d](%d,%d)\n", 
-                   sat_st.backtracking_status.size,
-                   sat_st.impl_graph[abs(*cl->head_watcher)].decision_level,
-                   *cl->head_watcher, sat_st.model[abs(*cl->head_watcher)],
-                   sat_st.impl_graph[abs(*cl->tail_watcher)].decision_level,
-                   *cl->tail_watcher, sat_st.model[abs(*cl->tail_watcher)]
-                   );
-            */
             return cl;
         } else {
             
             // Clauses with one literal
             learn_unit_clause(lit);
             
+            // This clause will be propagated after at restart.
             return NULL;
         }
-        
-        //print_status();
     }
     
     return NULL;
 }
-
-/* OJOOOOOOOOOO: CAMBIAR LOS WATCHERS DE LAS DOS CLAUSULAS
- */
 
 /**
  *
@@ -183,36 +190,13 @@ void unlearn_clause( int clause_index ) {
 }
 
 /**
- *
- * This function searches for all clauses tagged @e too_large: those
- * which have more than @esat_st.clause_upper_bound literals. If one of these
- * clauses is found to be non-unitary, it will be unlearned (discarded). Otherwise,
- * it will be preserved.
+ *  
+ *  This function deletes the occurrence of this clause at watched list of
+ *  its head and tail watcher.
+ *  
+ *  @param clause_index Index of clause that will be unlearned.
  *
  */
-/*
-void unlearn_large_clauses() {
-    int status;
-    int current_clause;
-    for (current_clause = sat_st.num_original_clauses;
-         current_clause < sat_st.num_clauses;
-         current_clause++)
-    {
-        if ( sat_st.formula[current_clause].too_large == TRUE ) {
-            // A learned clause marked for possible deletion
-            // has been found. If it's not a unitary clause
-            // it may be deleted. Otherwise, it will be kept.
-                
-            status = update_watcher( &sat_st.formula[current_clause] );
-
-            if ( status == UNIT_CLAUSE ) {
-                unlearn_clause( current_clause );
-            }
-        }
-    }
-}
-*/
-
 void remove_cl_from_watcher_list( int clause_index ) {
     clause* cl = sat_st.formula + clause_index;
 
@@ -245,10 +229,7 @@ void remove_cl_from_watcher_list( int clause_index ) {
     }
     // Remove cl from head_watcher's watched_list.
     pop(watched_list);
-
-    // tail_watcher
-    // OJO Codigo repetido.....
-
+    
     if( tail_watcher > 0 ){
         watched_list = &sat_st.pos_watched_list[abs_tail_watcher];
     }

@@ -184,6 +184,8 @@ void set_initial_sat_status(){
     sat_st.clause_upper_bound = 2*sat_st.num_clauses;
     sat_st.clause_available_space = sat_st.num_clauses;
     sat_st.num_original_clauses = sat_st.num_clauses;
+    
+    sat_gs.restart_max_unit_clauses = 0;
 }
 
 void print_formula(){

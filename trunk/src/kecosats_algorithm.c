@@ -218,7 +218,8 @@ int solve_sat(){
         
         //If the assignment satisfied the formula, return a positive
         //answer and finish the funtion
-        else if( assignment_result == UNIT_CLAUSE ){  //TODO this should be SATISFIED
+        else if( assignment_result == UNIT_CLAUSE ){
+            //TODO this should be SATISFIED
             
             return SATISFIABLE;
         }
@@ -226,23 +227,18 @@ int solve_sat(){
         //If the assignment made the formula FALSE, then backtrack until
         //a variable that can be flipped is found.
         else if( assignment_result == CONFLICT ){
-            
             int* lit;
             int clause_length;
             
             int backtrack_to_level;
             backtrack_to_level = analyze_conflict(&lit, &clause_length);
-            backtrack_to_level = sat_st.backtracking_status.size;
+            //backtrack_to_level = sat_st.backtracking_status.size;
             
             // Return to the target level, which can be a non-chronological
             // jump.
             
-            if ( sat_st.backtracking_status.size > backtrack_to_level ){
-                //printf("no cronologico\n");
-            }
-            
             while ( sat_st.backtracking_status.size > backtrack_to_level ){
-                
+                //while(1);
                 undo_assignments( top(&sat_st.backtracking_status) );
                 pop( & sat_st.backtracking_status );
             }
@@ -265,8 +261,14 @@ int solve_sat(){
             learned_clause = learn_clause(clause_length, lit);
             //learned_clause = NULL;
             
-            if ( sat_st.unit_learned_clauses.size != 0 ){
-                
+            /* If the number of learned 1-clauses is bigger than the maximum
+               number let, then make a restart and propagate this variables.
+               This should be interpreted as a stronger additional preprocessing
+               After this, the search will start again.
+             */
+            if ( sat_st.unit_learned_clauses.size >
+                    sat_gs.restart_max_unit_clauses )
+            {
                 restart();
                 
                 int status = expand_unit_learned_clauses();
@@ -275,25 +277,15 @@ int solve_sat(){
                     return status;
                 }
                 
-                /*
-                int i=1;
-                for (i=1; i<=sat_st.num_vars; i++){
-                    if ( sat_st.model[i] != UNKNOWN ){
-                        printf("%c%d ", (sat_st.model[i]==1 ? '+':'-'), i);
-                    }
-                }
-                printf("\n");
-                */
-                
+                // Pick the new decision variable.
                 if ( decide_next_branch() == SATISFIED ){
                     return SATISFIABLE;
                 }
             }
             
             while ( !empty(&sat_st.backtracking_status) 
-                            && ((decision_level_data*)
-                                    top(&sat_st.backtracking_status)
-                                )->missing_branch == FALSE )
+                    && ((decision_level_data*)top(&sat_st.backtracking_status)
+                            )->missing_branch == FALSE )
             {
                 learned_clause = NULL;
                 
@@ -337,15 +329,6 @@ int solve_sat(){
                 sat_st.impl_graph[abs(top_el->assigned_literal)
                                     ].conflictive_clause = learned_clause;
                 
-                /*
-                if ( learned_clause ){
-                    stack aux;
-                    initialize_list(&aux);
-                    push(&aux, learned_clause);
-                    
-                    status = unit_propagation(&aux);
-                }
-                */
             } else {            
                 return UNSATISFIABLE;
             }
@@ -395,6 +378,9 @@ int deduce( variable literal ) {
         if ((sat_st.model[abs_literal] == TRUE) == ( literal > 0) ){
             return DONT_CARE;
         } else {
+            orig_conflict_clause =
+                sat_st.impl_graph[abs_literal].conflictive_clause;
+            
             return CONFLICT;
         }
     }
@@ -493,36 +479,57 @@ int unit_propagation( stack* unit_clauses )
             = (decision_level_data*) top( &(sat_st.backtracking_status) );
     
     while( !empty(unit_clauses ) && status == DONT_CARE){
-        
+
         clause* cl = (clause*)top(unit_clauses);
         pop(unit_clauses);
         
-        // We need to keep track of the variables that were propagated, to
-        // ensure the correctness of the backtracking procedure.
-        if ( dec_level_data ){
-            push( &(dec_level_data->propagated_var), cl->tail_watcher );
+        if ( sat_st.model[abs(*cl->tail_watcher)] == UNKNOWN ) {
+            orig_conflict_clause = cl;
+            //return status;
         }
         
+        // We need to keep track of the variables that were propagated, to
+        // ensure the correctness of the backtracking procedure.
+        if ( dec_level_data != NULL ){
+            push( &(dec_level_data->propagated_var), cl->tail_watcher );
+        }
         // Add this implication edge to the implication graph.
         if ( sat_st.model[abs(*cl->tail_watcher)] == UNKNOWN )
         {
             int implied_var = abs(*cl->tail_watcher);
             
-            // OBS: P Q PUSIMOS + 1?
-            
             sat_st.impl_graph[implied_var].decision_level
                 = sat_st.backtracking_status.size;
             sat_st.impl_graph[implied_var].conflictive_clause = cl;
+            
         }
-        
-        //printf("propagando %d %d\n", *cl->tail_watcher,cl - sat_st.formula);
         
         // Propagate the single variable in each the unitary clause. The
         // tail_watcher points to its single variable.
-        status = deduce( *cl->tail_watcher );
         
+        status = deduce( *cl->tail_watcher );
         if ( status == CONFLICT ){
-            orig_conflict_clause = cl;
+            int implied_var = abs(*cl->tail_watcher);
+
+            sat_st.impl_graph[implied_var].decision_level
+                = sat_st.backtracking_status.size;
+            if ( orig_conflict_clause != NULL ) {
+                sat_st.impl_graph[implied_var].conflictive_clause = orig_conflict_clause;
+                orig_conflict_clause = NULL;
+            }
+            else
+            sat_st.impl_graph[implied_var].conflictive_clause = cl;
+            
+            //orig_conflict_clause = cl;
+/*             printf("Conflicto abajo por propagar %d y es clausula %d\n",  */
+/*                    *cl->tail_watcher, cl-sat_st.formula); */
+
+/*             int i=0; */
+/*             printf("el modelo para ella\n"); */
+/*             for(; i< cl->size; i++ ) { */
+/*                 printf(" %d", sat_st.model[abs(cl->literals[i])]); */
+/*             } */
+/*             printf("\n"); */
         }
     }
     

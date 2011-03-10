@@ -96,6 +96,7 @@ int main(int argc, char* argv[]){
         //print_status();
         printf("%s: UNSATISFIABLE\n\n",sat_gs.program_name);
     }
+    //print_status();
     
     if ( sat_gs.output_file != NULL){
         print_sol(status);

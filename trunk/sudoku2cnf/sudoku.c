@@ -461,8 +461,8 @@ int main(int argc, char* argv[]){
             
             printf("\n");
             
-            //char ss;
-            //scanf("%c",&ss);
+            char ss;
+            scanf("%c",&ss);
         }
         
         // Free memory allocated to the sudoku board.
@@ -471,6 +471,7 @@ int main(int argc, char* argv[]){
             free(t[i]);
         }
         free(t);
+
     }
     
     // Generate the pdf
