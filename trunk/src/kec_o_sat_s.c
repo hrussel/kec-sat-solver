@@ -18,10 +18,11 @@
 #include<stdio.h>
 #include<signal.h>
 #include<unistd.h>
+#include <time.h>
+#include <sys/time.h>
 #include"kecosats_structures.h"
 #include"kecosats_algorithm.h"
 #include"sat_io.h"
-
 
 void print_usage();
 void catch_alarm();
@@ -42,6 +43,8 @@ int main(int argc, char* argv[]){
     sat_gs.verbose_mode = FALSE;
     sat_gs.time_out = 0;
     sat_gs.detect_pure_literals = FALSE;
+    sat_gs.print_statistics = TRUE;
+    sat_gs.learn = TRUE;
     
     {
         int i=1;
@@ -54,7 +57,7 @@ int main(int argc, char* argv[]){
             } else if ( strcmp(argv[i], "-o") == 0 && i+1<argc){
                 
                 sat_gs.output_file = argv[++i];
-
+            
             } else if ( strcmp(argv[i], "-v") == 0 ){
                 
                 sat_gs.verbose_mode = TRUE;
@@ -66,7 +69,12 @@ int main(int argc, char* argv[]){
             } else if( strcmp(argv[i],"-t") == 0 && i+1<argc ){
                 
                 sat_gs.time_out = atoi(argv[++i]);
-
+            } else if ( strcmp(argv[i],"-l") == 0 ){
+                
+                sat_gs.learn = FALSE;
+            } else if ( strcmp(argv[i], "-s") == 0 ){
+                
+                sat_gs.print_statistics = FALSE;
             }else {
                 print_usage();                
                 exit(1);
@@ -75,6 +83,16 @@ int main(int argc, char* argv[]){
             i++;
         }
 
+    }
+    
+    double t_inicial, t_final;
+    struct timeval t_p; 
+    
+    if (!gettimeofday(&t_p,NULL))
+       t_inicial = (double) t_p.tv_sec + ((double) t_p.tv_usec)/1000000.0;
+    else {
+        printf("Error: Bad time request.\n");
+        exit(2);
     }
     
     //Set the catcher for alarm signals
@@ -90,11 +108,18 @@ int main(int argc, char* argv[]){
     int status = solve_sat();
     alarm(0);
     
+    if (!gettimeofday(&t_p,NULL))
+        t_final = (double) t_p.tv_sec + ((double) t_p.tv_usec)/1000000.0;
+    else {
+        printf("Error: Bad time request.\n");
+        exit(2);
+    }
+    
     if ( status == SATISFIABLE ){
-        printf("%s: SATISFIABLE\n\n",sat_gs.program_name);
+        printf("\n%s: SATISFIABLE\n\n",sat_gs.program_name);
     } else {
         //print_status();
-        printf("%s: UNSATISFIABLE\n\n",sat_gs.program_name);
+        printf("\n%s: UNSATISFIABLE\n\n",sat_gs.program_name);
     }
     //print_status();
     
@@ -102,6 +127,22 @@ int main(int argc, char* argv[]){
         print_sol(status);
     }
     
+    if ( sat_gs.print_statistics ){
+        
+        printf("Original clauses:           %d\n",
+                    sat_st.num_original_clauses);
+        printf("Original variables:         %d\n", sat_st.num_vars);
+        printf("\n");
+        printf("Time:                       %1.4lf\n", t_final-t_inicial);
+        printf("Expanded nodes:             %ld\n", sat_gs.num_expanded_nodes);
+        printf("Conflicts:                  %ld\n", sat_gs.num_conflicts);
+        printf("Non-chronological jumps:    %ld\n",
+               sat_gs.num_non_chronological_jumps);
+        printf("Learned clauses:            %ld\n",
+                    sat_st.num_clauses + sat_gs.unit_learned_clauses
+                    - sat_st.num_original_clauses);
+        printf("\n");
+    }
     return 0;
 }
 
@@ -126,6 +167,10 @@ void print_usage(){
     printf("\n");
     printf("    -t <time_out>     Abort the execution of the program after 'time_out'\n");
     printf("                      seconds have elapsed\n");
+    printf("\n");
+    printf("    -l                Deactivates the learning algorithms.\n");
+    printf("\n");
+    printf("    -s                Deactivates the statistics analysis.\n");
     printf("\n");
 }
 

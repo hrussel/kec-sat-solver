@@ -179,6 +179,11 @@ typedef struct SAT_status{
  *  @param  detect_pure_literals If set to true, then run the pure
  *          literals detection algorithm on each iteration of the
  *          backtracking. This option is set to FALSE by default.
+ *  @param  restart_max_unit_clauses The maximum number of learned 1-clauses
+ *          until restart.
+ *  @param  print_statistics If set to true, then prints the statistics.
+ *  @param  learn If set to true, activates the learning and conflict analysis
+ *          algorithms.
  */
 typedef struct SAT_global_settings {
 
@@ -189,6 +194,13 @@ typedef struct SAT_global_settings {
     int time_out;
     int detect_pure_literals;
     int restart_max_unit_clauses;
+    int print_statistics;
+    int learn;
+    
+    long num_expanded_nodes;
+    long num_non_chronological_jumps;
+    long unit_learned_clauses;
+    long num_conflicts;
     
 } SAT_global_settings;
 

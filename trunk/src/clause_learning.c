@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * KECOSATS (Kelwin-Eleazar-Carlos Optimized SAT Solver)
+ *
+ * Source code for the clause learning procedures of kecosats solver.
+ *
+ * @author Colmenares, Carlos (06-39380@usb.ve)
+ * @author Fernandez, Kelwin (07-40888@usb.ve)
+ * @author Leal, Eleazar (06-39780@usb.ve)
+ *
+ ******************************************************************************/
+
+
 #include "clause_learning.h"
 
 /**
@@ -62,6 +74,7 @@ void add_cl_to_watcher_list( int clause_index ) {
  **/
 void learn_unit_clause( int* lit ){
     
+    sat_gs.unit_learned_clauses++;
     push(&sat_st.unit_learned_clauses, (void*)lit[0]);
 }
 

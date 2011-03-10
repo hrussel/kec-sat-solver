@@ -186,6 +186,10 @@ void set_initial_sat_status(){
     sat_st.num_original_clauses = sat_st.num_clauses;
     
     sat_gs.restart_max_unit_clauses = 0;
+    sat_gs.num_expanded_nodes = 0;
+    sat_gs.num_non_chronological_jumps = 0;
+    sat_gs.unit_learned_clauses = 0;
+    sat_gs.num_conflicts = 0;
 }
 
 void print_formula(){

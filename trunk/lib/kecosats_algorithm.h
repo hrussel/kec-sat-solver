@@ -16,6 +16,7 @@
  * @author Leal, Eleazar (06-39780@usb.ve)
  *
  ******************************************************************************/
+
 #ifndef _KECOSATS_ALGORITHM_
 #define _KECOSATS_ALGORITHM_
 

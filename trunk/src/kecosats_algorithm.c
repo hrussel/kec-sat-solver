@@ -8,6 +8,7 @@
  * @author Leal, Eleazar (06-39780@usb.ve)
  *
  ******************************************************************************/
+
 #include "kecosats_algorithm.h"
 #include "conflict_analysis.h"
 
@@ -67,26 +68,6 @@ int decide_next_branch(){
             free_variable++;
     }
     
-    /*
-    variable free_variable=sat_st.num_vars + 1;
-    int num_affected_cl = -1;
-    variable free_v = 1;
-    while(  free_v <= sat_st.num_vars ){
-        
-            if ( sat_st.model[free_v] == UNKNOWN
-                && 
-                ( sat_st.pos_watched_list[free_v].size
-                    + sat_st.neg_watched_list[free_v].size > num_affected_cl)
-                )
-            {
-                free_variable = free_v;
-                num_affected_cl = sat_st.pos_watched_list[free_v].size
-                                    + sat_st.neg_watched_list[free_v].size;
-            }
-            free_v++;
-    }
-    */
-    
     //If there are no more variables to assign, report an error
     if( free_variable > sat_st.num_vars ){
         push((&sat_st.backtracking_status), (void*)NULL);
@@ -103,14 +84,6 @@ int decide_next_branch(){
     {
         free_variable = -free_variable;
     }
-    
-    /*
-    if ( free_variable > 0 ){
-        sat_st.model[free_variable] = TRUE;
-    } else {
-        sat_st.model[-free_variable] = FALSE;
-    }
-    */
     
     dec_lev_dat->assigned_literal = free_variable;
     dec_lev_dat->missing_branch = TRUE;
@@ -183,6 +156,8 @@ int solve_sat(){
     
     while ( TRUE ){
         
+        sat_gs.num_expanded_nodes++;
+        
         //Check the top variable in the stack, if the
         //stack is empty, then all possible assignments were tried
         //and the formula is UNSATISFIABLE
@@ -227,12 +202,23 @@ int solve_sat(){
         //If the assignment made the formula FALSE, then backtrack until
         //a variable that can be flipped is found.
         else if( assignment_result == CONFLICT ){
+            
+            sat_gs.num_conflicts++;
+            
             int* lit;
             int clause_length;
             
             int backtrack_to_level;
-            backtrack_to_level = analyze_conflict(&lit, &clause_length);
-            //backtrack_to_level = sat_st.backtracking_status.size;
+            
+            if ( sat_gs.learn && sat_st.clause_available_space > 0 ){
+                backtrack_to_level = analyze_conflict(&lit, &clause_length);
+            } else {
+                backtrack_to_level = sat_st.backtracking_status.size;
+            }
+            
+            if ( sat_st.backtracking_status.size > backtrack_to_level ){
+                sat_gs.num_non_chronological_jumps++;
+            }
             
             // Return to the target level, which can be a non-chronological
             // jump.
@@ -258,8 +244,11 @@ int solve_sat(){
             undo_assignments( top(&sat_st.backtracking_status) );
             clause* learned_clause;
             
-            learned_clause = learn_clause(clause_length, lit);
-            //learned_clause = NULL;
+            if ( sat_gs.learn && sat_st.clause_available_space > 0 ){
+                learned_clause = learn_clause(clause_length, lit);
+            } else {
+                learned_clause = NULL;
+            }
             
             /* If the number of learned 1-clauses is bigger than the maximum
                number let, then make a restart and propagate this variables.
@@ -518,18 +507,7 @@ int unit_propagation( stack* unit_clauses )
                 orig_conflict_clause = NULL;
             }
             else
-            sat_st.impl_graph[implied_var].conflictive_clause = cl;
-            
-            //orig_conflict_clause = cl;
-/*             printf("Conflicto abajo por propagar %d y es clausula %d\n",  */
-/*                    *cl->tail_watcher, cl-sat_st.formula); */
-
-/*             int i=0; */
-/*             printf("el modelo para ella\n"); */
-/*             for(; i< cl->size; i++ ) { */
-/*                 printf(" %d", sat_st.model[abs(cl->literals[i])]); */
-/*             } */
-/*             printf("\n"); */
+                sat_st.impl_graph[implied_var].conflictive_clause = cl;
         }
     }
     
