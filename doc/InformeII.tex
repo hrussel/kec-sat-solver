@@ -19,10 +19,14 @@
 {basicstyle=\small\bf\ttfamily,
 backgroundcolor=\color{gray75},
 }
+\lstdefinestyle{consola2}
+{basicstyle=\footnotesize\bf\ttfamily,
+backgroundcolor=\color{gray75},
+}
 \pagestyle{fancy}
 
 
-\title{Segunda versión de KECOSATS}
+\title{Grupo 3 \\Segunda versión de KECOSATS}
 \author{Carlos Colmenares \and Kelwin Fernández \and Eleazar Leal}
 \begin{document}
 \maketitle
@@ -66,6 +70,19 @@ cualquier mejora en tiempo que se pueda realizar a los algoritmos exponenciales
 hoy conocidos para resolver el problema \emph{SAT} es una mejora para los
 algoritmos exponenciales conocidos para los demás problemas en
 \emph{NP-completos}.
+
+Dejando por los momentos a un lado la discusión anterior sobre \emph{SAT},
+haremos algunos comentarios sobre el conocido problema de \emph{Sudoku}, el cual
+a primera vista pareciera no estar vinculado al anterior. Este último ha
+adquirido en los últimos años una gran notoriedad en el ámbito que ocupan otros
+juegos como los crucigramas. Curiosamente, el problema \emph{Sudoku} comparte
+con \emph{SAT} la peculiaridad de estar en \emph{NP-completos}. Este hecho hace
+del \emph{Sudoku} un problema tanto difícil como interesante el cual tiene a su
+vez otra característica: su naturaleza inherentemente gráfica que lo hace un
+vehículo ameno para estudiar \emph{SAT}.
+
+A continuación describiremos estos problemas, así como la relación entre ellos
+con mayor detalle.
 
 \subsection{Breve descripción del problema} 
 
@@ -148,8 +165,8 @@ concretamente, la siguiente formulación es una reducción polinomial del proble
 
 \textbf{Reducción polinomial de \emph{Sudoku} a \emph{SAT} }
 
-La siguiente reducción polinomial ha sido adaptada de 
-\url{http://www.ldc.usb.ve/~meza/ci-5651/e-m2008/articulosYsoftware/FormulacionSATdeSUDOKU}
+La siguiente reducción polinomial ha sido adaptada de \cite{url}:
+\vspace{-2.5mm}
 
 \begin{itemize}
 \item Para todo $i,j,d \in \{ 1,2,\ldots,N\}$, se definen las variables:
@@ -180,9 +197,17 @@ La siguiente reducción polinomial ha sido adaptada de
 
      \[ \bigwedge_{d=1}^{9} \left( \bigwedge_{1\leq i < j \leq N^2}
        \left( \neg x_{i}^d \vee \neg x_{j}^{d} \right)\right).\]
-\end{enumerate}
 
-\end{itemize}
+\item Por último se agregan las asignaciones preliminares hechas a las casillas
+  del \emph{Sudoku} y que por tanto forman parte de la instancia:
+
+      Para cada $i,j \in \{1,2,\ldots, N\}$ si la casilla $(i,j)$ fue asignada
+      ---de manera preliminar--- con el valor $d \in \{1,2,\ldots,N\}$, entonces
+      se agrega la cláusula:
+
+      \[ x_{i,j}^d= 1.\]
+\end{enumerate}
+\end{itemize}\vspace{-2.5mm}
 \rule{4cm}{0.3mm}
 
 Una vez presentada la anterior formulación de \emph{Sudoku} en términos de
@@ -253,7 +278,7 @@ while(true) {
       conflict_result = analyze_conflict(); 
       if (conflict_result == 0) 
         return UNSATISFIABLE; 
-      else backtrack; 
+      else backtrack(conflict_result); 
     } 
     else if (status == SATISFIABLE) 
       return SATISFIABLE; 
@@ -265,13 +290,17 @@ while(true) {
 
 Uno de los puntos en que esta presentación del algoritmo diverge del que
 presenta \cite{Zhang} es en el análisis de conflicto y en la posibilidad de
-efectuar un \emph{backtracking} no cronológico. En el programa que aquí
-describimos, no se realiza sino una versión muy simplificada de análisis de
-conflicto, en donde no hay aprendizaje de cláusulas y el \emph{backtracking} se
-hace sólo de un nivel de decisión en un nivel de decisión (cronológico).
+efectuar un \emph{backtracking} no cronológico. En esta versión del programa
+KECOSATS que aquí describimos, se realiza el análisis de conflictos, el cual
+permite detectar las causas de los mismos, que unido al aprendizaje de cláusulas
+hace posible que se puedan descartar grandes secciones del espacio de búsqueda a
+través de la ejecución del \emph{backtracking} no cronológico: aquel que frente
+a conflictos puede retroceder, no sólo al nivel inmediatamente anterior, sino
+que puede retroceder dando saltos de longitud mayor a 1, con base en un estudio
+de la naturaleza del conflicto.
 
 Entre las razones por las que se escogió el algorimo DPLL están:
-\begin{enumerate}
+\begin{enumerate}\vspace{-2.5mm}
 \item Este algoritmo es la base para las implementaciones de los
   \emph{SAT-solvers} completos ---no estocásticos--- más eficientes conocidos.
 \item El esquema general del algoritmo es bastante sencillo de implementar como
@@ -279,17 +308,17 @@ Entre las razones por las que se escogió el algorimo DPLL están:
 \end{enumerate}
 \subsection{Fase de selección de variables a asignar}\label{ProxVariable}
 
-En esta primera versión de KECOSATS se propone una heurística para la selección
-de la próxima variable no asignada, a la que se le dará un valor booleano. La
-heurística consiste en seleccionar entre todas las variables no asignadas hasta
-el momento, a aquella variable ---sin importar la polaridad--- que aparezca como
-\emph{watcher} o testigo en el mayor número de cláusulas posible. Ahora bien,
-para seleccionar el valor de verdad que se va a asignar esta variable, se escoge
-aquél valor que genere el mayor número de movimientos de \emph{watchers} en
-todas las cláusulas.
+En esta segunda versión de KECOSATS se conserva la heurística. propuesta en la
+versión primera, para la selección de la próxima variable no asignada, a la que
+se le dará un valor booleano. La heurística consiste en seleccionar entre todas
+las variables no asignadas hasta el momento, a aquella variable ---sin importar
+la polaridad--- que aparezca como \emph{watcher} o testigo en el mayor número de
+cláusulas posible. Ahora bien, para seleccionar el valor de verdad que se va a
+asignar esta variable, se escoge aquél valor que genere el mayor número de
+movimientos de \emph{watchers} en todas las cláusulas.
 
 La ventajas de haber escogido esta heurística son las siguientes:
-\begin{enumerate}
+\begin{enumerate}\vspace{-2.5mm}
 \item En la mayoría de las instancias de pequeño tamaño en las que se probó esta
   heurística, se redujeron los tiempos de ejecución del programa.
 \item La forma de escoger el valor a asignar a la variable, antes descrita,
@@ -329,18 +358,26 @@ nueva fórmula $F_2:\ (x_1 \vee x_2 \vee \overline{x_3}) \wedge (x_1 \vee
 \overline{x_2}) $ y bajo el supuesto de que $x_3=0$ se tiene que $F_2$ es
 satisfactible si y sólo si $F_1$ lo es.
 
-La implementación de la propagación de cláusulas unitarias con 2 testigos por
-cláusula (\cite{Zhang} y \cite{ZhangThesis} los llama \emph{2-watched literals})
-empleada por \emph{zChaff} asocia a cada literal $x_i,\ i\in{1,\ldots,n}$ un par
-de listas, la primera de ellas tiene como elementos a todas las cláusulas en las
-que la el literal $x_i$ ocurre no negado (polaridad positiva) como testigo o
-\emph{watched literal}. La segunda lista asociada a $x_i$ tiene como elementos a
-todas las cláusulas en las que el literal $\overline{x_i}$ ocurre como testigo o
+Para la identificación y propagación de cláusulas unitarias se escogió la
+implementación de la propagación de cláusulas unitarias con 2 testigos por
+cláusula, que es referida por las fuentes (\cite{Zhang} y \cite{ZhangThesis} con
+el nombre de \emph{2-watched literals}). Central en la idea de los
+\emph{2-watched literals} es el concepto del \emph{watcher} o testigo: Dada una
+cláusula, se asocian a ella 2 apuntadores, cada uno apunta a un literal que
+ocurre en la misma cláusula. Estos apuntadores son lo que se conocen con el
+nombre \emph{watchers}.
+
+Los \emph{2-watched literals} es la implementación empleada por \emph{zChaff} y 
+en ella se asocia a cada literal $x_i,\ i\in{1,\ldots,n}$ un par de listas, la
+primera de ellas tiene como elementos a todas las cláusulas en las que la el
+literal $x_i$ ocurre no negado (polaridad positiva) como testigo o \emph{watched
+  literal}. La segunda lista asociada a $x_i$ tiene como elementos a todas las
+cláusulas en las que el literal $\overline{x_i}$ ocurre como testigo o
 \emph{watched literal}.
 
-Asimismo, cada cláusula tiene asociados dos apuntadores a literales que ocurren
-dentro de ella, estos apuntadores son los \emph{watchers} a los que nos hemos
-referido antes.
+Asimismo reiteramos por motivo claridad, que cada cláusula tiene asociados dos
+apuntadores a literales que ocurren dentro de ella, estos apuntadores son los
+\emph{watchers} a los que nos hemos referido antes.
 
 Ahora bien, para detectar si, tras asignar $x_i=0$, una cláusula
 es unitaria se buscan todas las cláusulas en las que aparezca $x_i$ con
@@ -377,7 +414,7 @@ la identificación de cláusulas unitarias son las siguientes:\vspace{-2.5mm}
 \end{enumerate}
 
 Entre las desventajas que trae consigo la implementación de \emph{2-watched
-  literlas} está:\vspace{-2.5mm}
+  literals} está:\vspace{-2.5mm}
 \begin{enumerate}
 \item Cuando es necesario mover alguno de los \emph{watchers}, porque la variable
   a la que apuntan en la cláusula resulta asignada, se debe buscar una nueva
@@ -405,14 +442,102 @@ satisfactible si y sólo si asignando a $x_1$ el valor de verdad se logra que
 $F_2:\ (x_2 \vee \overline{x_3}) \wedge (\overline{x_2}) \wedge
 (\overline{x_3})$ sea satisfecha.
 
-Para la implementación de este mecanismo de deducción se hizo un recorrido por
-todas las cláusulas de la fórmula anotando cuál es la polaridad que se ha
-observado para cada literal. Si en un momento del paseo por las cláusulas de la
-fórmula se encuentra con un literal que ocurre con una polaridad distinta a la
-ya observada anteriormente para ese literal, se descarta que esa variable sea un
-literal puro. Para más detalles consultar más adelante.
+Las implementación de este mecanismo deducción es bastante sencilla. Por tal
+razón decidimos que no es necesario ahondar mucho más al respecto y pasamos de
+inmediato a describirla. Para la implementación de la eliminación de literales
+puros se hizo un recorrido por todas las cláusulas de la fórmula anotando cuál
+es la polaridad que se ha observado para cada literal. Si en un momento del
+paseo por las cláusulas de la fórmula se encuentra con un literal que ocurre con
+una polaridad distinta a la ya observada anteriormente para ese literal, se
+descarta que esa variable sea un literal puro.
 
+Entre las desventajas que acarrea esta implementación de la \emph{eliminación de
+literales puros} está:\vspace{-2.5mm}
+\begin{enumerate}
+\item Un elevado costo en tiempo del programa, por cuanto implica un recorrido
+  por todos los literales de todas las cláusulas de la fórmula.
+\end{enumerate}\vspace{-2.5mm}
 \subsection{Fase de análisis del conflicto}
+
+Esta fase de KECOSATS consiste de la identificación de las causas necesarias y
+suficientes para un dado conflicto, con los siguiente objetivos: evitar este
+mismo conflicto más adelante e implementar el \emph{backtracking no
+  cronológico}.  Ahora daremos unas definiciones preliminares necesarias para
+discutir el grafo de implicaciones, estructura vital para el análisis de
+conflictos.
+
+% Una vez que KECOSATS se encuentra con una situación conflictiva producto de las
+% decisiones de asignación que ha tomado ---y tras la propagación de éstas con la
+% propagación de cláusulas unitarias---, éste busca un camino alternativo en la
+% arborescencia implícita del \emph{backtracking} para tratar así de dar con
+% alguna solución al problema de satisfacción, en caso de que exista. No
+% ahondaremos por ahora en detalle sobre esta arborescencia implícita, porque se
+% discutirá más adelante. 
+
+
+Durante la ejecución de KECOSATS, se asigna a cada variable que se decide $x_i$
+un nivel de decisión $\delta$; esto es un entero mayor que 1 que comparte $x_i$
+con todas las variables unitarias que son propagadas a consecuencia de la
+asignación de $x_i$ y que no comparte con ninguna otra variable. El nivel de
+decisión de manera incremental y la primera variable $x_1$ que decide el
+programa tiene asociado un $\delta(x_1) =1$ al igual que todas las variables
+unitarias que son propagadas tras asignar $x_1$. Luego se decide la variable
+$x_2$ a la que se le asigna $\delta(x_2)=2$ y así sucesivamente.
+
+Una definición que en gran medida simplificará la discusión del grafo de
+implicaciones es el de las asignaciones antecedentes de una variable y
+asociadas a un cláusula. Dada la variable $x$ que ocurre como literal ---bien
+sea como $\overline{x}$ o $x$--- en la cláusula $\omega = v_1 \vee v_2 \vee
+\ldots \vee x \vee \ldots v_n$ del problema, el conjunto de \emph{asignaciones
+  antecedentes} de $x$, escrito $A(x)$, asociadas a la cláusula $\omega$ es
+la colección de asignaciones a variables $v_i \neq x,\ i \in \{1,2,\ldots n\}$
+
+Para el análisis del conflicto, KECOSATS adopta una estrategia introducida por
+Silva y Sakallah en GRASP y por Bayardo y Schrag. \'Esta consiste en armar
+durante la ejecución del \emph{solver} un \emph{grafo de implicaciones} $G$
+definido como sigue\footnote{Esta definición se adaptó de \cite{grasp96}.}:
+\begin{itemize}\vspace{-2.5mm}
+\item Todos los vértices de $G$ son asignaciones de un valor booleano $v(x_i)
+  \in \mathbb{B}$ a una variable $x_i$ del problema.
+\item Los predecesores en $G$ de una asignación $x_i \gets v(x_i)$ son todas las
+  asignaciones antecedentes $A(x_i)$ que están asociadas a la cláusula $\omega$
+  que forzó a $x_i$ a ser asignada por propagación ---porque $x_i$ resultó
+  unitaria en $\omega$. Los lados de los predecesores hacia la asignación $x_i
+  \gets v(x_i)$ se etiquetan con la cláusula $\omega$.
+\item Se agregan unos vértices especiales que denotan los conflictos. Cada
+  conflicto consiste de una cláusula $\omega$ del problema que es falsa bajo las
+  asignaciones hechas. Siendo así, los predecesores de un conflicto son las
+  asignaciones a las variables en $\omega$ que obligaron a que ésta fuera
+  falsa. Los lados que provienen de los predecesores del conflicto asociado a la
+  cláusula $\omega$ están todos etiquetados con $\omega$.
+\end{itemize}\vspace{-2.5mm}
+
+La utilidad de este grafo de implicaciones es \emph{permite identificar
+  asignaciones necesarias y suficientes para que se produzca un conflicto dado}
+obteniendo de ello dos beneficios:
+\begin{itemize}
+\item A partir de esas condiciones necesarias se puede construir una cláusula
+  redundante ---que no altera la satisfactibilidad del problema original--- que
+  se puede agregar a una base de datos de cláusulas y evitar en el futuro que
+  aparezca el mismo conflicto.
+\item A partir de las asignaciones necesarias para que se produzca el conflicto,
+  es posible calcular el mayor nivel de decisión $\delta_{max}$ de todas
+  ellas. Hacer \emph{backtracking} a cualquier nivel de decisión mayor que
+  $\delta_{max}$ producirá el mismo conflicto por las características de estas
+  asignaciones que hemos dicho que son calculables a partir del grafo de
+  implicaciones. Entonces para evitar este conflicto, el \emph{backtracking}
+  debe realizarse hasta el nivel de decisión $\delta_{max}$, que corresponde al
+  nivel en que se realizó la última de estas asignaciones necesarias y
+  suficientes para este conflicto. Si se procede de este modo, se estaría
+  implementando el \emph{backtracking no cronológico}, logrando entonces con
+  ello reducir el espacio de búsqueda.
+\end{itemize}
+
+
+Tal situación conflictiva consiste de al menos una cláusula $C=
+\overline{x_5},\overline{x_6}$ del problema que no es satisfecha con la
+asignación parcial que se ha construido hasta el momento
+
 
 \section{Implementación}
 
@@ -481,8 +606,7 @@ typedef struct SAT_status{
   decisión de $x_i$ en {\tt impl\_graph[i]}.
 
   Para más detalles consultar la sección \ref{impl}.
-
-\end{itemize}
+\end{itemize}\vspace{-2.5mm}
 
 A continuación comentaremos algunos detalles sobre la variable global {\tt
   sat\_st}. La razón por la que se escogió a {\tt sat\_st} de tipo {\tt
@@ -632,7 +756,7 @@ que a continuación describimos:
 Entre las ventajas de la implementación iterativa para el \emph{backtracking} está:
 \vspace{-2.5mm}
 \begin{itemize}
-  \item Resultará más sencillo modificar el programa para implementar un
+  \item Resultó más sencillo modificar el programa para implementar el
     \emph{bactracking} no cronológico, que si se hubiera implementado el
     \emph{backtracking} de manera recursiva.
 \end{itemize}
@@ -645,7 +769,7 @@ con la pila de llamadas a subrutinas.
 
 
 %\subsection{Problemas encontrados y la manera como fueron resueltos}
-\subsection{Implementación de propagación de cláusulas unitarias.}
+\subsection{Implementación de prop. de cláusulas unit.}
 Como se mencionó en la sección \ref{UnitPropagation}, el algoritmo empleado para
 la detección y propagación de cláusulas unitarias es el de los \emph{2-watched
   literals}, que fue propuesto por los desarrolladores del programa
@@ -745,23 +869,43 @@ versión de KECOSATS están:
 \end{itemize}
 
 \section{Instrucciones de operación}
-Para emplear la aplicación, escribir en la consola el comando
+
+\textbf{Pasos para compilar la aplicación:}
+\begin{enumerate}
+\item En el directorio raíz de KECOSATS ---el que contiene a los subdirectorios
+  {\tt /src}, {\tt /lib}, etc.--- escribir el siguiente comando:
 \begin{lstlisting}[style=consola]
-# kec_o_sat_s -f inputfilename -o outputfilename 
+# make sudoku
 \end{lstlisting}
-\noindent donde:
-\vspace{-2.5mm}
+
+Una vez hecho esto, se han compilado los programas {\tt kec\_o\_sat\_s} y {\tt
+  sudoku}, que ahora se encuentran en el directorio raíz.
+
+\end{enumerate}
+
+\textbf{Pasos para ejecutar la aplicación:}
+
+Para emplear la aplicación, escribir en la consola, desde el directorio raíz, el
+comando
+\begin{lstlisting}[style=consola2]
+# ./sudoku -f test/sudoku.in -o sudoku.cnf -e solution.pdf -t 40
+\end{lstlisting}
+donde:
 \begin{itemize}
-\item {\tt inputfilename} es el nombre del archivo que contiene la instancia del
-  problema SAT a resolver. Esta instancia debe estar en el formato DIMACS.
-(Consultar http://logic.pdmi.ras.ru/~basolver/dimacs.html para información sobre
-este formato.)
-\item {\tt outputfilename} es el nombre del archivo que contendrá los resultados
-  generados tras correr el algoritmo.
+\item {\tt test/sudoku.in} Es un archivo con una lista de instancias de
+  \emph{Sudoku}
+\item {\tt sudoku.cnf} Es el archivo {\tt .cnf} que contiene la formulación
+  \emph{SAT} del último caso de prueba que está contenido en {\tt
+    test/sudoku.in}.
+\item {\tt solution.pdf} Es el nombre del archivo {\tt .pdf} que contendrá las
+  soluciones a todas las instancias codificadas en el archivo {\tt
+    test/sudoku.in}.
+\item{\tt 40} Es el límite de tiempo asignado a cada instancia de \emph{Sudoku}.
+  prueba 
 \end{itemize}
 
-Para más detalles acerca de la operación, leer el archivo {\tt README} que se
-incluye con la distribución del programa.
+Para más detalles acerca de la operación, leer los archivos {\tt README} y {\tt
+  README\_SUDOKU} que se incluyen con la distribución del programa.
 \section{Estado Actual}
 El programa se encuentra totalmente operativo.
 
@@ -863,7 +1007,8 @@ casos.
   Fast SAT Solvers''. Reporte Técnico. \emph{Cadence European Laboratories,
     Instituto de Engenharia de Sistemas e Computadores}. 2001.
 \bibitem{grasp96}Marques Silva, J. y Sakallah, Karem: ``Grasp--A New Search
-  Algorithm for Satisfiability''. 1996.
+  Algorithm for Satisfiability''. \emph{Proceedings of the 1996 IEEE/ACM
+    international conference on Computer-aided design}, 1996.
 \bibitem{YatoSeta}Yato, Takayuki y Seta, Takahiro: ``Complexity and Completeness
   of Finding Another Solution and Its Application to Puzzles''  \emph{Trans. IEICE}, E86-A(5), 2003.
 \bibitem{Zhang}Zhang, Lintao y Malik, Sharad: ``The Quest for Efficient Boolean
@@ -871,6 +1016,7 @@ casos.
 \bibitem{ZhangThesis}Zhang, Lintao: ``Searching for truth: Techniques for
   satisfiability of boolean formulas''. \emph{Tesis de doctorado. Princeton
     University}. 2003.
+\bibitem{url}\url{http://www.ldc.usb.ve/~meza/ci-5651/e-m2008/articulosYsoftware/FormulacionSATdeSUDOKU}
 \end{thebibliography}
 
 \end{document}
