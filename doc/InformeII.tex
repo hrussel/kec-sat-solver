@@ -944,7 +944,53 @@ Nota 2: Los tiempos en negrillas en la columna de tiempos para KECOSATS indica
 que este programa, para esa instancia de SUDOKU (transformada a SAT) se
 desempeñó mejor que zChaff en tiempo.
 
-\input{comparacionDesempenoI.tex}
+\begin{center}\textbf{ Tiempos en segundos}\end{center}\vspace{-2.5mm}
+\input{comparacionDesempenoII.tex}
+
+
+Comentarios acerca de los resultados obtenidos, expuestos gráficamente en la
+ilustración de arriba:\vspace{-2.5mm}
+\begin{itemize}
+\item En 15 de los 60 casos de prueba (cerca del 25\% de los casos), KECOSATS
+  tiene un rendimiento \emph{ligeramente mejor} que zChaff. En estos casos, las
+  diferencias de tiempo entre KECOSATS y zChaff son algunas centésimas de
+  segundo.
+\item En 25 de los 60 casos de prueba (cerca del 42\% de los casos), KECOSATS
+  tiene un rendimiento \emph{ligeramente peor} que zChaff. En estos casos, las
+  diferencias de tiempo entre KECOSATS y zChaff son algunas centésimas de
+  segundo.
+\item En 17 de los 60 casos de prueba (cerca del 28\% de los casos), KECOSATS
+  tiene un rendimiento \emph{peor} que zChaff. En este caso, la diferencia de
+  tiempo entre KECOSATS y zChaff es de a lo sumo 62 segundos, cuando zChaff da la
+  respuesta en fracciones de segundo.
+\item En 3 de los 60 casos de prueba (cerca del 5\% de los casos), la demora
+  de KECOSATS en dar una solución es superior a los 6 min, cuando zChaff da
+  resultados en fracciones de segundo.
+\end{itemize}
+
+
+% Comentarios acerca de los resultados obtenidos, expuestos gráficamente en la
+% ilustración de arriba:\vspace{-2.5mm}
+% \begin{itemize}
+% \item En 27 de los 60 casos de prueba (cerca del 50\% de los casos), KECOSATS
+%   tiene un rendimiento \emph{ligeramente mejor} que zChaff. En estos casos, las
+%   diferencias de tiempo entre KECOSATS y zChaff son algunas centésimas de
+%   segundo.
+% \item En 11 de los 60 casos de prueba (cerca del 15\% de los casos), KECOSATS
+%   tiene un rendimiento \emph{ligeramente peor} que zChaff. En estos casos, las
+%   diferencias de tiempo entre KECOSATS y zChaff son algunas centésimas de
+%   segundo.
+% \item En 1 de los 60 casos de prueba (cerca del 2\% de los casos), KECOSATS
+%   tiene un rendimiento \emph{peor} que zChaff. En este caso, la diferencia de
+%   tiempo entre KECOSATS y zChaff es de unos 45 segundos, cuando zChaff da la
+%   respuesta en fracciones de segundo.
+% \item En 21 de los 60 casos de prueba (cerca del 30\% de los casos), la demora
+%   de KECOSATS en dar una solución es superior a los 6 min, cuando zChaff da
+%   resultados en fracciones de segundo.
+% \end{itemize}
+
+%\input{comparacionDesempenoI.tex}
+
 
 Más abajo se incluye una gráfica que permitirá captar más fácilmente las
 diferencias en el rendimiento entre estos dos programas:
@@ -952,25 +998,25 @@ diferencias en el rendimiento entre estos dos programas:
 \includegraphics[scale=0.6]{compare.png}
 \end{center}
 
-Comentarios acerca de los resultados obtenidos, expuestos gráficamente en la
-ilustración de arriba:\vspace{-2.5mm}
-\begin{itemize}
-\item En 27 de los 60 casos de prueba (cerca del 50\% de los casos), KECOSATS
-  tiene un rendimiento \emph{ligeramente mejor} que zChaff. En estos casos, las
-  diferencias de tiempo entre KECOSATS y zChaff son algunas centésimas de
-  segundo.
-\item En 11 de los 60 casos de prueba (cerca del 15\% de los casos), KECOSATS
-  tiene un rendimiento \emph{ligeramente peor} que zChaff. En estos casos, las
-  diferencias de tiempo entre KECOSATS y zChaff son algunas centésimas de
-  segundo.
-\item En 1 de los 60 casos de prueba (cerca del 2\% de los casos), KECOSATS
-  tiene un rendimiento \emph{peor} que zChaff. En este caso, la diferencia de
-  tiempo entre KECOSATS y zChaff es de unos 45 segundos, cuando zChaff da la
-  respuesta en fracciones de segundo.
-\item En 21 de los 60 casos de prueba (cerca del 30\% de los casos), la demora
-  de KECOSATS en dar una solución es superior a los 6 min, cuando zChaff da
-  resultados en fracciones de segundo.
-\end{itemize}
+% Comentarios acerca de los resultados obtenidos, expuestos gráficamente en la
+% ilustración de arriba:\vspace{-2.5mm}
+% \begin{itemize}
+% \item En 27 de los 60 casos de prueba (cerca del 50\% de los casos), KECOSATS
+%   tiene un rendimiento \emph{ligeramente mejor} que zChaff. En estos casos, las
+%   diferencias de tiempo entre KECOSATS y zChaff son algunas centésimas de
+%   segundo.
+% \item En 11 de los 60 casos de prueba (cerca del 15\% de los casos), KECOSATS
+%   tiene un rendimiento \emph{ligeramente peor} que zChaff. En estos casos, las
+%   diferencias de tiempo entre KECOSATS y zChaff son algunas centésimas de
+%   segundo.
+% \item En 1 de los 60 casos de prueba (cerca del 2\% de los casos), KECOSATS
+%   tiene un rendimiento \emph{peor} que zChaff. En este caso, la diferencia de
+%   tiempo entre KECOSATS y zChaff es de unos 45 segundos, cuando zChaff da la
+%   respuesta en fracciones de segundo.
+% \item En 21 de los 60 casos de prueba (cerca del 30\% de los casos), la demora
+%   de KECOSATS en dar una solución es superior a los 6 min, cuando zChaff da
+%   resultados en fracciones de segundo.
+% \end{itemize}
 
 \section{Conclusiones y recomendaciones}
 
@@ -997,7 +1043,7 @@ citar están:
 
   Al respecto de este problema, aprovechamos de comentar que en esta segunda
   versión de KECOSATS se incluye la implementación por arreglo, de una pila de
-  elementos de tipo {\tt decision\_leve\_data}, que, como mencionamos en
+  elementos de tipo {\tt decision\_level\_data}, que, como mencionamos en
   secciones anteriores, es el tipo de dato que almacena toda la información que
   concierne a un nivel de decisión ---la asignación de decisión y las
   asignaciones de propagación generadas por ésta, por ejemplo. Sin embargo, esta
@@ -1033,14 +1079,21 @@ citar están:
 \end{itemize}
 
 Como conclusión de los resultados obtenidos tras la comparación de la demora de
-KECOSATS y la de zChaff para resolver los 60 casos de prueba, concluimos que el
-rendimiento de KECOSATS es aceptable para esta segunda versión del programa
-porque el 67\% de los casos de prueba dieron resultados en un tiempo
-razonable. No obstante, la demora de más de 6 minutos para el 30\% de los casos
-probados es un asunto en el que hay que trabajar con más cuidado. Consideramos
-entonces que las mejoras propuestas en el apartado de arriba merecen especial
-consideración, con el objetivo de disminuir los tiempos de este 30\% de los
-casos.
+KECOSATS y la de zChaff para resolver los 60 casos de prueba, afirmamos que el
+rendimiento de la segunda versión de KECOSATS ha mejorado con respecto a la
+primera versión del programa. Observamos en esta segunda versión de KECOSATS que
+el número de casos de prueba que demoraban más de 6 minutos disminuyó
+considerablemente, porque de los 21 casos de prueba ---cerca del 30\% del total
+de casos--- que en la primera versión demoraban más de 6 minutos en dar
+solución, sólo 3 de ellos tardaron más de ese tiempo para la segunda versión. Si
+sumamos los porcentajes de los números de casos que hemos calificado con
+rendimientos \emph{ligeramente peores} y \emph{ligeramente mejores}, da
+67\%. Ello quiere decir que para este porcentaje de los casos de prueba, los
+rendimientos de KECOSATS y \emph{zChaff} son comparables porque las diferencias
+son de a los sumo algunas centésimas de segundo.  Una vez afirmado lo anterior,
+consideramos entonces que las mejoras propuestas en el apartado de arriba
+merecen especial consideración, con el objetivo de disminuir los tiempos de este
+5\% de los casos que no arrojan resultados en menos de 6 minutos.
 
 \begin{thebibliography}{99}
 \bibitem{Cook}Cook, Stephen: ``The complexity of theorem-proving
