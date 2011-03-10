@@ -489,6 +489,7 @@ sea como $\overline{x}$ o $x$--- en la cláusula $\omega = v_1 \vee v_2 \vee
 \ldots \vee x \vee \ldots v_n$ del problema, el conjunto de \emph{asignaciones
   antecedentes} de $x$, escrito $A(x)$, asociadas a la cláusula $\omega$ es
 la colección de asignaciones a variables $v_i \neq x,\ i \in \{1,2,\ldots n\}$
+que son directamente responsables de que $x$ sea unitaria en $\omega$.
 
 \subsubsection{Grafo de implicaciones}
 Para el análisis del conflicto, KECOSATS adopta una estrategia introducida por
@@ -532,10 +533,17 @@ obteniendo de ello dos beneficios:
   ello reducir el espacio de búsqueda.
 \end{itemize}
 
+Es claro que cada vez que se realiza un paso de \emph{backtracking}, parte del
+grafo de implicaciones debe deshacerse para reflejar el nuevo nivel de decisión
+actual.
+\subsubsection{Cláusula inducida por conflicto}
 
-Tal situación conflictiva consiste de al menos una cláusula $C=
-\overline{x_5},\overline{x_6}$ del problema que no es satisfecha con la
-asignación parcial que se ha construido hasta el momento
+Como hemos indicado, una vez que durante la ejecución de KECOSATS se presenta un
+conflicto, el grafo de implicaciones permite obtener un conjunto de asignaciones
+necesarias 
+% Tal situación conflictiva consiste de al menos una cláusula $C=
+% \overline{x_5},\overline{x_6}$ del problema que no es satisfecha con la
+% asignación parcial que se ha construido hasta el momento
 
 
 \section{Implementación}
@@ -726,9 +734,9 @@ que a continuación describimos:
 \vspace{-2.5mm}
 \begin{enumerate}
 \item El campo {\tt assigned\_literal} contiene el valor y el nombre del literal
-  asignado en un determinado nivel de decisión. Expresado de otra forma,  si
-  $[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} = \mathbb{B} ]$, $k< n$, $v_k
-  \in \mathbb{B}$ es un nodo de la arborescencia recorrida con el
+  asignado en un determinado nivel de decisión. Expresado de otra forma, si
+  $[x_{i_1}=\mathbb{B},x_{i_2}=\mathbb{B},\ldots, x_{i_k} = \mathbb{B} ]$, $k<
+  n$, $v_k \in \mathbb{B}$ es un nodo de la arborescencia recorrida con el
   \emph{backtracking}, en el momento en que se consideran una nueva variable
   $x_{i_{k+1}}$ con un valor booleano se ha creado un nuevo nivel de decisión
   caracterizado por un elemento del tipo {\tt decision\_level\_data} en el
@@ -851,7 +859,7 @@ versión de KECOSATS están:
 \item El problema del manejo de la memoria: Persiste este problema desde la
   primera versión. En varios puntos del programa se emplean listas enlazadas
   para implementar pilas. Así que todas las operaciones de empilamiento ejecutan
-  llamadas al sistema que consumen mucho tiempo. En esta primera entrega se
+  llamadas al sistema que consumen mucho tiempo. En esta segunda entrega se
   decidió mantener esta implementación de pilas que realizan llamadas al sistema
   en cada {\tt push} por el motivo de su sencillez. Se dice ``sencillez'' porque
   para evitarse estas llamadas al sistema KECOSATS tendría que tener su propio
@@ -866,6 +874,16 @@ versión de KECOSATS están:
   algunas instancias pequeñas que KECOSATS se demoraba un poco, se decidió
   sustituir este algoritmo por el que se describió en la sección
   \ref{ProxVariable}, logrando con ello mejorar el desempeño del programa.
+\item El problema de seleccionar qué cláusulas aprender y cuáles cláusulas
+  conservar cuando se acaba el espacio. No es posible suponer no hay un límite
+  para el número de cláusulas que se incorporan a la base de datos de cláusulas
+  aprendidas, así si nunca se eliminan cláusulas aprendidas y si se aprenden
+  todas las cláusulas inducidas por conflicto que se generen, llegará el momento
+  en que el espacio para aprender cláusulas se acabará y habrá que: o dejar de
+  aprender cláusulas o seleccionar una de las aprendidas y eliminarla. Otra
+  alternativa es ser selectivo con las cláusulas que se aprenden, para así
+  controlar la disminución del espacio disponible para el aprendizaje de
+  cláusulas, pero inevitablemente se acabará éste.
 \end{itemize}
 
 \section{Instrucciones de operación}
@@ -928,12 +946,14 @@ desempeñó mejor que zChaff en tiempo.
 
 \input{comparacionDesempenoI.tex}
 
-Más abajo se incluye una gráfica que permitirá captar más fácilmente las diferencias en el rendimiento entre estos dos programas:
+Más abajo se incluye una gráfica que permitirá captar más fácilmente las
+diferencias en el rendimiento entre estos dos programas:
 \begin{center}
 \includegraphics[scale=0.6]{compare.png}
 \end{center}
 
-Comentarios acerca de los resultados obtenidos, expuestos gráficamente en la ilustración de arriba:\vspace{-2.5mm}
+Comentarios acerca de los resultados obtenidos, expuestos gráficamente en la
+ilustración de arriba:\vspace{-2.5mm}
 \begin{itemize}
 \item En 27 de los 60 casos de prueba (cerca del 50\% de los casos), KECOSATS
   tiene un rendimiento \emph{ligeramente mejor} que zChaff. En estos casos, las
@@ -1008,6 +1028,7 @@ citar están:
   espacio de búsqueda y evitar conflictos, como cláusulas más pequeñas. Sería
   recomendable investigar sobre estas heurísticas.
 
+\item 
 
 \end{itemize}
 
