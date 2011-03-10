@@ -188,7 +188,8 @@ typedef struct SAT_global_settings {
     int verbose_mode;
     int time_out;
     int detect_pure_literals;
-
+    int restart_max_unit_clauses;
+    
 } SAT_global_settings;
 
 

@@ -1,6 +1,6 @@
 #include"kecosats_structures.h"
 
-
+extern clause* orig_conflict_clause;
 inline void add_to_watched_list(variable v, clause* cl){
     
     if ( v > 0 ){
@@ -90,6 +90,9 @@ int update_watcher( clause* clause ) {
         // @Assert: This clause is not satisfiable. The literal pointed to by
         // the tail_watcher is already assigned and evaluates to False. 
         // We require here that head_clause->satisfied != TRUE.
+        //printf("   la clausula %d es conflicto\n", clause - sat_st.formula);
+
+        orig_conflict_clause = clause;
         return CONFLICT;
     }
     // @ Assert: We found an unassigned literal distinct not pointed to by the

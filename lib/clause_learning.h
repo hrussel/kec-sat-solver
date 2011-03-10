@@ -33,3 +33,17 @@ void unlearn_clause( int clause_index );
  *
  */
 void unlearn_large_clauses();
+
+/**
+ *
+ *  This function saves the new learned clause of size 1 in a global stack.
+ *  When certain number of clauses of size 1 have been learned, ocurrs an
+ *  restart and the decided and propagated variables are erased.
+ *  
+ *  The restart algorithm will just let the preprocessing variables and the
+ *  variables that ocurrs in the unit clauses with its own value. Then
+ *  propagates this new learned clauses.
+ *  
+ *  @param lit The clause of size 1.
+ **/
+void learn_unit_clause( int* lit );
