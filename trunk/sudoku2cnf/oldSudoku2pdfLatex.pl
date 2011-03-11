@@ -13,7 +13,6 @@ my $case_num = 0;
 my $caso = 0;
 my @sudoku;
 my @current_line;
-my $line;
 my ($solver, $time);
 my $temp_file = $output_file;
 my $i = 0;
@@ -30,6 +29,7 @@ while( <INPUT_FILE> != 0) {
     $caso++;
     print TEMP_FILE "\\Huge{Caso $caso}";
     
+    #my $sudoku_card    = <INPUT_FILE>;
     my @initial_sudoku = split(" ", <INPUT_FILE>);
     my $num_cases = <INPUT_FILE>;
     
@@ -47,6 +47,16 @@ while( <INPUT_FILE> != 0) {
         @sudoku = split(" ", <INPUT_FILE>);
         print_sudoku(@sudoku);
 
+#     print TEMP_FILE "\\begin{sudoku}\n";
+#     while( @sudoku ) {
+#         @current_line = splice( @sudoku, 0, 9); 
+#         print "tam sudoku restante: $#sudoku\n";
+#         @current_line = join("|", @current_line);
+#         unshift  @current_line, "|";
+#         push @current_line, "|.\n";
+#         print TEMP_FILE  @current_line;
+#     }
+#     print TEMP_FILE "\\end{sudoku}\n";
         $num_cases--;
         print TEMP_FILE "\\newpage\n";
     }
@@ -55,12 +65,7 @@ print TEMP_FILE "\\end{document}";
 
 close TEMP_FILE;
 
-#system("pdflatex", "--interaction=batchmode",  $temp_file);
-$output = `pdflatex --interaction=batchmode $temp_file >/dev/null`;
-
-if ($? == -1){
-    print "Fallo de pdflatex, $!\n";
-}
+system("pdflatex", $temp_file);
 #This should be modified!
 system("rm -rf *.aux *.log");
 
@@ -73,9 +78,7 @@ sub print_sudoku() {
         @current_line = join("|", @current_line);
         unshift  @current_line, "|";
         push @current_line, "|.\n";
-        $line = join("", @current_line);
-        $line=~s/0/ /g;
-        print TEMP_FILE $line;
+        print TEMP_FILE  @current_line;
     }
     print TEMP_FILE "\\end{sudoku}\n";
 }
