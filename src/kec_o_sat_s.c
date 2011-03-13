@@ -29,11 +29,6 @@ void catch_alarm();
 
 int main(int argc, char* argv[]){
 
-    if(argc<2){
-        print_usage();
-        exit(1);
-    }
-
     //Parse the arguments, and store them in the SAT_global_settings
     //global variable sat_gs. The next ones are the default
     //options:
@@ -45,7 +40,12 @@ int main(int argc, char* argv[]){
     sat_gs.detect_pure_literals = FALSE;
     sat_gs.print_statistics = TRUE;
     sat_gs.learn = TRUE;
-    
+
+    if(argc<2){
+        print_usage();
+        exit(1);
+    }
+
     {
         int i=1;
         while( i<argc ){

@@ -192,7 +192,7 @@ int solve_sat(){
         }
         
         //If the assignment satisfied the formula, return a positive
-        //answer and finish the funtion
+        //answer and finish the function
         else if( assignment_result == UNIT_CLAUSE ){
             //TODO this should be SATISFIED
             
@@ -467,12 +467,13 @@ int unit_propagation( stack* unit_clauses )
     decision_level_data* dec_level_data
             = (decision_level_data*) top( &(sat_st.backtracking_status) );
     
-    while( !empty(unit_clauses ) && status == DONT_CARE){
+    while( !empty( unit_clauses ) && status == DONT_CARE){
 
         clause* cl = (clause*)top(unit_clauses);
         pop(unit_clauses);
-        
-        if ( sat_st.model[abs(*cl->tail_watcher)] == UNKNOWN ) {
+   
+
+        if ( sat_st.model[abs(*cl->unit_var)] == UNKNOWN ) {
             orig_conflict_clause = cl;
             //return status;
         }
@@ -480,12 +481,12 @@ int unit_propagation( stack* unit_clauses )
         // We need to keep track of the variables that were propagated, to
         // ensure the correctness of the backtracking procedure.
         if ( dec_level_data != NULL ){
-            push( &(dec_level_data->propagated_var), cl->tail_watcher );
+            push( &(dec_level_data->propagated_var), cl->unit_var );
         }
         // Add this implication edge to the implication graph.
-        if ( sat_st.model[abs(*cl->tail_watcher)] == UNKNOWN )
+        if ( sat_st.model[abs(*cl->unit_var)] == UNKNOWN )
         {
-            int implied_var = abs(*cl->tail_watcher);
+            int implied_var = abs(*cl->unit_var);
             
             sat_st.impl_graph[implied_var].decision_level
                 = sat_st.backtracking_status.size;
@@ -496,9 +497,9 @@ int unit_propagation( stack* unit_clauses )
         // Propagate the single variable in each the unitary clause. The
         // tail_watcher points to its single variable.
         
-        status = deduce( *cl->tail_watcher );
+        status = deduce( *cl->unit_var );
         if ( status == CONFLICT ){
-            int implied_var = abs(*cl->tail_watcher);
+            int implied_var = abs(*cl->unit_var);
 
             sat_st.impl_graph[implied_var].decision_level
                 = sat_st.backtracking_status.size;

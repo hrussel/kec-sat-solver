@@ -17,7 +17,7 @@
 extern int* visited;
 
 void set_clause( clause* cl, int clause_length, int lit[] ){
-    
+    //@assert clause_length > 0 
     cl->size = clause_length;
     
     cl->literals = (variable*) malloc (clause_length*sizeof(variable));
@@ -25,20 +25,17 @@ void set_clause( clause* cl, int clause_length, int lit[] ){
     
     cl->head_watcher = cl->literals;
 
-    add_to_watched_list(*cl->literals, cl);
+    add_to_watched_list(*cl->head_watcher, cl);
     
     /* OJO: en este punto habria que chequear que no aparezca una variable
             varias veces, si no podriamos eliminar ocurrencias o hacer true
             la clausula
      */
     
+    cl->tail_watcher = cl->literals + (clause_length-1);
+
     if ( clause_length > 1 ){
-        cl->tail_watcher = cl->literals + 1;
-        
-        add_to_watched_list(*(cl->literals + 1), cl);
-        
-    } else {
-        cl->tail_watcher = cl->head_watcher;
+        add_to_watched_list(*cl->tail_watcher, cl);
     }
 }
 

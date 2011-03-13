@@ -82,6 +82,7 @@ int update_watcher( clause* clause ) {
         
         if ( current_literal_value(clause->tail_watcher) == UNKNOWN ) {
           // @Assert: This clause is a unit clause.
+            clause->unit_var = clause->tail_watcher;
             return UNIT_CLAUSE;
         } else if ( is_satisfied(*(clause->tail_watcher)) ){
             return DONT_CARE;
