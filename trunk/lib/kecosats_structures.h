@@ -49,14 +49,16 @@ typedef list stack;
 *  @param tail_watcher Pointer to one of the clause's literals, which is
           being watched.
 *  @param literals An array of the literals occurring in the clause.
-*  @param satisfied True iff the clause is already satisfied.
-*
+*  @param unit_var When the clause becomes unit, this parameter will
+*         point to the only variable that is not assigned in the clause
 */
 typedef struct clause{
     int size;
     variable* head_watcher;
     variable* tail_watcher;
     variable* literals;
+
+    variable* unit_var;
 } clause;
 
 /**
@@ -133,7 +135,7 @@ typedef struct backtrack_stack{
 *  @param clause_upper_bound An integer such that every learned non-unitary 
 *         clause whose size is larger than or equal to it will be eventually
 *         deleted.
-*  @param clause_available_space Indicates how many clauses be learned, given
+*  @param clause_available_space Indicates how many clauses can be learned, given
 *         the current available space in the formula.
 *  @param num_original_clauses The number of clauses originally given with the
 *         formula.
