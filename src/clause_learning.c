@@ -98,6 +98,11 @@ clause* learn_clause( int clause_length, int lit[] ){
         return NULL;
     }
     
+    if ( clause_length > 15 ){
+        free(lit);
+        return NULL;
+    }
+    
     //TODO at this point we should decide if a learned clause needs to
     //     be deleted and replaced by the lit clause.
     if ( sat_st.clause_available_space == 0 ) {

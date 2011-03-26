@@ -54,7 +54,15 @@ void allocate_sat_status(){
         (list*) malloc( (sat_st.num_vars+1)*sizeof(list) );
     if( sat_st.neg_watched_list == NULL )
         report_io_error(3);
-
+    
+    sat_st.ac = (double*) malloc( (sat_st.num_vars+1)*sizeof(double) );
+    if ( sat_st.ac == NULL )
+        report_io_error(3);
+    
+    sat_st.lit_ac = (int*) malloc( (sat_st.num_vars+1)*sizeof(int) );
+    if ( sat_st.lit_ac == NULL )
+        report_io_error(3);
+    
     memset( sat_st.pos_watched_list, 0, (sat_st.num_vars + 1)*sizeof(list));
     memset( sat_st.neg_watched_list, 0, (sat_st.num_vars + 1)*sizeof(list));
     
@@ -171,6 +179,9 @@ void set_initial_sat_status(){
     for (i = 0; i<=sat_st.num_vars; i++){
         sat_st.impl_graph[i].decision_level = -1;
         sat_st.impl_graph[i].conflictive_clause = 0;
+        
+        sat_st.ac[i] = 0.0;
+        sat_st.lit_ac[i] = 0;
     }
     
     free( buffer );

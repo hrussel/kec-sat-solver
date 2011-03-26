@@ -14,6 +14,7 @@
  *
  * @since 1.0
  ******************************************************************************/
+
 #ifndef _KECOSATS_STRUCTS_
 
 #define _KECOSATS_STRUCTS_
@@ -141,6 +142,11 @@ typedef struct backtrack_stack{
 *         formula.
 *  @param impl_graph Keeps the information that makes possible the construction
 *         of the implication graph for clause learning.
+*  @param decide_next_branching_literal is a pointer to a function that decides
+*         the next branching variable with its polarity.
+*  @param ac An array with the counter of the recent activity of each variable.
+*  @param lit_ac An array that allows to discern between the activities of both
+*         polarities of each variable.
 *
 */
 typedef struct SAT_status{
@@ -162,6 +168,13 @@ typedef struct SAT_status{
     stack unit_learned_clauses;
     
     decision_node *impl_graph;
+    
+    int (*decide_next_branching_literal)();
+    
+    double *ac;
+    int *lit_ac;
+    
+    
 } SAT_status;
 
 /**

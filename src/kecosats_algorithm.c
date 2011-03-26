@@ -11,6 +11,7 @@
 
 #include "kecosats_algorithm.h"
 #include "conflict_analysis.h"
+#include "heuristics.h"
 
 void restart(){
     
@@ -56,34 +57,29 @@ int decide_next_branch(){
     decision_level_data *dec_lev_dat =
         (decision_level_data*)malloc(sizeof(decision_level_data));
     
-    //Initialize the lists
-    dec_lev_dat->propagated_var = *(new_list()); 
-
-    //Choose the next unassigned variable. TODO do this more efficient!
-    
-    variable free_variable=1;
-    while(  free_variable <= sat_st.num_vars &&
-            sat_st.model[free_variable] != UNKNOWN
-        ){
-            free_variable++;
+    if ( dec_lev_dat == NULL ){
+        report_io_error(3);
     }
     
+    //Initialize the lists
+    dec_lev_dat->propagated_var = *(new_list()); 
+    
+    //Choose the next unassigned variable. TODO do this more efficient!
+    variable free_variable = sat_st.decide_next_branching_literal();
+    
+    int abs_free_variable = abs(free_variable);
+    
     //If there are no more variables to assign, report an error
-    if( free_variable > sat_st.num_vars ){
+    if( abs_free_variable > sat_st.num_vars ){
+        
         push((&sat_st.backtracking_status), (void*)NULL);
         
         return SATISFIED;
     }
     
-    sat_st.impl_graph[free_variable].decision_level
+    sat_st.impl_graph[abs_free_variable].decision_level
             = sat_st.backtracking_status.size + 1;
-    sat_st.impl_graph[free_variable].conflictive_clause = NULL;
-    
-    if ( sat_st.pos_watched_list[free_variable].size
-           > sat_st.neg_watched_list[free_variable].size )
-    {
-        free_variable = -free_variable;
-    }
+    sat_st.impl_graph[abs_free_variable].conflictive_clause = NULL;
     
     dec_lev_dat->assigned_literal = free_variable;
     dec_lev_dat->missing_branch = TRUE;
@@ -192,7 +188,7 @@ int solve_sat(){
         }
         
         //If the assignment satisfied the formula, return a positive
-        //answer and finish the function
+        //answer and finish the funtion
         else if( assignment_result == UNIT_CLAUSE ){
             //TODO this should be SATISFIED
             
@@ -204,6 +200,15 @@ int solve_sat(){
         else if( assignment_result == CONFLICT ){
             
             sat_gs.num_conflicts++;
+            
+            if ( sat_gs.num_conflicts % 100 && sat_st.clause_available_space){
+                
+                int i;
+                for ( i=1; i<=sat_st.num_vars; i++){
+                    sat_st.ac[i] /= 2.0;
+                }
+                
+            }
             
             int* lit;
             int clause_length;
@@ -224,7 +229,7 @@ int solve_sat(){
             // jump.
             
             while ( sat_st.backtracking_status.size > backtrack_to_level ){
-                //while(1);
+                
                 undo_assignments( top(&sat_st.backtracking_status) );
                 pop( & sat_st.backtracking_status );
             }
@@ -242,6 +247,7 @@ int solve_sat(){
             // can be flipped.
             
             undo_assignments( top(&sat_st.backtracking_status) );
+            
             clause* learned_clause;
             
             if ( sat_gs.learn && sat_st.clause_available_space > 0 ){
@@ -329,6 +335,10 @@ int solve_sat(){
 }
 
 void undo_assignments(decision_level_data *dec_lev_dat){
+    if ( dec_lev_dat == NULL ){
+        printf("epale\n");
+    }
+    
     //First, unset the assigned variable in the
     //given decision level
     variable assigned_var = abs(dec_lev_dat->assigned_literal);
@@ -467,13 +477,12 @@ int unit_propagation( stack* unit_clauses )
     decision_level_data* dec_level_data
             = (decision_level_data*) top( &(sat_st.backtracking_status) );
     
-    while( !empty( unit_clauses ) && status == DONT_CARE){
+    while( !empty(unit_clauses ) && status == DONT_CARE){
 
         clause* cl = (clause*)top(unit_clauses);
         pop(unit_clauses);
-   
-
-        if ( sat_st.model[abs(*cl->unit_var)] == UNKNOWN ) {
+        
+        if ( sat_st.model[abs(*cl->tail_watcher)] == UNKNOWN ) {
             orig_conflict_clause = cl;
             //return status;
         }
@@ -481,12 +490,12 @@ int unit_propagation( stack* unit_clauses )
         // We need to keep track of the variables that were propagated, to
         // ensure the correctness of the backtracking procedure.
         if ( dec_level_data != NULL ){
-            push( &(dec_level_data->propagated_var), cl->unit_var );
+            push( &(dec_level_data->propagated_var), cl->tail_watcher );
         }
         // Add this implication edge to the implication graph.
-        if ( sat_st.model[abs(*cl->unit_var)] == UNKNOWN )
+        if ( sat_st.model[abs(*cl->tail_watcher)] == UNKNOWN )
         {
-            int implied_var = abs(*cl->unit_var);
+            int implied_var = abs(*cl->tail_watcher);
             
             sat_st.impl_graph[implied_var].decision_level
                 = sat_st.backtracking_status.size;
@@ -497,9 +506,9 @@ int unit_propagation( stack* unit_clauses )
         // Propagate the single variable in each the unitary clause. The
         // tail_watcher points to its single variable.
         
-        status = deduce( *cl->unit_var );
+        status = deduce( *cl->tail_watcher );
         if ( status == CONFLICT ){
-            int implied_var = abs(*cl->unit_var);
+            int implied_var = abs(*cl->tail_watcher);
 
             sat_st.impl_graph[implied_var].decision_level
                 = sat_st.backtracking_status.size;
