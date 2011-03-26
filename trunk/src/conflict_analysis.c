@@ -98,6 +98,13 @@ int* get_conflict_induced_cl( variable abs_literal, int* conflict_cl_length ) {
             // Set the variable as visited.
             visited[abs_pred] = TRUE;
             
+            sat_st.ac[abs_pred] += 1.0;
+            if ( pred > 0 ){
+                sat_st.lit_ac[abs_pred]++;
+            } else {
+                sat_st.lit_ac[abs_pred]--;
+            }
+            
             if ( sat_st.impl_graph[abs_pred].conflictive_clause == NULL){
                 
                 // @assert abs_pred is a decision variable, then it will be

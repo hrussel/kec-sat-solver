@@ -15,14 +15,15 @@
  *
  ******************************************************************************/
 
-#include<stdio.h>
-#include<signal.h>
-#include<unistd.h>
+#include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
 #include <time.h>
 #include <sys/time.h>
-#include"kecosats_structures.h"
-#include"kecosats_algorithm.h"
-#include"sat_io.h"
+#include "kecosats_structures.h"
+#include "kecosats_algorithm.h"
+#include "sat_io.h"
+#include "heuristics.h"
 
 void print_usage();
 void catch_alarm();
@@ -85,6 +86,8 @@ int main(int argc, char* argv[]){
 
     }
     
+    sat_st.decide_next_branching_literal = decide_berkmin;
+    
     double t_inicial, t_final;
     struct timeval t_p; 
     
@@ -97,7 +100,7 @@ int main(int argc, char* argv[]){
     
     //Set the catcher for alarm signals
     signal(SIGALRM, catch_alarm);
-
+    
     //Initialize the instance, print the initial status,
     //and solve
     set_initial_sat_status();

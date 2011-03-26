@@ -34,6 +34,9 @@ int main(int argc, char* argv[]){
         memset(command,0,sizeof(command));
         sprintf(command, "./kec_o_sat_s -f test/%dreinas.cnf -t 100", i);
         system(command);
+        
+        char aux;
+        scanf("%c", &aux);
     }
     
     return 0;

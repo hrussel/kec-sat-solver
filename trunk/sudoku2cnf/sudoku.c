@@ -483,7 +483,9 @@ int main(int argc, char* argv[]){
             free(t[i]);
         }
         free(t);
-
+        
+        char aux;
+        scanf("%c",&aux);
     }
     
     // Generate the pdf
