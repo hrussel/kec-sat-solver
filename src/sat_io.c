@@ -27,11 +27,6 @@ void set_clause( clause* cl, int clause_length, int lit[] ){
 
     add_to_watched_list(*cl->head_watcher, cl);
     
-    /* OJO: en este punto habria que chequear que no aparezca una variable
-            varias veces, si no podriamos eliminar ocurrencias o hacer true
-            la clausula
-     */
-    
     cl->tail_watcher = cl->literals + (clause_length-1);
 
     if ( clause_length > 1 ){

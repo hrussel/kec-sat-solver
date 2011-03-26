@@ -41,7 +41,9 @@ int main(int argc, char* argv[]){
     sat_gs.detect_pure_literals = FALSE;
     sat_gs.print_statistics = TRUE;
     sat_gs.learn = TRUE;
-
+    
+    sat_st.decide_next_branching_literal = decide_kecosats;
+    
     if(argc<2){
         print_usage();
         exit(1);
@@ -76,6 +78,18 @@ int main(int argc, char* argv[]){
             } else if ( strcmp(argv[i], "-s") == 0 ){
                 
                 sat_gs.print_statistics = FALSE;
+                
+            } else if ( strcmp(argv[i], "-hr") == 0 && i+1<argc){
+                
+                if ( argv[i+1][0] == '0' ){
+                    sat_st.decide_next_branching_literal = decide_greedy;
+                    printf("solving with greedy\n");
+                } else if (argv[i+1][0] == '1' ){
+                    sat_st.decide_next_branching_literal = decide_berkmin;
+                } else {
+                    sat_st.decide_next_branching_literal = decide_kecosats;
+                }
+                i++;
             }else {
                 print_usage();                
                 exit(1);
@@ -85,8 +99,6 @@ int main(int argc, char* argv[]){
         }
 
     }
-    
-    sat_st.decide_next_branching_literal = decide_berkmin;
     
     double t_inicial, t_final;
     struct timeval t_p; 

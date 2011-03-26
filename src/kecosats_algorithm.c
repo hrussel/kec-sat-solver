@@ -134,6 +134,10 @@ int preprocess(){
 
 int solve_sat(){
     
+    if ( sat_st.decide_next_branching_literal == decide_kecosats ){
+        initialize_kecosats_heuristic();
+    }
+    
     int status = preprocess();
     
     if ( status == CONFLICT ){
