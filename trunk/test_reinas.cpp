@@ -21,18 +21,24 @@ int main(int argc, char* argv[]){
     for (int i=min; i<=max; i++){
         
         cout << "Test: " << i << "-reinas\n";
-        cout << "Sin Aprendizaje:\n";
+        cout << "Greedy:\n";
         
         char command[100];
         
         memset(command,0,sizeof(command));
-        sprintf(command, "./kec_o_sat_s -l -f test/%dreinas.cnf -t 100", i);
+        sprintf(command, "./kec_o_sat_s -f test/%dreinas.cnf -t 100 -hr 0", i);
         system(command);
         
-        cout << "Con Aprendizaje:\n";
+        cout << "Berkmin:\n";
         
         memset(command,0,sizeof(command));
-        sprintf(command, "./kec_o_sat_s -f test/%dreinas.cnf -t 100", i);
+        sprintf(command, "./kec_o_sat_s -f test/%dreinas.cnf -t 100 -hr 1", i);
+        system(command);
+        
+        cout << "Kecosats:\n";
+        
+        memset(command,0,sizeof(command));
+        sprintf(command, "./kec_o_sat_s -f test/%dreinas.cnf -t 100 -hr 2", i);
         system(command);
         
         char aux;

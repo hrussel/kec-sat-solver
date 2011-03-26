@@ -15,6 +15,7 @@ char* output_pdf_filename;
 int remove_files;
 char command1[10000];
 char command2[10000];
+char command3[10000];
 char command4[10000];
 
 struct timeval t_p; 
@@ -317,12 +318,14 @@ void parse_args(int argc, char* argv[]){
         strcat(command2, tl);
     }
     
-    
     strcat(command2, " > sudoku.out2");
     strcpy(command4, command1);
-    strcat(command4, " -l");
+    strcat(command4, " -hr 0");
+    sprintf(command3, "%s -hr 1", command1);
+    
     strcat(command1, " > salida_aux; rm -rf salida_aux");
     strcat(command4, " > salida_aux; rm -rf salida_aux");
+    strcat(command3, " > salida_aux; rm -rf salida_aux");
 }
 
 void solve_and_read(char* command, int** t, int n, char* solver, FILE* in_pdf){
@@ -397,7 +400,11 @@ int main(int argc, char* argv[]){
     }
     
     // It reads each instance of sudoku problem
+    
+    int T = 0;
     while(fscanf(f, "%d", &n) != EOF){
+        
+        printf("Sudoku #%d\n", ++T);
         
         system("rm -rf sudoku.cnf");
         
@@ -441,7 +448,7 @@ int main(int argc, char* argv[]){
             fprintf(in_pdf, "%d\n", n);
             print_sudoku_pdf(t, n, in_pdf);
             
-            fprintf(in_pdf, "2\n", n);
+            fprintf(in_pdf, "3\n", n);
             
             // Solving with ZCHAFF
             /*
@@ -460,15 +467,21 @@ int main(int argc, char* argv[]){
             // Solving with KEC_O_SAT_S
             
             printf("\n");
-            
-            solve_and_read(command4, t, n, "kecosats", in_pdf);
+            solve_and_read(command4, t, n, "kecosats greedy", in_pdf);
             
             printf("\n");
             print_sudoku(t,n);
             
             system("rm -rf sudoku.out");
             
-            solve_and_read(command1, t, n, "kecosats+learning", in_pdf);
+            solve_and_read(command3, t, n, "kecosats berkmin", in_pdf);
+            
+            printf("\n");
+            print_sudoku(t,n);
+            
+            system("rm -rf sudoku.out");
+            
+            solve_and_read(command1, t, n, "kecosats kecosats", in_pdf);
             
             printf("\n");
             print_sudoku(t,n);

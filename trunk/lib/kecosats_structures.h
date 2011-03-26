@@ -174,7 +174,6 @@ typedef struct SAT_status{
     double *ac;
     int *lit_ac;
     
-    
 } SAT_status;
 
 /**
