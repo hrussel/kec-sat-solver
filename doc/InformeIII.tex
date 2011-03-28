@@ -1180,6 +1180,12 @@ Nota 2: Los tiempos en negrillas en la columna de tiempos para KECOSATS indica
 que este programa (con su heurística KECOSATS), para esa instancia de SUDOKU
 (transformada a SAT) se desempeñó mejor que zChaff en tiempo.
 
+Nota 3: Se presentan los tiempos de KECOSATS con 3 heurísticas distintas de
+selección de variable a asignar y son: Heurística \emph{greedy} ---que
+de las variables $x_1,x_2,\ldots,x_n$, donde $n$ es la cantidad de variables
+totales del problema, toma la variable $x_i$ con el $i$ más pequeño y tal que no
+está asignada. La heurística de \emph{BerkMin} y la heurística de KECOSATS que
+ha sido adaptada a partir de la de \emph{BerkMin}.
 \begin{center}\textbf{ Tiempos en segundos}\end{center}\vspace{-2.5mm}
 \input{comparacionDesempenoIII.tex}
 
