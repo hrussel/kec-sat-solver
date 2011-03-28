@@ -42,6 +42,7 @@ int decide_berkmin(){
                 
                 if ( sat_st.ac[v] > max_activity ){
                     free_variable = v;
+                    max_activity = sat_st.ac[v];
                 }
             }
         }
@@ -55,6 +56,7 @@ int decide_berkmin(){
                 )
             {
                 free_variable = i;
+                max_activity = sat_st.ac[i];
             }
         }
         
@@ -115,6 +117,7 @@ int decide_kecosats(){
                 
                 if ( sat_st.ac[v] > max_activity ){
                     free_variable = v;
+                    max_activity = sat_st.ac[i];
                 }
             }
         }
@@ -128,6 +131,7 @@ int decide_kecosats(){
                 )
             {
                 free_variable = i;
+                max_activity = sat_st.ac[i];
             }
         }
         
@@ -137,7 +141,7 @@ int decide_kecosats(){
         return sat_st.num_vars+1;
     } else {
         
-        if ( sat_st.pos_watched_list[free_variable].size <
+        if ( sat_st.pos_watched_list[free_variable].size >
                 sat_st.neg_watched_list[free_variable].size
             ){
             free_variable = -free_variable;
