@@ -330,7 +330,6 @@ void parse_args(int argc, char* argv[]){
 
 void solve_and_read(char* command, int** t, int n, char* solver, FILE* in_pdf){
     
-    
     double t_inicial, t_final;
     
     if (!gettimeofday(&t_p,NULL))
@@ -396,7 +395,7 @@ int main(int argc, char* argv[]){
             exit(1);
         }
         
-        printf("Report: zchaff , kec_o_sat_s, kec_o_sat_s+learning (seconds)\n");
+        printf("Report: zchaff , kecosats-Greedy, Berkmin, Kecosats (seconds)\n");
     }
     
     // It reads each instance of sudoku problem
@@ -448,43 +447,41 @@ int main(int argc, char* argv[]){
             fprintf(in_pdf, "%d\n", n);
             print_sudoku_pdf(t, n, in_pdf);
             
-            fprintf(in_pdf, "3\n", n);
+            fprintf(in_pdf, "4\n", n);
             
             // Solving with ZCHAFF
-            /*
-            char command3[10000];
-            memset(command3, 0, sizeof(command3));
-            sprintf(command3,
+            char commandz[10000];
+            memset(commandz, 0, sizeof(command3));
+            sprintf(commandz,
                     "%s ; ./sudoku2cnf/parse_zchaff_output %d sudoku.out2 sudoku.out",
                     command2, (n*n)*(n*n)*(n*n));
             
-            solve_and_read(command3, t, n, "zchaff", in_pdf);
+            solve_and_read(commandz, t, n, "zchaff", in_pdf);
             system("rm -rf sudoku.out sudoku.out2");
             
             printf("\n");
-            print_sudoku(t,n);
-            */
+            //print_sudoku(t,n);
             // Solving with KEC_O_SAT_S
             
-            printf("\n");
+            //printf("\n");
             solve_and_read(command4, t, n, "kecosats greedy", in_pdf);
             
             printf("\n");
-            print_sudoku(t,n);
+            //print_sudoku(t,n);
             
             system("rm -rf sudoku.out");
             
             solve_and_read(command3, t, n, "kecosats berkmin", in_pdf);
             
             printf("\n");
-            print_sudoku(t,n);
+            //print_sudoku(t,n);
             
             system("rm -rf sudoku.out");
             
             solve_and_read(command1, t, n, "kecosats kecosats", in_pdf);
             
             printf("\n");
-            print_sudoku(t,n);
+            //print_sudoku(t,n);
             
             system("rm -rf sudoku.out");
             
@@ -497,8 +494,8 @@ int main(int argc, char* argv[]){
         }
         free(t);
         
-        char aux;
-        scanf("%c",&aux);
+        //char aux;
+        //scanf("%c",&aux);
     }
     
     // Generate the pdf
