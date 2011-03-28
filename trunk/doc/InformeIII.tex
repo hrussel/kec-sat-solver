@@ -311,7 +311,7 @@ selección de la variable que se va a asignar. Esta heurística es la que ha sid
 propuesta por Goldberg y Novikov en el trabajo \cite{goldberg} y que está
 incorporada en el programa \emph{BerkMin}.
 
-\subsubsection{Descripción de la heurística de BerkMin}
+\subsubsection{Descripción de la heurística de BerkMin}\label{TeoHeur}
 \footnote{En esta sección se tratan algunas nociones que serán descritas más
   adelante, así que el lector pudiera omitir esta sección en una primera
   lectura.}La heurística de \emph{BerkMin} busca seleccionar como variables para
@@ -341,7 +341,12 @@ Hemos mencionado que se almacena una \emph{aproximación} por dos razones:
   que se realiza en la fase de análisis de conflicto.
 \end{enumerate}
 
-Ahora bien, para seleccionar la variable a asignar, se examina la última cláusula aprendida y de las variables asociadas a literales que ocurran en esta cláusula se escoge la que tenga el mayor valor $ac(x_i)$ y que no esté asignada. Si no hay una variable que no está asignada o si no hay cláusula aprendida, se escoge aquella variable, de entre \emph{todas} las variables del problema, que no esté asignada y que tenga el máximo valor $ac(x_i)$.
+Ahora bien, para seleccionar la variable a asignar, se examina la última
+cláusula aprendida y de las variables asociadas a literales que ocurran en esta
+cláusula se escoge la que tenga el mayor valor $ac(x_i)$ y que no esté
+asignada. Si no hay una variable que no está asignada o si no hay cláusula
+aprendida, se escoge aquella variable, de entre \emph{todas} las variables del
+problema, que no esté asignada y que tenga el máximo valor $ac(x_i)$.
 
 Una vez que se ha descrito el mecanismo que permite aproximar la actividad
 reciente de las variables, queda el problema de determinar cuál valor de verdad
@@ -349,7 +354,20 @@ o falsedad asignar a la variable seleccionada. Para ello \emph{BerkMin} propone
 un contador adicional $ac\_lit(x_i) \in \mathbb{Z}$ para ayudar a discernir cuál
 es el valor de verdad ``más prometedor'' que se puede asignar a $x_i$.
 
-La forma como que actualiza el contador es la siguiente: El contador $lit\_ac(x_i)$ es incrementado en 1 cada vez que se genera una nueva cláusula inducida por conflicto en la que ocurre el literal $x_i$ (con polaridad positiva) y decrementado en 1 cada vez que se genera una nueva cláusula inducida por conflicto en la que ocurre el literal negado $\overline{x_i}$. Para seleccionar cuál valor de verdad asignar a la variable escogida, se examina $lit\_ac(x_i)$. Si el valor es positivo, entonces se escoge la polaridad positiva. Si es negativo, se escoge la polaridad negativa. Si es nulo el valor, se escoge cualquier polaridad.
+La forma como que actualiza el contador es la siguiente: El contador
+$lit\_ac(x_i)$ es incrementado en 1 cada vez que se genera una nueva cláusula
+inducida por conflicto en la que ocurre el literal $x_i$ (con polaridad
+positiva) y decrementado en 1 cada vez que se genera una nueva cláusula inducida
+por conflicto en la que ocurre el literal negado $\overline{x_i}$. Para
+seleccionar cuál valor de verdad asignar a la variable escogida, se examina
+$lit\_ac(x_i)$. Si el valor es positivo, entonces se escoge la polaridad
+positiva. Si es negativo, se escoge la polaridad negativa. Si es nulo el valor,
+se escoge cualquier polaridad.
+
+Como desventaja de esta heurística está que en el peor caso, habrá que recorrer
+la lista completa de variables para encontrar tanto aquella variable que tiene
+mayor actividad reciente.
+
 
 % En principio, si el
 % \emph{backtracking} fuera cronológico y no hubiera aprendizaje de cláusulas,
@@ -361,19 +379,35 @@ La forma como que actualiza el contador es la siguiente: El contador $lit\_ac(x_
 
 \subsubsection{Descripción de la heurística de KECOSATS}
 
-KECOSATS también actualiza la heurística, propuesta en la versión primera, para
-la selección de la próxima variable no asignada, a la que se le dará un valor
-booleano. La heurística consiste en seleccionar entre todas las variables no
-asignadas hasta el momento, a aquella variable ---sin importar la polaridad---
-que aparezca como \emph{watcher} o testigo en el mayor número de cláusulas
-posible. Ahora bien, para seleccionar el valor de verdad que se va a asignar
-esta variable, se escoge aquel valor que genere el mayor número de movimientos
-de \emph{watchers} en todas las cláusulas.
+KECOSATS propone también una heurística propia que guarda alguna relación con
+la heurística de la primera versión de KECOSATS. Para la selección de la próxima
+variable no asignada, a la que se le dará un valor booleano. La heurística
+KECOSATS mantiene el cálculo de la actividad reciente de cada variable $x_i$ en
+el contador $ac(x_i)$. Así que el plan para escoger la variable a asignar
+funciona tal cual como lo sugiere la heurística de \emph{BerkMin}. 
+
+Las diferencias entre la heurística \emph{BerkMin} y KECOSATS son:\vspace{-2.5mm}
+\begin{enumerate}
+\item Al momento de decidir cuál valor de verdad dar a la variable seleccionada
+  para asignar $x_i$, se adopta esta estrategia: 
+
+  Si el número de cláusulas en las que ocurre el literal negado $\overline{x_i}$
+  es mayor que el número de cláusulas en las que ocurre no negado $x_i$
+  entonces, se decide asignar a la variable $x_i$ el valor falso. En caso
+  contrario, se le asigna a $x_i$ un valor de verdad.
+
+\item Antes de comenzar a resolver el problema, la heurística \emph{BerkMin}
+  asigna a los contadores $ac(x_i)$ el valor inicial 0. La heurística KECOSATS,
+  en cambio, da a estos contadores unos valores iniciales fijos.
+\end{enumerate}
 
 La ventajas de haber escogido esta heurística son las siguientes:
 \begin{enumerate}\vspace{-2.5mm}
 \item En la mayoría de las instancias de pequeño tamaño en las que se probó esta
-  heurística, se redujeron los tiempos de ejecución del programa.
+  heurística, se redujeron los tiempos de ejecución del programa. Asimismo, al
+  menos 1 de los problemas \emph{Sudoku} de las 60 instancias que no era
+  resuelto en menos de 50 segundos con la heurística de la segunda versión, pudo
+  ser resuelto con esta nueva heurística en un tiempo mucho más razonable.
 \item La forma de escoger el valor a asignar a la variable, antes descrita,
   sugiere que pudiera ser más probable que se detecten con mayor rapidez los
   conflictos ---en caso de que los hubiera.
@@ -381,8 +415,9 @@ La ventajas de haber escogido esta heurística son las siguientes:
 \end{enumerate}
 
 Como desventaja de esta heurística está que en el peor caso, habrá que recorrer
-la lista completa de variables para encontrar aquel literal que ocurre en el
-mayor número de cláusulas como \emph{watcher}.
+la lista completa de variables para encontrar aquella variable que tiene mayor
+actividad reciente. Tal como se ha mencionado, esta desventaja la comparten las
+heurísticas \emph{BerkMin} y KECOSATS.
 
 \subsection{Fase de deducción}
 
@@ -648,7 +683,7 @@ producirá el mismo conflicto.
 
 \section{Implementación}
 
-El programa que proponemos está orientado por los cambios que se efectúan,
+El programa que proponemos está orientado por los cambios que se realizan,
 durante la ejecución, sobre una variable global de nombre {\tt sat\_st} que es la
 única con el tipo {\tt SAT\_status} en todo el programa. 
 Este tipo de dato registra: \vspace{-4.5mm}
@@ -893,6 +928,16 @@ con la pila de llamadas a subrutinas.
 %\subsection{Problemas encontrados y la manera como fueron resueltos}
 \subsection{Impl. de  la heurística de selección de var.}\label{heur}
 
+En la tercera versión de KECOSATS hay implementadas dos heurísticas de selección
+de variables, la heurística de \emph{BerkMin} y otra heurística nueva que es
+propuesta con KECOSATS. Acotamos en este punto, que la decisión de cuál
+heurística usar en la solución de un problema depende de los parámetros que se
+suministren al programa.
+
+La implementación de las heurísticas de \emph{BerkMin} y la de KECOSATS son tal
+cual se describió en la sección \ref{TeoHeur}.
+
+
 \subsection{Implementación de prop. de cláusulas unit.}
 Como se mencionó en la sección \ref{UnitPropagation}, el algoritmo empleado para
 la detección y propagación de cláusulas unitarias es el de los \emph{2-watched
@@ -1007,6 +1052,26 @@ preprocesamiento y las cláusulas unitarias anteriores--- se propagan las nuevas
 cláusulas aprendidas y se reinicia la búsqueda. La ventaja de proceder así es
 que se poda el espacio de búsqueda a la mitad por cada cláusula aprendida de
 este tipo.
+
+\subsubsection{Ventajas de la implementación escogida para la base de datos de cláusulas}
+Entre las ventajas de esta implementación propuesta para la base de datos de
+cláusulas están: \vspace{-2.5mm}
+
+\begin{itemize}
+\item Es económico en tiempo, porque una vez que se ha decidido aprender una
+  cláusula ---naturalmente que bajo el supuesto de que hay espacio para
+  aprenderla--- inducida por conflicto, agregar ésta a la base de datos toma
+  tiempo constante. Esto es porque el análisis de conflicto retorna la cláusula
+  inducida por conflicto $\omega$ que se ha detectado y para agregarla a la base
+  de datos sólo es necesario copiar los apuntadores a los literales de $\omega$,
+  los apuntadores a sus \emph{watchers} y su número de literales en la última
+  posición del arreglo de cláusulas.
+
+\item La disposición de las cláusulas aprendidas como una pila adyacente al
+  final del arreglo de cláusulas originales permite implementar eficientemente
+  la heurística de selección de variable de \emph{BerkMin}, porque permite
+  obtener en tiempo constante la última cláusula aprendida.
+\end{itemize}
 
 \section{Dificultades encontradas}
 Entre las dificultades encontradas a lo largo del desarrollo de esta tercera
@@ -1221,17 +1286,20 @@ citar están:
   la implementación por listas enlazadas que se propuso en la primera versión de
   KECOSATS.
 
-\item El problema de la selección de la próxima variable, al que nos hemos
-  referido anteriormente en varias oportunidades. La mejora en los tiempos de
-  ejecución de KECOSATS, producto del algoritmo implementado, que consiste en
-  seleccionar la variable que apareza en el mayor número de cláusulas como
-  \emph{watcher}, nos inclina a conjeturar que es posible que otras heurísticas
-  igualmente sencillas puedan producir resultados aún mejores. Es conveniente
-  por ello consultar un poco más a fondo sobre estos algoritmos de selección de
-  variables en fuentes como \cite{Zhang} y \cite{ZhangThesis}, en las que se
-  comenta sobre heurísticas como la  \emph{Variable State Independent Decaying
-    Sum (VSIDS)}. Sería recomendable considerar mejorar la heurística para la
-  tercera versión de KECOSATS.
+\item Los parámetros del problema de la selección de la próxima variable, al que
+  nos hemos referido anteriormente en varias oportunidades. Como se ha descrito
+  antes, los contadores $ac(x_i)$ tienen que ser ``envejecidos'' periódicamente
+  con el fin de que los valores $ac(x_i)$ reflejen la actividad reciente. La
+  manera como se efectúa este envejecimiento es la división por una constante
+  pequeña. Cabe la posibilidad de variaciones en el comportamiento general del
+  algoritmo para valores distintos de esta constante pequeña de
+  envejecimiento. \emph{BerkMin} sugiere el valor 4, en tanto que \emph{zChaff}
+  emplea el valor 2. Sería conveniente explorar con distintos valores para esta
+  constante con el fin de determinar para cuál el desempeño resulta ser mejor.
+  Otros parámetros al problema de la selección de variable usando la heurística
+  KECOSATS, son los valores iniciales de los contadores $ac(x_i)$ ---que son 0
+  para la heurística \emph{BerkMin}. Los mismos comentarios anteriores valen
+  para estos parámetros también.
 
 \item Un tercer asunto sobre el que queremos comentar es el modo en que se
   determina si una cláusula inducida por un conflicto debe ser agregada a la
@@ -1281,10 +1349,10 @@ merecen especial consideración, con el objetivo de disminuir los tiempos de est
 \bibitem{Cook}Cook, Stephen: ``The complexity of theorem-proving
   procedures''. \emph{ACM}, 1971.
 \bibitem{goldberg} Goldberg, Eugene y Novikov, Yakov: ``BerkMin: a Fast and
-  Robust SAT-Solver''. 
+  Robust SAT-Solver''. \emph{Proceedings of the conference on Design, automation
+    and test in Europe}, 2002.
 \bibitem{Karp}Karp, Richard: ``Reducibility Among Combinatorial
-  Problems''. \emph{Complexity of Computer Computations}. 1972.
-  . \emph{ACM}, 1971.
+  Problems''. \emph{Complexity of Computer Computations}, 1972.
 \bibitem{Marques}Lynce, I. y Marques-Silva, J.: ``Efficient Data Structures for
   Fast SAT Solvers''. Reporte Técnico. \emph{Cadence European Laboratories,
     Instituto de Engenharia de Sistemas e Computadores}. 2001.
