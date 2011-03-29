@@ -1186,12 +1186,13 @@ de las variables $x_1,x_2,\ldots,x_n$, donde $n$ es la cantidad de variables
 totales del problema, toma la variable $x_i$ con el $i$ más pequeño y tal que no
 está asignada. La heurística de \emph{BerkMin} y la heurística de KECOSATS que
 ha sido adaptada a partir de la de \emph{BerkMin}.
-\begin{center}\textbf{ Tiempos en segundos}\end{center}\vspace{-2.5mm}
+\begin{center}\textbf{ Tiempos en segundos para \emph{zChaff} y KECOSATS con diversas heurísticas de selección de variable}\end{center}\vspace{-2.5mm}
 \input{comparacionDesempenoIII.tex}
 
 
-Comentarios acerca de los resultados obtenidos, expuestos gráficamente en la
-ilustración de arriba:\vspace{-2.5mm}
+Comentarios acerca de los resultados obtenidos al comparar KECOSATS con la
+\textbf{heurística KECOSATS} con \emph{zChaff} y que son expuestos gráficamente en la ilustración que
+sigue:\vspace{-2.5mm}
 \begin{itemize}
 \item En 24 de los 60 casos de prueba (cerca del 40\% de los casos), KECOSATS
   tiene un rendimiento \emph{ligeramente mejor} que zChaff. En estos casos, las
@@ -1203,11 +1204,11 @@ ilustración de arriba:\vspace{-2.5mm}
   algunas centésimas de segundo.
 \item En 19 de los 60 casos de prueba (cerca del 32\% de los casos), KECOSATS
   tiene un rendimiento \emph{peor} que zChaff. En este caso, la diferencia de
-  tiempo entre KECOSATS (con su heurística KECOSATS) y zChaff es de a lo sumo 53
-  segundos, cuando zChaff da la respuesta en fracciones de segundo.
+  tiempo entre KECOSATS (con su heurística KECOSATS) y \emph{zChaff} es de a lo
+  sumo 53 segundos, cuando \emph{zChaff} da la respuesta en fracciones de segundo.
 \item En 0 de los 60 casos de prueba (el 0\% de los casos), la demora de
   KECOSATS (con su heurística KECOSATS) en dar una solución es superior a los 70
-  min, cuando zChaff da resultados en fracciones de segundo.
+  segundos, cuando \emph{zChaff} da resultados en fracciones de segundo.
 \end{itemize}
 
 
@@ -1319,8 +1320,8 @@ citar están:
   espacio de búsqueda y evitar conflictos, como cláusulas más pequeñas. Sería
   recomendable investigar sobre estas heurísticas.
 
-\item Por último queremos mencionar acerca de los \emph{restart} o
-  reinicios. Esto consiste en que llegado cierto punto en que el \emph{SAT
+\item Un cuarto punto que queremos mencionar trata acerca de los \emph{restart}
+  o reinicios. Esto consiste en que llegado cierto punto en que el \emph{SAT
     solver} no ha encontrado todavía solución, éste decide descartar todas las
   asignaciones que ha hecho hasta el momento para comenzar de nuevo. Sin
   embargo, este nuevo intento de resolución del mismo problema tiene una
@@ -1333,6 +1334,19 @@ citar están:
   cuándo es el momento que pareciera ser más apropiado para ejecutar estos
   reinicios.
 
+\item Por último queremos abordar la propagación de cláusulas unitarias. Para
+  propagar estás cláusulas KECOSATS ejecuta, tal como se mencionó, el algoritmo
+  de los \emph{2-watched literals} propuesto por Chaff. Resulta ser que el
+  desempeño en tiempo de la propagación de cláusulas unitarias es la que termina
+  dominando el tiempo de ejecución del programa completo KECOSATS. De modo pues
+  que grandes mejoras en el desempeño en tiempo pueden alcanzarse si se
+  consiguiera una manera más rápida de efectuar la propagación de estas
+  cláusulas. En \cite{Marques} se comenta que el método de listas
+  \emph{Head/Tail} con \emph{sifting} de literales resulta un tanto más
+  eficiente en cuanto al tiempo que los \emph{watched literals}. Sería
+  recomendable entonces estudiar cómo una implementación con listas
+  \emph{Head/Tail} con \emph{sifting} de literales influiría en los tiempos de
+  KECOSATS.
 \end{itemize}
 
 Como conclusión de los resultados obtenidos tras la comparación de la demora de
@@ -1342,16 +1356,17 @@ primera y segunda versiones del programa. Observamos en esta tercera versión de
 KECOSATS que el número de casos de prueba que demoraban más disminuyó
 considerablemente, porque de los 21 casos de prueba ---cerca del 30\% del total
 de casos--- que en la primera versión demoraban más de 6 minutos en dar
-solución, sólo 3 de ellos tardaron más de ese tiempo para la segunda
+solución, sólo 3 de ellos tardaron más de 100 segundos para la segunda
 versión. Para la tercera versión, no hay un caso de prueba que demore más de 54
-segundos. Si sumamos los porcentajes de los números de casos que hemos
-calificado con rendimientos \emph{ligeramente peores} y \emph{ligeramente
-  mejores}, da 68\%. Ello quiere decir que para este porcentaje de los casos de
-prueba, los rendimientos de KECOSATS y \emph{zChaff} son comparables porque las
-diferencias son de a los sumo algunas centésimas de segundo.  Una vez afirmado
-lo anterior, consideramos entonces que las mejoras propuestas en el apartado de
-arriba merecen especial consideración, con el objetivo de disminuir los tiempos
-de aquellos casos que duran más de 1 segundo.
+segundos si se corre KECOSATS con la heurística KECOSATS. Si sumamos los
+porcentajes de los números de casos que hemos calificado con rendimientos
+\emph{ligeramente peores} y \emph{ligeramente mejores}, da 68\%. Ello quiere
+decir que para este porcentaje de los casos de prueba, los rendimientos de
+KECOSATS y \emph{zChaff} son comparables porque las diferencias son de a los
+sumo algunas centésimas de segundo.  Una vez afirmado lo anterior, consideramos
+entonces que las mejoras propuestas en el apartado de arriba merecen especial
+consideración, con el objetivo de disminuir los tiempos de aquellos casos que
+duran más de 1 segundo.
 
 \begin{thebibliography}{99}
 \bibitem{Cook}Cook, Stephen: ``The complexity of theorem-proving
