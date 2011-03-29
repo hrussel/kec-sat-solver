@@ -133,64 +133,55 @@ este formato.)
 \section{Comentarios adicionales sobre el desempeño de KECOSATS}
 
 A continuación haremos algunos comentarios complementarios acerca del desempeño
-de KECOSATS.
+de KECOSATS con cada una de las 3 heurísticas implementadas para la selección de
+la próxima variable.
+
+ En la sección anterior que presentó la comparación de desempeño entre
+  KECOSATS equipado con 3 heurísticas distintas y \emph{zChaff}, observamos
+  lo siguiente:\vspace{-2.5mm}
 \begin{itemize}
-\item En la sección anterior que presentó la comparación de desempeño entre
-  KECOSATS ---con y sin aprendizaje de cláusulas--- y \emph{zChaff}, observamos
-  que en la mayoría de las instancias probadas de \emph{Sudoku}, el desempeño de
-  KECOSATS con aprendizaje superaba al de KECOSATS sin aprendizaje, y la
-  diferencia era notable para los \emph{Sudoku} ``difíciles'': aquellos que
-  tardaron más de 1 segundo en ser resueltos. Esta diferencia de desempeño entre
-  KECOSATS con aprendizaje y sin aprendizaje puede ser explicada por el número
-  de nodos descartados gracias al aprendizaje, que logran contrarrestar el
-  tiempo invertido en las operaciones de análisis de conflictos como el
-  mantenimiento del grafo implícito y el aprendizaje de cláusulas. Seguidamente
-  comentaremos sobre la cantidad de nodos expandidos en el problema de las
-  N-reinas, dejando aquí el compromiso de incluir una comparación del número de
-  nodos expandidos de KECOSATS con aprendizaje y sin aprendizaje para la
-  siguiente versión de KECOSATS.
-
-\item En las gráficas \ref{NodosExpandidosReinasPeq},
-  \ref{NodosExpandidosReinasPeq2}, \ref{NodosExpandidosReinasGrd}, que resultan
-  de ejecutar KECOSATS con y sin aprendizaje sobre las instancias del problema
-  de las N-reinas para $N=3,4,\ldots,29$, se observa un dato interesante:
-  Prácticamente en todos los casos ---sobre todo para los problemas de N-reinas
-  más grandes, cuando $N\geq 16$--- el número de nodos expandidos durante la
-  ejecución del algoritmo con aprendizaje se reduce a la mitad con respecto a la
-  versión del programa sin aprendizaje. Ejemplos conspicuos son las instancias:
-  $N=22$ y $N=28$.
-
-\item La gráfica \ref{SaltosNCReinas} ilustra la cantidad de saltos no
-  cronológicos da KECOSATS con aprendizaje con las instancias $N=3,4,\ldots,29$
-  del problema de las N-reinas. Naturalmente, para las instancias pequeñas del
-  problema $N<17$, prácticamente no hay saltos no cronológicos; sin embargo,
-  conforme crece la instancia sí se observan saltos no cronológicos de
-  consideración, como es el caso que se presenta con la instancia $N=28$. 
+\item KECOSATS con la heurística \emph{greedy} se desempeñó mejor que
+  \emph{zChaff} en un 46.67\% de las instancias \emph{sudoku}.
+ \item Las tres heurísticas KECOSATS, \emph{BerkMin} y \emph{greedy} demoraron
+   un tiempo comparable con \emph{zChaff} en casi el mismo porcentaje de veces.
+\item La heurística KECOSATS es la que en un mayor porcentaje de las instancias
+  está más cerca del programa que tarde menos tiempo. Esto quiere decir, que en
+  las instancias en que la heurística \emph{greedy} gana en tiempo a la
+  heurística KECOSATS, lo hace por una diferencia pequeña.
+   
 \end{itemize}
 
-\begin{figure}[!ht]\caption{Número de nodos expandidos en las N-reinas, para $3 \leq
-    N \leq 13$}
-\label{NodosExpandidosReinasPeq}
-\includegraphics[scale=0.62]{figura21.png}
-\end{figure}
+% \begin{figure}[!ht]\caption{Número de nodos expandidos en las N-reinas, para $3 \leq
+%     N \leq 13$}
+% \label{NodosExpandidosReinasPeq}
+% \includegraphics[scale=0.62]{figura21.png}
+% \end{figure}
 
-\begin{figure}[!ht]\caption{Número de nodos expandidos en las N-reinas, para $14 \leq
-    N \leq 17$}
-\label{NodosExpandidosReinasPeq2}
-\includegraphics[scale=0.62]{figura22.png}
-\end{figure}
+% \begin{figure}[!ht]\caption{Número de nodos expandidos en las N-reinas, para $14 \leq
+%     N \leq 17$}
+% \label{NodosExpandidosReinasPeq2}
+% \includegraphics[scale=0.62]{figura22.png}
+% \end{figure}
 
-\begin{figure}[!ht]\caption{Número de nodos expandidos en las N-reinas, para $18\leq
-    N \leq 29$}
-\label{NodosExpandidosReinasGrd}
-\includegraphics[scale=0.62,angle=90]{figura3.png}
-\end{figure}
+% \begin{figure}[!ht]\caption{Número de nodos expandidos en las N-reinas, para $18\leq
+%     N \leq 29$}
+% \label{NodosExpandidosReinasGrd}
+% \includegraphics[scale=0.62,angle=90]{figura3.png}
+% \end{figure}
 
-\begin{figure}[!ht]\caption{Número de saltos no cronológicos en las N-reinas}
-\label{SaltosNCReinas}
-\includegraphics[scale=0.62,angle=90]{figura4.png}
-\end{figure}
+\begin{center}
+  \textbf{Comparación de desempeño entre las distintas heurísticas sobre la base
+    del porcentaje de instancias de los 60 casos de prueba de \emph{Sudoku} en
+    que determinada heurística se comportó de cierta forma. }
+\end{center}
+\begin{center}
+\begin{tabular}{c|p{2cm}p{2cm}p{2cm}p{2.5cm}}
+\hline\\\textbf{Heurística} & Mejor que \emph{zChaff} & Comparable con \emph{zChaff} & Mejor de las heurísticas & Comparable con mejor de las heurísticas \\\hline
+\textbf{Greedy}     &   \textbf{46.67}\%          &  \textbf{48.33}\%   &  48.33   \%       & 71.67  \%\\
+\textbf{BerkMin}    &   41.67         \% &  46.67                  \% &   28.33    \%     & 61.67 \%\\
+\textbf{Kecosats}   &  40.31          \% &  46.67                  \% &    25.00
+\%      & \textbf{73.33} \% \\\hline
 
-\newpage\newpage
-
+\end{tabular}
+\end{center}
 \end{document}
