@@ -148,8 +148,10 @@ la próxima variable.
   está más cerca del programa que tarde menos tiempo. Esto quiere decir, que en
   las instancias en que la heurística \emph{greedy} gana en tiempo a la
   heurística KECOSATS, lo hace por una diferencia pequeña.
-   
+\item La heurística KECOSATS pudo resolver las 60 instancias de \emph{sudoku} en menos de 53 segundos. La heurística \emph{greedy}, que como hemos mencionado se desempeñó mejor en un porcentaje mayor de las instancias que la heurística KECOSATS, no pudo resolver 3 casos en menos de 70 segundos. La heurística \emph{BerkMin} por otro lado tampoco pudo resolver 1 caso en menos de 70 segundos.
+\item Como la heurística KECOSATS pudo resolver todos los casos en menos de 53 segundos y en el 73\% de las instancias de \emph{Sudoku} tuvo tiempos comparables con las otras heurísticas, consideramos que es la mejor entre estas tres heurísticas.
 \end{itemize}
+
 
 % \begin{figure}[!ht]\caption{Número de nodos expandidos en las N-reinas, para $3 \leq
 %     N \leq 13$}
@@ -185,14 +187,17 @@ la próxima variable.
 \end{tabular}
 \end{center}
 
+Seguidamente presentamos unas tres gráficas con el objetivo de medir cuál es la cantidad de nodos que expande cada una de las heurísticas. Para ello se ejecutó KECOSATS equipado con cada una de las tres heurísticas sobre varias instancias del problema de las n-reinas (para $n=11,12,\ldots,29$) y se contó la cantidad de nodos expandidos.
+
+Nótese que es para los casos de n-reinas grandes $n\geq 26$ que las heurísticas \emph{BerkMin} y KECOSATS empiezan a dominar a la \emph{greedy}. Este hecho se aprecia sobretodo en las instancias más difíciles de \emph{Sudoku}: a saber, la segunda y la tercera. En estas instancias de \emph{Sudoku} la diferencia de tiempo entre las heurísticas es notable, ver para ello la tabla de comparación de tiempos presentada antes.
 \begin{figure}[!ht]\caption{Número de nodos expandidos en las N-reinas, para $11\leq
-    N \leq 16$}
+    N \leq 16$ por cada heurística.}
 \label{NodosExpandidosReinasGrd}
-\includegraphics[scale=0.82,angle=90]{reinas2Ver3.png}
+\includegraphics[scale=0.57]{reinas2Ver3.png}
 \end{figure}
 
 \begin{figure}[!ht]\caption{Número de nodos expandidos en las N-reinas, para $17\leq
-    N \leq 29$}
+    N \leq 29$. Se comparan 3 heurísticas de decisión de variable.}
 \label{NodosExpandidosReinasGrd}
 \includegraphics[scale=0.82,angle=90]{reinas3Ver3.png}
 \end{figure}
