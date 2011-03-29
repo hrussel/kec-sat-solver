@@ -34,6 +34,9 @@ int decide_berkmin(){
     if ( sat_st.clause_available_space ){
         
         clause* current_top_clause = &sat_st.formula[ sat_st.num_clauses - 1];
+        // Se busca la variable x_i no asignada que tiene literales en la última
+        // cláusula aprendida y tal que ha tenido mayor actividad 
+        // i.e. (mayor valor de ac(x_i)).
         for ( i=0; i< current_top_clause->size; i++){
             if ( sat_st.model[abs(current_top_clause->literals[i])]
                     == UNKNOWN ){
@@ -48,6 +51,10 @@ int decide_berkmin(){
         }
     }
     
+    // Si no encontró literales no asignados que ocurrieran en la última
+    // cláusula aprendida o si no hay una cláusula aprendida, se busca
+    // cuál variable no asignada tiene mayor actividad entre todas las
+    // variables del programa.
     if ( !free_variable ){
         
         for ( i=1; i <= sat_st.num_vars; i++){
@@ -67,6 +74,7 @@ int decide_berkmin(){
         
     }
     
+    // Si no hay variables no asignadas en todo el programa.
     if ( !free_variable ){
         return sat_st.num_vars+1;
     } else {
@@ -108,6 +116,9 @@ int decide_kecosats(){
     if ( sat_st.clause_available_space ){
         
         clause* current_top_clause = &sat_st.formula[ sat_st.num_clauses - 1];
+        // Se busca la variable x_i no asignada que tiene literales en la última
+        // cláusula aprendida y tal que ha tenido mayor actividad 
+        // i.e. (mayor valor de ac(x_i)).
         for ( i=0; i< current_top_clause->size; i++){
             if ( sat_st.model[abs(current_top_clause->literals[i])]
                     == UNKNOWN )
@@ -122,7 +133,11 @@ int decide_kecosats(){
             }
         }
     }
-    
+
+    // Si no encontró literales no asignados que ocurrieran en la última
+    // cláusula aprendida o si no hay una cláusula aprendida, se busca
+    // cuál variable no asignada tiene mayor actividad entre todas las
+    // variables del programa.    
     if ( !free_variable ){
         
         for ( i=1; i <= sat_st.num_vars; i++){
@@ -136,7 +151,7 @@ int decide_kecosats(){
         }
         
     }
-    
+    // Si no hay variables no asignadas en todo el programa.
     if ( !free_variable ){
         return sat_st.num_vars+1;
     } else {
