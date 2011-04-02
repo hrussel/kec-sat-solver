@@ -144,15 +144,15 @@ int main(int argc, char* argv[]){
     
     if ( sat_gs.print_statistics ){
         
-        //printf("Original clauses:           %d\n",
-        //            sat_st.num_original_clauses);
-        //printf("Original variables:         %d\n", sat_st.num_vars);
-        //printf("\n");
+        printf("Original clauses:           %d\n",
+                    sat_st.num_original_clauses);
+        printf("Original variables:         %d\n", sat_st.num_vars);
+        printf("\n");
         printf("Time:                       %1.4lf\n", t_final-t_inicial);
         printf("Expanded nodes:             %ld\n", sat_gs.num_expanded_nodes);
-        //printf("Conflicts:                  %ld\n", sat_gs.num_conflicts);
-        //printf("Non-chronological jumps:    %ld\n",
-        //       sat_gs.num_non_chronological_jumps);
+        printf("Conflicts:                  %ld\n", sat_gs.num_conflicts);
+        printf("Non-chronological jumps:    %ld\n",
+               sat_gs.num_non_chronological_jumps);
         printf("Learned clauses:            %ld\n",
                     sat_st.num_clauses + sat_gs.unit_learned_clauses
                     - sat_st.num_original_clauses);
