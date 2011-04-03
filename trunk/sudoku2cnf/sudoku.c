@@ -57,12 +57,14 @@ void print_sudoku(int** t, int n){
             if ( j % n == 0 ){
                 printf("| ");
             }
-            printf("%d ", t[i][j]);
+            if(t[i][j])
+                printf("%d ", t[i][j]);
+            else
+                printf(". ");
         }
         printf("|\n");
     }
     print_line(n);
-    printf("\n");
 }
 
 void print_sudoku_pdf(int** t, int n, FILE* fd){
@@ -103,9 +105,17 @@ void sudoku2cnf(int** t, int n, char* filename){
     
     variables = n2*n2*n2;
     clauses  = n2*n2*(1 + 4*((n2*(n2-1))/2)) + asig;
+
+    if( filename == NULL)
+        f = fopen("sudoku.cnf", "w+");
+    else
+        f = fopen(filename, "w+");
     
-    f = fopen(filename, "w+");
-    
+    if(f==NULL){
+        printf("Error trying to write a new file on the current dir");
+        exit(1);
+    }
+
     fprintf(f, "p cnf %d %d\n", variables, clauses);
     
     // A value can occur at most once in a cell
@@ -235,11 +245,15 @@ int cnf_output2sudoku(int** t, int n, char* filename, double* time){
 
 void print_help(){
     
-    printf("usage: sudoku -f <input_file_sudoku> -o <output_dimacs_cnf_formula> [OPTIONS]\n");
+    printf("usage: sudoku -f <input_file_sudoku> [OPTIONS]\n");
     printf("\n");
     printf("    OPTIONS:\n");
     printf("\n");
     printf("    -h                Print this message\n");
+    printf("\n");
+    printf("    -o <output_dimacs_cnf_formula>  Write a dimacs cnf formula of the\n");
+    printf("                      last sudoku in the input_file in the\n"); 
+    printf("                      'output_dimacs_cnf_formula' file.\n");
     printf("\n");
     printf("    -e <output_pdf_file>  Write results in a pdf file <output_file>\n");
     printf("                      if it's not provided, the formula will not be\n");
@@ -256,7 +270,6 @@ void parse_args(int argc, char* argv[]){
     input_filename = NULL;
     output_filename = NULL;
     output_pdf_filename = NULL;
-    remove_files = 1;
     
     int time_limit = -1;
     
@@ -282,12 +295,6 @@ void parse_args(int argc, char* argv[]){
             
             output_pdf_filename = argv[++i];
             
-            sprintf(command1,
-                    "./kec_o_sat_s -f %s -o sudoku.out ",
-                    output_filename);
-            sprintf(command2,
-                    "./sudoku2cnf/zchaff/zchaff %s ",
-                    output_filename);
         } else if ( strcmp(argv[i], "-t") == 0){
             
             if ( i == argc ){
@@ -303,29 +310,27 @@ void parse_args(int argc, char* argv[]){
         i++;
     }
     
-    if ( input_filename == NULL || output_filename == NULL ){
+    if ( input_filename == NULL ){
         print_help();
     }
+
+    sprintf(command1,
+            "./kec_o_sat_s -f %s -o sudoku.out",
+            (output_filename==NULL?"sudoku.cnf":output_filename)
+            );
     
-    if ( time_limit != -1  && output_pdf_filename != NULL){
-        char tl[10];
+    if ( time_limit != -1 ){
+        if(time_limit < 0){
+            printf("sudoku solver error: The time limit must be a positive integer\n");
+            exit(1);
+        }
+        char tl[100];
         memset(tl, 0, sizeof tl);
-        sprintf(tl, "-t %d", time_limit);
+        sprintf(tl, " -t %d", time_limit);
         strcat(command1, tl);
-        
-        memset(tl, 0, sizeof tl);
-        sprintf(tl, "%d", time_limit);
-        strcat(command2, tl);
     }
-    
-    strcat(command2, " > sudoku.out2");
-    strcpy(command4, command1);
-    strcat(command4, " -hr 0");
-    sprintf(command3, "%s -hr 1", command1);
-    
-    strcat(command1, " > salida_aux; rm -rf salida_aux");
-    strcat(command4, " > salida_aux; rm -rf salida_aux");
-    strcat(command3, " > salida_aux; rm -rf salida_aux");
+
+    strcat(command1, " > /dev/null;");
 }
 
 void solve_and_read(char* command, int** t, int n, char* solver, FILE* in_pdf){
@@ -349,31 +354,39 @@ void solve_and_read(char* command, int** t, int n, char* solver, FILE* in_pdf){
     }
     
     double time = 0;
-    if (cnf_output2sudoku(t, n, "sudoku.out", &time)){
-        
-        time = t_final - t_inicial;
-        fprintf(in_pdf, "%s\n%1.4lf\n", solver, time);
-        
-        print_sudoku_pdf(t, n, in_pdf);
-    } else {
-        
-        time = -1;
-        fprintf(in_pdf, "%s\n-1\n", solver);
-        
-        int n2 = n*n;
-        n2 *= n2;
-        while(n2--){
-            fprintf(in_pdf, "0 ");
+
+    int solved = cnf_output2sudoku(t, n, "sudoku.out", &time);
+
+    time = solved ? t_final - t_inicial : -1;
+
+    if( in_pdf ){
+        if (solved){
+
+            fprintf(in_pdf, "%s\n%1.4lf\n", solver, time);
+
+            print_sudoku_pdf(t, n, in_pdf);
+        } else {
+
+            fprintf(in_pdf, "%s\n-1\n", solver);
+
+            int n2 = n*n;
+            n2 *= n2;
+            while(n2--){
+                fprintf(in_pdf, "0 ");
+            }
+            fprintf(in_pdf, "\n");
         }
-        fprintf(in_pdf, "\n");
     }
     
-    printf("%1.4lf ", time);
+    if(time!=-1)
+        printf("Solution found in %1.4lfs:\n", time);
+    else
+        printf("Solution not found\n");
 }
 
 int main(int argc, char* argv[]){
     
-    FILE *f, *in_pdf;
+    FILE *f, *in_pdf = NULL;
     int** t;
     char s[BUFFERSIZE];
     int n, i, j, index, s_size, n2;
@@ -394,50 +407,45 @@ int main(int argc, char* argv[]){
             printf("Error: can't open file %s.\n", output_pdf_filename);
             exit(1);
         }
-        
-        printf("Report: zchaff , kecosats-Greedy, Berkmin, Kecosats (seconds)\n");
     }
     
     // It reads each instance of sudoku problem
+
+    n = 3;
+    n2 = n*n;
+
+    // Allocate memmory for the board
+
+    t = (int**)malloc(n2*sizeof(int*));
+    for (i=0; i<n2; i++){
+        t[i] = (int*)malloc(n2*sizeof(int));
+    }
     
     int T = 0;
-    while(fscanf(f, "%d", &n) != EOF){
+    while(fscanf(f, "%s", s) != EOF){
         
         printf("Sudoku #%d\n", ++T);
         
         system("rm -rf sudoku.cnf");
-        
-        n2 = n*n;
-        
-        memset(s, 0, sizeof s);
-        fscanf(f, "%s", s);
-        
-        // Allocate memmory for the board
-        
-        t = (int**)malloc(n2*sizeof(int*));
-        for (i=0; i<n2; i++){
-            t[i] = (int*)malloc(n2*sizeof(int));
-        }
-        
-        index = 0;
+       
         s_size = strlen(s);
         
         // It reads the initial state of each cell in the board
         for (i=0; i<n2; i++){
             for (j=0; j<n2; j++){
                 
-                int num = 0;
-                while( index < s_size && '0' <= s[index] && s[index] <= '9' ){
-                    num = 10*num + (s[index++] - '0');
-                }
-                index++;
+                int num = s[i*n2 + j] - '0';
                 
                 t[i][j] = num;
             }
         }
+        //Print initial sudoku
+        if(output_pdf_filename == NULL){
+            printf("Initial puzzle:\n");
+            print_sudoku(t,n);
+        }
         
         // It transforms the problem of sudoku to a SAT instance.
-        
         sudoku2cnf(t, n, output_filename);
         
         // Call the SAT solvers with the cnf formula.
@@ -447,56 +455,27 @@ int main(int argc, char* argv[]){
             fprintf(in_pdf, "%d\n", n);
             print_sudoku_pdf(t, n, in_pdf);
             
-            fprintf(in_pdf, "3\n", n);
-            
-            // Solving with ZCHAFF
-            //char commandz[10000];
-            //memset(commandz, 0, sizeof(command3));
-            //sprintf(commandz,
-            //        "%s ; ./sudoku2cnf/parse_zchaff_output %d sudoku.out2 sudoku.out",
-            //        command2, (n*n)*(n*n)*(n*n));
-            //
-            //solve_and_read(commandz, t, n, "zchaff", in_pdf);
-            //system("rm -rf sudoku.out sudoku.out2");
-            //
-            //printf("\n");
-            //print_sudoku(t,n);
-            // Solving with KEC_O_SAT_S
-            
-            //printf("\n");
-            solve_and_read(command4, t, n, "kecosats greedy", in_pdf);
-            
-            printf("\n");
-            print_sudoku(t,n);
-            
-            system("rm -rf sudoku.out");
-            
-            solve_and_read(command3, t, n, "kecosats berkmin", in_pdf);
-            
-            printf("\n");
-            print_sudoku(t,n);
-            
-            system("rm -rf sudoku.out");
-            
-            solve_and_read(command1, t, n, "kecosats kecosats", in_pdf);
-            
-            printf("\n");
-            print_sudoku(t,n);
-            
-            system("rm -rf sudoku.out");
-            
+            fprintf(in_pdf, "1\n", n);
         }
-        
-        // Free memory allocated to the sudoku board.
-        
-        for (i=0; i<n2; i++){
-            free(t[i]);
+            
+        solve_and_read(command1, t, n, "kecosats", in_pdf);
+            
+        if(output_pdf_filename == NULL){
+            print_sudoku(t,n);
+            printf("\n");
         }
-        free(t);
+            
+        system("rm -rf sudoku.out");
+
+        if(output_filename == NULL)
+            system("rm -rf sudoku.cnf");
         
-        //char aux;
-        //scanf("%c",&aux);
     }
+    // Free memory allocated to the sudoku board.
+    for (i=0; i<n2; i++){
+        free(t[i]);
+    }
+    free(t);
     
     // Generate the pdf
     
@@ -508,12 +487,15 @@ int main(int argc, char* argv[]){
         memset(command, 0, sizeof command);
         sprintf(command, "perl ./sudoku2cnf/sudoku2pdfLatex.pl auxiliar_pdf sudoku.tex");
         system(command);
+       
+        if(strcmp(output_pdf_filename,"sudoku.pdf")!=0){
+            memset(command, 0, sizeof command);
+            sprintf(command, "mv sudoku.pdf %s", output_pdf_filename);
+            system(command);
+        }
         
-        memset(command, 0, sizeof command);
-        sprintf(command, "cp sudoku.pdf %s", output_pdf_filename);
-        system(command);
-        
-        system("rm -rf auxiliar_pdf sudoku.out sudoku.out2");
+        system("rm -rf auxiliar_pdf sudoku.out sudoku.out2 sudoku.tex");
+
     }
     
     fclose (f);
