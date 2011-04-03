@@ -22,15 +22,15 @@ README FILE
 -----------
 SUMMARY:
 
-(I)     Aditional technical requirements
+(I)     Additional software requirements
 (II)    Compiling
 (III)   Solving sudoku instances
-(IV)    Format for test cases
+(IV)    Test cases' format
 
 HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 
 --------------------------------------------------------------------------------
-(I) Tech Specs
+(I) Additional software requirements
 --------------------------------------------------------------------------------
 
 In adition to the standard technical requirement of the KECOSATS, for solving
@@ -56,20 +56,49 @@ For compiling just execute the "sudoku" target of the Makefile:
 (III) Solving Sudoku instances
 --------------------------------------------------------------------------------
 
-After compiling, for testing sudoku files, just execute the 'sudoku' executable
-in the root directory and pass the correct arguments, E.G.:
+After compiling, for solving sudoku instances, just execute the 'sudoku'
+executable in the root directory and pass the correct arguments
 
-   > cd /opt/kecosats
-   > ./sudoku -f test/sudoku.in -o sudoku.cnf -e solution.pdf -t 2
+-f <input_file_sudoku>:  indicates the input file where to read the sudoku
+                         instances to solve. For an explanation of the
+                         format of this file, refer to the next section of this
+                         README file.
 
-   Where:
+-o <output_dimacs_cnf_formula>:  If this argument is provided, a 'DIMACS CNF'
+                         representation of the last sudoku solved in the
+                         input file is written in the file
+                         "output_dimacs_cnf_formula". For further information
+                         about dimacs, refer to the KECOSATS README file.
 
-   - test/sudoku.in = The input sudoku cases to solve
-   - sudoku.cnf = The output cnf file of the last sudoku case tested
-   - solution.pdf = The solution of all test cases in pdf
-   - 2 = The time limit in seconds for KECOSATS to solve a SAT instance,
-          if the solver takes more than this time, it will abort.
+-e <output_pdf_file>     If this argument is provided, a pdf file named
+                         output_pdf_file is generated with the puzzles
+                         solved. If this argument is not provided, the initial
+                         and solution puzzles are printed through stdout. 
 
-For further information, give tha flag -h to the executable.
+-t <time>                When this argument is provided, a time limit of 'time'
+                         seconds is given for finding the solution of any
+                         sudoku.
+   
+For further information, give the flag -h to the executable.
 
+These are some examples for executing the sudoku solver:
 
+   > ./sudoku -f test/sudoku_test/3_sudokus.in
+   > ./sudoku -f test/sudoku_test/60_sudokus.in -e solution.pdf -t 10
+
+--------------------------------------------------------------------------------
+(IV) Test cases' format
+--------------------------------------------------------------------------------
+
+- Every input file is comprised of several sudoku instances, each one on a
+  single line.
+- Each sudoku test case is comprised of a 81-character string, each
+  character in the range [0,9].
+- Each character represents a number in a cell of the puzzle, 0 means no
+  number is on the cell.
+- The first 9 characters correspond to the first row of the sudoku, from left
+  to right, the next 9 characters belong to the second row and so on
+  => The ith character of the string is the number that belongs to the
+     (i mod 9)th column and (floor (i / 9))th row of the sudoku.
+
+Some sudoku test cases examples can be found in the directory 'test/sudoku_test'

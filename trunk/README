@@ -21,7 +21,7 @@ README FILE
 -----------
 SUMMARY:
 
-(I)     Tech Specs
+(I)     Software requirements
 (II)    Compiling
 (III)   Using the SAT solver's executable file 'kec_o_sat_s'
 (III.1) The DIMACS CNF format
@@ -32,7 +32,7 @@ SUMMARY:
 HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 
 --------------------------------------------------------------------------------
-(I) Tech Specs
+(I) Software requirements
 --------------------------------------------------------------------------------
 
 KECOSATS was writen and tested in several computers using either MAC OS X,
@@ -48,16 +48,16 @@ For compiling the code, the next tools are necessary:
     (c) Doxygen version 1.7.1 (or later, or equal). NOTE: This tool is only
         necessary for generating the documentation (javadoc-like).
 
-This program has not been tested in any non-UNIX-like OS. Thereby, its
-behaviour in such Operating Systems is unknown for the developers of
-KECOSATS.
+This program uses some system libraries and makes special system calls,
+hence it is meant to be tested only in UNIX-like OS. Its behaviour in other
+OS like Windows is unknown for the developers of the KECOSATS.
         
 --------------------------------------------------------------------------------
 (II) Compiling KECOSATS
 --------------------------------------------------------------------------------
 
-0.- Unzip all the files in any directory "alpha" (Quotes for clarity,
-    the directory may have any arbitrary name).
+0.- Unzip or check out all the files in any directory "alpha"
+    (Quotes for clarity, the directory may have any arbitrary name).
     It is necessary for the active user to have read, write and
     execute permissions on "alpha".
 
