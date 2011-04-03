@@ -28,14 +28,14 @@ print TEMP_FILE $string;
 while( <INPUT_FILE> != 0) {
 
     $caso++;
-    print TEMP_FILE "\\Huge{Caso $caso}";
+    print TEMP_FILE "\\Huge{Case $caso}";
     
     my @initial_sudoku = split(" ", <INPUT_FILE>);
     my $num_cases = <INPUT_FILE>;
     
-    print TEMP_FILE "\\begin{center}{\\huge Sudoku Inicial}\\end{center}";
+    print TEMP_FILE "\\begin{center}{\\huge Initial Sudoku Puzzle}\\end{center}";
     print_sudoku(@initial_sudoku);
-    print TEMP_FILE "\\section{Resultados}";
+    print TEMP_FILE "\\section{Results}";
 
     while( $num_cases ) {
         my $sudoku_card = $_;
@@ -43,7 +43,7 @@ while( <INPUT_FILE> != 0) {
 
         chomp($solver = <INPUT_FILE>);
         chomp($time = <INPUT_FILE>);
-        print TEMP_FILE "\n{\\subsection*{Soluci\\'on del solver: $solver}\\subsection*{Tiempo: $time ms.}}\n";
+        print TEMP_FILE "\n{\\subsection*{$solver solution:}\\subsection*{Time: $time ms.}}\n";
         @sudoku = split(" ", <INPUT_FILE>);
         print_sudoku(@sudoku);
 
@@ -59,7 +59,7 @@ close TEMP_FILE;
 $output = `pdflatex --interaction=batchmode $temp_file >/dev/null`;
 
 if ($? == -1){
-    print "Fallo de pdflatex, $!\n";
+    print "pdflatex failure, $!\n";
 }
 #This should be modified!
 system("rm -rf *.aux *.log");

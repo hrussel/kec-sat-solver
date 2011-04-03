@@ -46,14 +46,13 @@ bin/clause_learning.o: $(DEP_clause_learning:%=src/%.c) $(DEP_clause_learning:%=
 
 .PHONY: doc
 
-sudoku:
-	make; $(GCC) sudoku2cnf/sudoku.c -o sudoku;
-	$(GCC) sudoku2cnf/parse_zchaff_output.c -o sudoku2cnf/parse_zchaff_output
+sudoku: sudoku2cnf/sudoku.c
+	make; $(GCC) sudoku2cnf/sudoku.c -o sudoku
 
 doc:
 	doxygen doc/Doxyfile
 clean:
-	rm -f bin/*.o kec_o_sat_s sudoku sudoku2cnf/parse_zchaff_output;
+	rm -f bin/*.o kec_o_sat_s sudoku 
 
 cleandoc:
 	rm -rf doc/html

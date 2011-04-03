@@ -72,9 +72,11 @@ int main(int argc, char* argv[]){
             } else if( strcmp(argv[i],"-t") == 0 && i+1<argc ){
                 
                 sat_gs.time_out = atoi(argv[++i]);
+
             } else if ( strcmp(argv[i],"-l") == 0 ){
                 
                 sat_gs.learn = FALSE;
+
             } else if ( strcmp(argv[i], "-s") == 0 ){
                 
                 sat_gs.print_statistics = FALSE;
@@ -83,13 +85,13 @@ int main(int argc, char* argv[]){
                 
                 if ( argv[i+1][0] == '0' ){
                     sat_st.decide_next_branching_literal = decide_greedy;
-                    printf("solving with greedy\n");
                 } else if (argv[i+1][0] == '1' ){
                     sat_st.decide_next_branching_literal = decide_berkmin;
                 } else {
                     sat_st.decide_next_branching_literal = decide_kecosats;
                 }
                 i++;
+
             }else {
                 print_usage();                
                 exit(1);
@@ -169,9 +171,9 @@ void print_usage(){
     printf("\n");
     printf("    -h                Print this message\n");
     printf("\n");
-    printf("    -o <output_file>  Write results in <output_file>\n");
-    printf("                      if not provided, the reults will\n");
-    printf("                      be writen through the stdout\n");
+    printf("    -o <output_file>  If provided, if the formula is satisfiable, an assignment\n");
+    printf("                      of the variables that satisfies the formula will be written\n");
+    printf("                      in output_file. (Refer to the README file for further information)\n");
     printf("\n");
     printf("    -v                Activates verbose mode; Prints detailed\n");
     printf("                      information about the status of the algorithm\n");

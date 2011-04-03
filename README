@@ -46,7 +46,7 @@ For compiling the code, the next tools are necessary:
     (a) GNU Make 3.81 (or later, or equal)
     (b) gcc 4.4.5 (or later, or equal)
     (c) Doxygen version 1.7.1 (or later, or equal). NOTE: This tool is only
-        necessary for generating the documentation of the code.
+        necessary for generating the documentation (javadoc-like).
 
 This program has not been tested in any non-UNIX-like OS. Thereby, its
 behaviour in such Operating Systems is unknown for the developers of
@@ -89,7 +89,7 @@ KECOSATS.
 (III.1) The DIMACS CNF format
 --------------------------------------------------------------------------------
 
-For providing SAT insances to the KECOSATS, the instance has to be writen in
+For providing SAT insances to the KECOSATS, the instance has to be written in
 a file with the DIMACS CNF format. For further information about this format
 go to:
 
@@ -102,6 +102,25 @@ directory.
 (III.2) Interpreting the 'kec_o_sat_s' output
 --------------------------------------------------------------------------------
 
+If the '-o <output_file>' flag is provided to the program, an assignment for
+the formula's variables will be written in 'output_file' following the
+following format:
+
+If the formula is unsatisfiable:
+    > The output file will contain a single line with the word "UNSAT" (quotes
+      for clarity).
+
+If the formula is satisfiable:
+    > The first line of the output file will contain the string "1 0" (quotes
+      for clarity)
+    > N lines will follow, where N is the number of variables in the formula:
+      The ith line will contain a single number, either "0", "1" or "-1":
+      >> If the ith line contains a "0", for satisfying the formula, the ith
+         variable needs to be assigned with a TRUE value
+      >> If the ith line contains a "1", for satisfying the formula, the ith
+         variable needs to be assigned with a FALSE value
+      >> If the ith line contains a "-1", for satisfying the formula, the ith
+         variable can be assigned with ANY value (either TRUE or FALSE).
 
 --------------------------------------------------------------------------------
 (IV) KECOSATS directoy structure
@@ -115,7 +134,7 @@ doxygen.
     /-------> /src:     Contains the source code (.c) for each of the files
     |                   that comprise the KECOSATS.
     |
-    |-------> /lib      Contains the headers (and documentation of functions)
+    |-------> /lib      Contains the headers (and procedures' documentation)
     |                   for each of the files that comprise the KECOSATS.
     |
     |-------> /bin      After compiling, the generated binary files (.o) are
@@ -125,14 +144,14 @@ root_dir                stored in this directory.
     |                   doxygen documentation for the source code.
     |
     |-------> /test     Contains several test files for testing the KECOSATS.
-    |                   Each test file contains an explanation and expected
-    |                   output.
+    |                   In the subdirectory 'sudoku_tests' some sudoku test
+    |                   cases can be found. 
     |
     \-------> /sudoku2sat   Contains an executable file that transform a sudoku
                             instance to a SAT instance, the output is generated
                             in DIMACS CNF format. For further information,
                             refer to the documentation of the code (inside that
-                            directory)
+                            directory) or the README_SUDOKU file
 
 --------------------------------------------------------------------------------
 (V) Further Information

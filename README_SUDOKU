@@ -25,6 +25,7 @@ SUMMARY:
 (I)     Aditional technical requirements
 (II)    Compiling
 (III)   Solving sudoku instances
+(IV)    Format for test cases
 
 HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 
@@ -55,7 +56,7 @@ For compiling just execute the "sudoku" target of the Makefile:
 (III) Solving Sudoku instances
 --------------------------------------------------------------------------------
 
-After compiling, for tsting sudoku files, just execute the 'sudoku' executable
+After compiling, for testing sudoku files, just execute the 'sudoku' executable
 in the root directory and pass the correct arguments, E.G.:
 
    > cd /opt/kecosats
