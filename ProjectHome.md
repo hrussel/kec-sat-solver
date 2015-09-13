@@ -1,0 +1,1 @@
+A SAT solver coded for the algorithm design course (CI5651) in the Universidad Simón Bolívar. Caracas, Venezuela.
